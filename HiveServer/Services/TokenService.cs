@@ -17,7 +17,12 @@ public class TokenService
 
     public string GenerateToken(string Email)
     {
-		var key = _configuration["Jwt:Key"];
+        var key = Environment.GetEnvironmentVariable("JWT_SECRET");
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_SECRET") ?? _configuration["Jwt:Key"];
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new InvalidOperationException("JWT Secret key cannot be null or empty.");
+        }
 		var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key ?? ""));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
