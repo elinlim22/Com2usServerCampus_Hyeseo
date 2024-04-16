@@ -22,8 +22,8 @@ public class AuthUserRequest
 	[Required]
 	[EmailAddress]
 	public string? Email { get; set; }
-	[Required]
-	public string? Password { get; set; }
+	// [Required]
+	// public string? Password { get; set; } // 필요없는듯. UserGameData.cs에서 확인
 	[Required]
 	public string? Token { get; set; }
 }
