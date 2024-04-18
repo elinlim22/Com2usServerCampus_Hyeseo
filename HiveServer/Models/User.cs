@@ -1,43 +1,39 @@
-using System;
+
+
 using System.ComponentModel.DataAnnotations;
 
-
 namespace HiveServer.Models;
+
 public class User
 {
-	[Key]
-	public Int64 Id { get; set; } // Primary Key
+	public Int32 Id { get; set; }
 	[Required]
 	[EmailAddress]
-	public string? Email { get; set; }
+	public required string Email { get; set; }
 	[Required]
-	public string? Password { get; set; }
-	// public string? Salt { get; set; } // 솔트를 여기에 저장하는게 맞을까?
-	public string? Token { get; set; }
-
+	public string Password { get; set; }
+	public string Salt { get; set; }
+	public string Token { get; set; }
 }
+
 
 public class AuthUserRequest
 {
 	[Required]
 	[EmailAddress]
-	public string? Email { get; set; }
-	// [Required]
-	// public string? Password { get; set; } // 필요없는듯. UserGameData.cs에서 확인
+	public string Email { get; set; }
 	[Required]
-	public string? Token { get; set; }
+	public string Token { get; set; }
 }
 
 public class AuthUserResponse
 {
 	[Required]
 	public Int64 ErrorCode { get; set; }
-	public string? ErrorMessage { get; set; }
 
-	public AuthUserResponse(Int64 errorCode, string errorMessage)
+	public AuthUserResponse(Int64 errorCode)
 	{
 		ErrorCode = errorCode;
-		ErrorMessage = errorMessage;
 	}
 }
 
@@ -45,20 +41,18 @@ public class CreateUserRequest
 {
 	[Required]
 	[EmailAddress]
-	public string? Email { get; set; }
+	public string Email { get; set; }
 	[Required]
-	public string? Password { get; set; }
+	public string Password { get; set; }
 }
 
 public class CreateUserResponse
 {
 	[Required]
 	public Int64 ErrorCode { get; set; }
-	public string? ErrorMessage { get; set; }
 
-	public CreateUserResponse(Int64 errorCode, string errorMessage)
+	public CreateUserResponse(Int64 errorCode)
 	{
 		ErrorCode = errorCode;
-		ErrorMessage = errorMessage;
 	}
 }
