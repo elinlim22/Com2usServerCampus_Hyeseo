@@ -20,7 +20,7 @@ public class AuthUserController
 	[HttpGet]
 	public async Task<AuthUserResponse> AuthUser(AuthUserRequest _user)
 	{
-		var user = await _MemoryDB.GetAsync(_user.Email);
+		var user = await _MemoryDB.GetAsync(_user.Email, 30);
 		if (user == null) // 사용자 없음
 		{
 			return new AuthUserResponse(404);

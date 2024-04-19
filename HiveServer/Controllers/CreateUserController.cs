@@ -32,7 +32,7 @@ public class CreateUserController
 		};
 
 		await _accountDB.CreateUser(user);
-		await _MemoryDB.SetAsync(user);
+		await _MemoryDB.SetAsync(user, 30);
 
 		return new CreateUserResponse(200);
 	}
