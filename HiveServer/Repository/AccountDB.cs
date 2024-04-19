@@ -14,7 +14,9 @@ public class AccountDB : IAccountDB
 	public AccountDB(IConfiguration configuration)
 	{
 		_configuration = configuration;
-		_dbConnection = new MySqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+		var connectionString = _configuration.GetConnectionString("DefaultConnection") ?? "";
+		var replacedConnectionString = connectionString.Replace("{myPassword}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
+		_dbConnection = new MySqlConnection(replacedConnectionString);
 		_dbConnection.Open();
 		_compiler = new SqlKata.Compilers.MySqlCompiler();
 		_queryFactory = new QueryFactory(_dbConnection, _compiler);

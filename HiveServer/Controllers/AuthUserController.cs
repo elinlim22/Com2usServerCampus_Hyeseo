@@ -8,7 +8,7 @@ namespace Hiveserver.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class AuthUserController
+public class AuthUserController : ControllerBase
 {
 	readonly IMemoryDB _MemoryDB;
 
@@ -17,8 +17,8 @@ public class AuthUserController
 		_MemoryDB = MemoryDB;
 	}
 
-	[HttpGet]
-	public async Task<AuthUserResponse> AuthUser(AuthUserRequest _user)
+	[HttpPost]
+	public async Task<AuthUserResponse> AuthUser([FromBody] AuthUserRequest _user)
 	{
 		var user = await _MemoryDB.GetAsync(_user.Email, 30);
 		if (user == null) // 사용자 없음

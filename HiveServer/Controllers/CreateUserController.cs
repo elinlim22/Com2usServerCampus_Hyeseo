@@ -8,7 +8,7 @@ namespace HiveServer.Controllers;
 [ApiController]
 [Route("[controller]")]
 
-public class CreateUserController
+public class CreateUserController : ControllerBase
 {
 	readonly TokenService _tokenService;
 	readonly IAccountDB _accountDB;
@@ -22,7 +22,7 @@ public class CreateUserController
 	}
 
 	[HttpPost]
-	public async Task<CreateUserResponse> CreateUser(CreateUserRequest _user)
+	public async Task<CreateUserResponse> CreateUser([FromBody] CreateUserRequest _user)
 	{
 		var user = new User
 		{
