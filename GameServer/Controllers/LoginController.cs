@@ -6,7 +6,7 @@ using System.Net;
 namespace GameServer.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("[controller]")]
 public class LoginController : ControllerBase
 {
 	readonly IGameDB _gameDB;
@@ -24,11 +24,16 @@ public class LoginController : ControllerBase
 	public async Task<LoginResponse> Login([FromBody] LoginRequest request)
 	{
 		HttpClient client = new();
-		var hiveResponse = await client.PostAsJsonAsync(_configuration["HiveServer"],
+		var hiveResponse = await client.PostAsJsonAsync(_configuration["HiveServer"]! + "/AuthUser",
 											new { Email = request.Email, Token = request.Token });
-		if (hiveResponse == null || hiveResponse.StatusCode != HttpStatusCode.OK)
+		if (hiveResponse == null)
 		{
 			return new LoginResponse(4); // TODO : ErrorCode 정의하기
+		}
+		if (hiveResponse.StatusCode != HttpStatusCode.OK)
+		{
+			Console.WriteLine($"HiveServer Error : {hiveResponse.StatusCode}");
+			return new LoginResponse(3); // TODO : ErrorCode 정의하기
 		}
 		var user = _gameDB.GetUser(request.Email);
 		if (user == null)

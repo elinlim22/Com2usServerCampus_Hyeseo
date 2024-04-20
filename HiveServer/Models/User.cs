@@ -11,8 +11,8 @@ public class User
 	public required string Email { get; set; }
 	[Required]
 	public string Password { get; set; }
-	[Required]
-	public string Salt { get; set; }
+	// [Required]
+	// public string Salt { get; set; }
 	[Required]
 	public string Token { get; set; }
 }
