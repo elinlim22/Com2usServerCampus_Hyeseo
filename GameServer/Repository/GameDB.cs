@@ -1,6 +1,5 @@
 using GameServer.Models;
 using SqlKata.Execution;
-using System.Data;
 using MySql.Data.MySqlClient;
 
 namespace GameServer.Repository;
@@ -9,7 +8,7 @@ public class GameDB : IGameDB
 {
 	readonly IConfiguration _configuration;
 	readonly QueryFactory _queryFactory;
-	readonly IDbConnection _dbConnection;
+	readonly MySqlConnection _dbConnection;
     readonly SqlKata.Compilers.MySqlCompiler _compiler;
 	public GameDB(IConfiguration configuration)
 	{
