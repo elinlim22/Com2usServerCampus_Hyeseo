@@ -5,5 +5,5 @@ namespace GameServer.Models;
 public class LoginResponse(ErrorCode errorCode)
 {
     [Required]
-    public ErrorCode statusCode { get; set; } = errorCode;
+    public ErrorCode StatusCode { get; set; } = errorCode;
 }

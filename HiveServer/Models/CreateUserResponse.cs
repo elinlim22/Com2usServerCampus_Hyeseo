@@ -4,5 +4,5 @@ namespace HiveServer.Models;
 public class CreateUserResponse(ErrorCode errorCode)
 {
     [Required]
-    public ErrorCode statusCode { get; set; } = errorCode;
+    public ErrorCode StatusCode { get; set; } = errorCode;
 }
