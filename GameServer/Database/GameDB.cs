@@ -37,9 +37,13 @@ public class GameDB : IGameDB
 			Win = user.Win,
 			Lose = user.Lose
 		});
+		if (affectedRows == 0)
+		{
+			throw new Exception("Failed to create userGameData instance");
+		}
 		return affectedRows;
 	}
-	public async Task<UserGameData?> UpdateUser(UserGameData user)
+	public async Task<UserGameData> UpdateUser(UserGameData user)
 	{
 		var affectedRows = await _queryFactory.Query("UserGameData").Where("Email", user.Email).UpdateAsync(new
 		{
@@ -50,21 +54,21 @@ public class GameDB : IGameDB
 		});
 		if (affectedRows == 0)
 		{
-			return null;
+			throw new Exception("Failed to update userGameData instance");
 		}
 		return user;
 	}
-	public async Task<UserGameData?> DeleteUser(string email)
+	public async Task<UserGameData> DeleteUser(string email)
 	{
 		var user = await GetUser(email);
 		if (user == null)
 		{
-			return null;
+			throw new Exception("User not found");
 		}
 		var affectedRows = await _queryFactory.Query("UserGameData").Where("Email", email).DeleteAsync();
 		if (affectedRows == 0)
 		{
-			return null;
+			throw new Exception("Failed to delete userGameData instance");
 		}
 		return user;
 	}

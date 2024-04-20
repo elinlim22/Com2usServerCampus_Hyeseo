@@ -2,6 +2,7 @@ using HiveServer.Models;
 using HiveServer.Services;
 using HiveServer.Repository;
 using Microsoft.AspNetCore.Mvc;
+using ZLogger;
 
 namespace Hiveserver.Controllers;
 
@@ -11,26 +12,30 @@ namespace Hiveserver.Controllers;
 public class AuthUserController : ControllerBase
 {
 	readonly IMemoryDB _MemoryDB;
+	readonly ILogger<AuthUserController> _logger;
 
-	public AuthUserController(IMemoryDB MemoryDB)
+	public AuthUserController(IMemoryDB MemoryDB, ILogger<AuthUserController> logger)
 	{
 		_MemoryDB = MemoryDB;
+		_logger = logger;
 	}
 
 	[HttpPost]
 	public async Task<AuthUserResponse> AuthUser([FromBody] AuthUserRequest _user)
 	{
-		var user = await _MemoryDB.GetAsync(_user.Email, 30);
-		if (user == null) // 사용자 없음
+		var user = await _MemoryDB.GetAsync(_user.Email, ExpiryDays.TokenExpiry);
+		if (user == null)
 		{
-			return new AuthUserResponse(404);
+			_logger.ZLogError($"User {_user.Email} not found");
+			return new AuthUserResponse(ErrorCode.UserNotFound);
 		}
-		if (user.Token != _user.Token) // 토큰 불일치
+		if (user.Token != _user.Token)
 		{
-			return new AuthUserResponse(401);
+			_logger.ZLogError($"Token mismatch for user {_user.Email}");
+			return new AuthUserResponse(ErrorCode.InvalidToken);
 		}
 
-		return new AuthUserResponse(200);
+		return new AuthUserResponse(ErrorCode.Success);
 	}
 
 }

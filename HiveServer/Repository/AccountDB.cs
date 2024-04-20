@@ -29,6 +29,10 @@ public class AccountDB : IAccountDB
 			Password = user.Password,
 			Token = user.Token
 		});
+		if (affectedRows == 0)
+		{
+			throw new Exception("Failed to create user instance");
+		}
 		return affectedRows;
 	}
 }

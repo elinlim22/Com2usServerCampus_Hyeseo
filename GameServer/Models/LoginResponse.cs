@@ -2,13 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace GameServer.Models;
 
-public class LoginResponse
+public class LoginResponse(ErrorCode errorCode)
 {
-	[Required]
-	public Int64 ErrorCode { get; set; }
-
-	public LoginResponse(Int64 errorCode)
-	{
-		ErrorCode = errorCode;
-	}
+    [Required]
+    public ErrorCode statusCode { get; set; } = errorCode;
 }
