@@ -44,7 +44,6 @@ public class CreateUserController : ControllerBase
 			_logger.ZLogError($"Error creating user {_user.Email}: {e.Message}");
 			return new CreateUserResponse(ErrorCode.UserCreationFailed);
 		}
-
 		return new CreateUserResponse(ErrorCode.Success);
 	}
 }

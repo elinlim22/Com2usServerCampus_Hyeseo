@@ -1,5 +1,4 @@
 using HiveServer.Models;
-using HiveServer.Services;
 using HiveServer.Repository;
 using Microsoft.AspNetCore.Mvc;
 using ZLogger;
@@ -13,7 +12,6 @@ public class AuthUserController : ControllerBase
 {
 	readonly IMemoryDB _MemoryDB;
 	readonly ILogger<AuthUserController> _logger;
-
 	public AuthUserController(IMemoryDB MemoryDB, ILogger<AuthUserController> logger)
 	{
 		_MemoryDB = MemoryDB;
@@ -34,8 +32,6 @@ public class AuthUserController : ControllerBase
 			_logger.ZLogError($"Token mismatch for user {_user.Email}");
 			return new AuthUserResponse(ErrorCode.InvalidToken);
 		}
-
 		return new AuthUserResponse(ErrorCode.Success);
 	}
-
 }
