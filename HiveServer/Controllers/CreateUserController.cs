@@ -32,7 +32,8 @@ public class CreateUserController : ControllerBase
 			var user = new User
 			{
 				Email = _user.Email,
-				Password = new HashData().HashPassword(_user.Password),
+				Salt = Security.GenerateSalt(),
+				Password = Security.HashPassword(_user.Password),
 				Token = _tokenService.GenerateToken(_user.Email)
 			};
 			await _accountDB.CreateUser(user);

@@ -11,7 +11,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddTransient<IAccountDB, AccountDB>();
 builder.Services.AddSingleton<IMemoryDB, MemoryDB>();
 builder.Services.AddScoped<TokenService>();
-builder.Services.AddScoped<HashData>();
+builder.Services.AddScoped<Security>();
 
 builder.Logging.AddZLoggerConsole(options =>
 {
