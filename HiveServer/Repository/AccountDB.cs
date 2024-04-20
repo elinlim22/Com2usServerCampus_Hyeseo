@@ -1,6 +1,5 @@
 using HiveServer.Models;
 using SqlKata.Execution;
-using System.Data;
 using MySql.Data.MySqlClient;
 
 namespace HiveServer.Repository;
@@ -9,7 +8,7 @@ public class AccountDB : IAccountDB
 {
 	readonly IConfiguration _configuration;
 	readonly QueryFactory _queryFactory;
-	readonly IDbConnection _dbConnection;
+	readonly MySqlConnection _dbConnection;
     readonly SqlKata.Compilers.MySqlCompiler _compiler;
 	public AccountDB(IConfiguration configuration)
 	{
