@@ -1,0 +1,8 @@
+POST http://localhost:11502/CreateUser
+Content-Type: application/json
+
+{
+  "ID":"jacking751",
+  "PW":"123qwe",
+  "NickName": "aaa"
+}

@@ -1,9 +1,0 @@
-@HiveServer_HostAddress = http://localhost:11502
-
-POST http://localhost:11500/CreateUser
-Content-Type: application/json
-
-POST http://localhost:11500/AuthUser
-Content-Type: application/json
-
-###
