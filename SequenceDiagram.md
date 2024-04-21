@@ -1,32 +1,38 @@
-title Hive Server & Game Server
+Hive Server & Game Server
 
-```mermaid
+```mermaEmail
 sequenceDiagram
-    actor 유저
-    participant 게임서버
-    participant 하이브서버
+    actor client
+    participant GameServer
     participant GameRedis
     participant GameMySQL
+    participant HiveServer
     participant HiveRedis
     participant HiveMySQL
 
 
-    유저->>하이브서버: 계정생성 요청(이메일, 비밀번호)
-    하이브서버->>HiveMySQL: 유저 정보 저장(ID, 이메일, 비밀번호)
-    하이브서버->>HiveRedis: 유저 토큰 저장(ID, 토큰)
-    하이브서버-->>유저: 계정생성 응답(ID, 토큰)
-    유저->>게임서버: 로그인 요청(ID, 토큰)
-    게임서버->>하이브서버: 유효성 검사(ID, 토큰)
-    하이브서버->>HiveRedis: 토큰 검색(ID, 토큰)
-    HiveRedis-->>하이브서버: 토큰 검색 결과
-    하이브서버-->>게임서버: 응답(유효성 여부)
-    alt 토큰 불일치
-    게임서버-->>유저: 로그인 실패
+    client->>HiveServer: Create User Request(Email, Password)
+    HiveServer->>HiveMySQL: User Data(Email, Password)
+    HiveServer->>HiveRedis: Set Token(Email, Token)
+    HiveServer-->>client: Create User Resposne(StatusCode)
+    client->>HiveServer: Login Request(Email, Password)
+    HiveServer->>HiveRedis: Get Token(Email)
+    HiveRedis-->>HiveServer: Token
+    HiveServer-->>client: Login Response(Email, Token, StatusCode)
+    client->>GameServer: Login Request(Email, Token)
+    GameServer->>GameRedis: Get Token(Email)
+    GameRedis-->>GameServer: Token
+    GameServer->>HiveServer: Validation(Email, Token)
+    HiveServer->>HiveRedis: Get Token(Email, Token)
+    HiveRedis-->>HiveServer: Token
+    HiveServer-->>GameServer: AuthUser Response(Validity)
+    alt Token mismatch
+    GameServer-->>client: Login fail
     end
-    게임서버->>GameRedis: 유저 토큰 저장(ID, 토큰)
-    게임서버->>GameMySQL: 게임데이터 불러오기
-    GameMySQL-->>게임서버: 게임데이터
-    alt 게임데이터 없음
-    게임서버->>GameMySQL: 게임데이터 생성
+    GameServer->>GameRedis: Set Client Token(Email, Token)
+    GameServer->>GameMySQL: Get UserGameData
+    GameMySQL-->>GameServer: UserGameData
+    alt UserGameData not found
+    GameServer->>GameMySQL: Create UserGameData
     end
 

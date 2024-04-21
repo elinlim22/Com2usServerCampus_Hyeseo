@@ -26,9 +26,10 @@ public class LoginController : ControllerBase
 	[HttpPost]
 	public async Task<LoginResponse> Login([FromBody] LoginRequest request)
 	{
-		HttpClient client = new();
+		var token = await _memoryDB.GetAsync(request.Email, ExpiryDays.RedisExpiry) ?? request.Token;
+        HttpClient client = new();
 		var hiveResponse = await client.PostAsJsonAsync(_configuration["HiveServer"]! + "/AuthUser",
-											new { Email = request.Email, Token = request.Token });
+											new { Email = request.Email, Token = token });
 		if (hiveResponse == null)
 		{
 			_logger.ZLogError($"HiveServer is not responding : {_configuration["HiveServer"]}");
@@ -45,7 +46,6 @@ public class LoginController : ControllerBase
 			{
 				var newUser = new UserGameData { Email = request.Email, Level = 1, Exp = 0, Win = 0, Lose = 0 };
 				await _gameDB.CreateUserGameData(newUser);
-				await _memoryDB.SetAsync(newUser, ExpiryDays.RedisExpiry);
 			}
 			catch (Exception e)
 			{
@@ -53,6 +53,7 @@ public class LoginController : ControllerBase
 				return new LoginResponse(ErrorCode.UserCreationFailed);
 			}
 		}
+		await _memoryDB.SetAsync(request.Email, request.Token, ExpiryDays.RedisExpiry);
 		return new LoginResponse(ErrorCode.Success);
 	}
 }

@@ -34,4 +34,10 @@ public class AccountDB : IAccountDB
 		}
 		return affectedRows;
 	}
+	public async Task<User> GetUser(string email)
+	{
+		var query = _queryFactory.Query("Users").Where("Email", email);
+		var user = await query.FirstOrDefaultAsync<User>();
+		return user;
+	}
 }
