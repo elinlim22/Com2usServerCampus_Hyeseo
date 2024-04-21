@@ -1,7 +1,16 @@
-POST http://localhost:11500/Login
+POST http://localhost:11502/Login
 Content-Type: application/json
 
 {
   "ID":"jacking751",
   "PW":"123qwe"
+}
+
+POST http://localhost:11502/CreateUser
+Content-Type: application/json
+
+{
+  "ID":"jacking751",
+  "PW":"123qwe",
+  "NickName": "aaa"
 }
