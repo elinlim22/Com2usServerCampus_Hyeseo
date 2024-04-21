@@ -4,6 +4,6 @@ namespace HiveServer.Repository;
 
 public interface IMemoryDB
 {
-	public Task<User> SetAsync(User user, ExpiryDays expiryDays);
-	public Task<User> GetAsync(string email, ExpiryDays expiryDays);
+	public Task<string> SetAsync(string email, string token, ExpiryDays expiryDays);
+	public Task<string> GetAsync(string email, ExpiryDays expiryDays);
 }

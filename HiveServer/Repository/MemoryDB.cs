@@ -16,18 +16,18 @@ public class MemoryDB : IMemoryDB
 		_redisConnection = new RedisConnection(_redisConfig);
 	}
 
-	public async Task<User> SetAsync(User user, ExpiryDays expiryDays)
+	public async Task<string> SetAsync(string email, string token, ExpiryDays expiryDays)
 	{
-		RedisString<User> redisString = new(_redisConnection, user.Email, TimeSpan.FromDays(((double)expiryDays)));
-		await redisString.SetAsync(user);
-		return user;
+		RedisString<string> redisString = new(_redisConnection, email, TimeSpan.FromDays((double)expiryDays));
+		await redisString.SetAsync(token);
+		return token;
 	}
 
-	public async Task<User> GetAsync(string email, ExpiryDays expiryDays)
+	public async Task<string> GetAsync(string email, ExpiryDays expiryDays)
 	{
-		RedisString<User> redisString = new(_redisConnection, email, TimeSpan.FromDays((double)expiryDays));
-		RedisResult<User> redisResult = await redisString.GetAsync();
-		var user = redisResult.Value;
-		return user;
+		RedisString<string> redisString = new(_redisConnection, email, TimeSpan.FromDays((double)expiryDays));
+		RedisResult<string> redisResult = await redisString.GetAsync();
+		var token = redisResult.Value;
+		return token;
 	}
 }

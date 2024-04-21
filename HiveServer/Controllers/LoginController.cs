@@ -35,7 +35,7 @@ public class LoginController : ControllerBase
 			return new LoginResponse(_user.Email, "", ErrorCode.InvalidPassword);
 		}
 		user.Token = _tokenService.GenerateToken(user.Email);
-		await _MemoryDB.SetAsync(user, ExpiryDays.TokenExpiry);
+		await _MemoryDB.SetAsync(user.Email, user.Token, ExpiryDays.TokenExpiry);
 		return new LoginResponse(user.Email, user.Token, ErrorCode.Success);
 	}
 }
