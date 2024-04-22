@@ -1,6 +1,6 @@
 Hive Server & Game Server
 
-```mermaEmail
+```mermaid
 sequenceDiagram
     actor client
     participant GameServer
