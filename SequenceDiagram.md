@@ -38,4 +38,4 @@ sequenceDiagram
     alt UserGameData not found
     GameServer->>GameMySQL: Create UserGameData
     end
-
+```
