@@ -91,13 +91,13 @@ public partial class PutStoneResponse : PacketHeader
 
 /* ---------------------------------- 게임 종료 --------------------------------- */
 [MemoryPackable]
-public partial class GameEndResponse : PacketHeader
+public partial class EndGameResponse : PacketHeader
 {
     public bool Result { get; set; }
 }
 
 [MemoryPackable]
-public partial class GameEndRequest : PacketHeader
+public partial class EndGameRequest : PacketHeader
 {
     public string? RoomName { get; set; }
 }

@@ -6,7 +6,7 @@ public enum PacketDefine : Int32
     HeaderSize = 5,
 }
 
-public enum PakcetType : Int32
+public enum PacketType : Int32
 {
     LoginRequest = 1,
     LoginResponse,
@@ -20,6 +20,6 @@ public enum PakcetType : Int32
     StartGameResponse,
     PutStoneRequest,
     PutStoneResponse,
-    GameEndRequest,
-    GameEndResponse,
+    EndGameRequest,
+    EndGameResponse,
 }

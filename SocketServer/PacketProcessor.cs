@@ -2,27 +2,26 @@ using System.Threading.Tasks.Dataflow;
 
 namespace SocketServer;
 
-public class PacketProcessor
+public class PacketProcessor(HandlerDictionary handlerDictionary)
 {
     bool _isRunning = false;
-    System.Threading.Thread? _thread = null;
+    Thread? _thread = null;
     BufferBlock<RequestInfo> _bufferBlock = new();
     public Int32 _id;
     public Int32 _size;
-    public byte[]? _data;
+    public HandlerDictionary _handlerDictionary = handlerDictionary;
 
     public void Start()
     {
+        _thread = new Thread(Process);
         _isRunning = true;
-        _thread = new System.Threading.Thread(Process);
         _thread.Start();
     }
 
     public void ReadHeader(byte[] buffer, int offset, int length)
     {
         _id = BitConverter.ToInt32(buffer, offset);
-        _size = BitConverter.ToInt32(buffer, offset + 4);
-        // 데이터를 언제 복사하지?
+        _size = BitConverter.ToInt32(buffer, offset + sizeof(Int32));
     }
 
     public void Process()
@@ -36,13 +35,9 @@ public class PacketProcessor
             }
 
             // 패킷의 헤더를 읽는다.
-            ReadHeader(receivedPacket._bytes, 0, receivedPacket._bytes.Length);
+            ReadHeader(receivedPacket._bytes, (Int32)PacketDefine.MemoryPackOffset, (Int32)PacketDefine.HeaderSize);
             // 헤더에 따른 핸들러를 호출한다.
-            HandlerDictionary.HandlePacket(_id, _data ?? []);
-
-
-            // 패킷 처리
-            // ProcessPacket(requestInfo);
+            _handlerDictionary.HandlePacket(_id, receivedPacket);
         }
     }
 

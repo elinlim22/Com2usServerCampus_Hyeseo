@@ -10,14 +10,16 @@ namespace SocketServer;
 public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
 {
     readonly IHostApplicationLifetime _appLifetime;
-    HandlerDictionary _handlerDictionary;
+    public HandlerDictionary _handlerDictionary;
     IServerConfig? _serverConfig;
+    public PacketProcessor _packetProcessor;
     /* ----------------------------------- 생성자 ---------------------------------- */
     public MainServer(IHostApplicationLifetime appLifetime)
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, RequestInfo>())
     {
         _appLifetime = appLifetime;
         _handlerDictionary = new HandlerDictionary();
+        _packetProcessor = new PacketProcessor(_handlerDictionary);
 
         // 이 핸들러들은 AppServer를 상속받음으로써 등록해야 하는 이벤트 핸들러들이다.
         NewSessionConnected += new SessionHandler<ClientSession>(OnNewSessionConnected);
@@ -39,41 +41,18 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
             SendBufferSize = options.SendBufferSize,
         };
     }
-
-    public void InitHandlers() // 음...;; 처치곤란
+    /* ------------------------------ Init Handlers ----------------------------- */
+    public void InitHandlers()
     {
-        _handlerDictionary.RegisterPacketHandler(1, (packet) =>
-        {
-            // var loginRequest = packet.ToPacket<LoginRequest>();
-            // var loginResponse = new LoginResponse();
-            // loginResponse.Result = true;
-            // SendPacket(session, loginResponse);
-        });
-
-        _handlerDictionary.RegisterPacketHandler(2, (packet) =>
-        {
-            // var enterRoomRequest = packet.ToPacket<EnterRoomRequest>();
-            // var enterRoomResponse = new EnterRoomResponse();
-            // enterRoomResponse.Result = true;
-            // SendPacket(session, enterRoomResponse);
-        });
-
-        _handlerDictionary.RegisterPacketHandler(3, (packet) =>
-        {
-            // var leaveRoomRequest = packet.ToPacket<LeaveRoomRequest>();
-            // var leaveRoomResponse = new LeaveRoomResponse();
-            // leaveRoomResponse.Result = true;
-            // SendPacket(session, leaveRoomResponse);
-        });
-
-        _handlerDictionary.RegisterPacketHandler(4, (packet) =>
-        {
-            // var chatRequest = packet.ToPacket<ChatRequest>();
-            // var chatResponse = new ChatResponse();
-            // SendPacket(session, chatResponse);
-        });
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.LoginRequest, Handlers.HandleLoginRequest);
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.EnterRoomRequest, Handlers.HandleEnterRoomRequest);
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.LeaveRoomRequest, Handlers.HandleLeaveRoomRequest);
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.ChatRequest, Handlers.HandleChatRequest);
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.StartGameRequest, Handlers.HandleStartGameRequest);
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.PutStoneRequest, Handlers.HandlePutStoneRequest);
+        _handlerDictionary.RegistPacketHandler((Int32)PacketType.EndGameRequest, Handlers.HandleEndGameRequest);
     }
-    /* ------------------------------ 서버 시작 및 종료 ----------------------------- */
+    /* ------------------------------ Start server ------------------------------ */
     public override bool Start()
     {
         InitServerConfig(new ServerOption());
@@ -98,6 +77,9 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
 
         _appLifetime.ApplicationStarted.Register(OnStarted);
         _appLifetime.ApplicationStopped.Register(OnStopped);
+
+        InitHandlers();
+        _packetProcessor.Start();
 
         return true;
     }
