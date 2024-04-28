@@ -4,5 +4,6 @@ namespace SocketServer;
 
 public class RequestInfo(byte[] bytes) : BinaryRequestInfo(null, bytes)
 {
-    public byte[] _bytes = bytes;
+    public string? _sessionId;
+    public byte[]? _bytes = bytes;
 }

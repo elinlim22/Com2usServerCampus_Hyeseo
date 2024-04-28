@@ -9,33 +9,5 @@ namespace SocketServer;
 public class Room(string name)
 {
     string _name = name;
-    List<Client> _clients = [];
-    /* ------------------------------ Room Handlers ----------------------------- */
-    public void EnterRoom(byte[] bytes)
-    {
-        var request = MemoryPackSerializer.Deserialize<EnterRoomRequest>(bytes);
-        if (request == null)
-        {
-            // exception?
-            return;
-        }
-        var response = new EnterRoomResponse();
-        response.Result = false;
-
-        if (request.RoomName == null)
-        {
-            // return MemoryPackSerializer.Serialize(response);
-            // response를 보내야 한다?
-            // Client를 어떻게 알것인가?
-            return;
-        }
-        response.Result = true;
-        // _clients.Add(client);
-
-    }
-
-    public void LeaveRoom(byte[] bytes)
-    {
-        // _clients.Remove(client);
-    }
+    Tuple<User, User> _participants;
 }

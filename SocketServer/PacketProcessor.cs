@@ -6,10 +6,12 @@ public class PacketProcessor(HandlerDictionary handlerDictionary)
 {
     bool _isRunning = false;
     Thread? _thread = null;
-    BufferBlock<RequestInfo> _bufferBlock = new();
+    readonly BufferBlock<RequestInfo> _bufferBlock = new();
     public Int32 _id;
     public Int32 _size;
+    public byte _type;
     public HandlerDictionary _handlerDictionary = handlerDictionary;
+    public Users _users = new();
 
     public void Start()
     {
@@ -18,10 +20,24 @@ public class PacketProcessor(HandlerDictionary handlerDictionary)
         _thread.Start();
     }
 
-    public void ReadHeader(byte[] buffer, int offset, int length)
+    public void ReadHeader(byte[] bytes, int offset)
     {
-        _id = BitConverter.ToInt32(buffer, offset);
-        _size = BitConverter.ToInt32(buffer, offset + sizeof(Int32));
+        _id = BitConverter.ToInt32(bytes, offset);
+        _size = BitConverter.ToInt32(bytes, offset + sizeof(Int32));
+        _type = bytes[offset + sizeof(Int32) * 2];
+    }
+
+    public RequestInfo MakePacket(string sessionId)
+    {
+        // TODO : 세션이 New Connect이거나 Closed인 경우를 나눠야 하는 이유가 뭘까?
+        var newBytes = new byte[(Int32)PacketDefine.HeaderSize];
+        BitConverter.GetBytes((Int32)PacketType.IN_SessionConnectedOrClosed).CopyTo(newBytes, (Int32)PacketDefine.MemoryPackOffset);
+
+        var newPacket = new RequestInfo(newBytes)
+        {
+            _sessionId = sessionId
+        };
+        return newPacket;
     }
 
     public void Process()
@@ -34,10 +50,9 @@ public class PacketProcessor(HandlerDictionary handlerDictionary)
                 break;
             }
 
-            // 패킷의 헤더를 읽는다.
-            ReadHeader(receivedPacket._bytes, (Int32)PacketDefine.MemoryPackOffset, (Int32)PacketDefine.HeaderSize);
-            // 헤더에 따른 핸들러를 호출한다.
-            _handlerDictionary.HandlePacket(_id, receivedPacket);
+            ReadHeader(receivedPacket._bytes ?? [], (Int32)PacketDefine.MemoryPackOffset);
+            // var response?
+            _handlerDictionary.HandlePacket(_type, receivedPacket);
         }
     }
 

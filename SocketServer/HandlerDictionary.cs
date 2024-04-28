@@ -9,9 +9,9 @@ public class HandlerDictionary
         PacketHandlers[packetType] = handler;
     }
 
-    public void HandlePacket(int packetId, RequestInfo receivedPacket)
+    public void HandlePacket(byte packetType, RequestInfo receivedPacket)
     {
-        if (PacketHandlers.TryGetValue(packetId, out Action<RequestInfo>? value))
+        if (PacketHandlers.TryGetValue(packetType, out Action<RequestInfo>? value))
         {
             value(receivedPacket);
         }

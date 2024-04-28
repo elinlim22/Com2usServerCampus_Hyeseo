@@ -13,6 +13,7 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     public HandlerDictionary _handlerDictionary;
     IServerConfig? _serverConfig;
     public PacketProcessor _packetProcessor;
+    public Func<string, byte[], bool>? _sendResponse;
     /* ----------------------------------- 생성자 ---------------------------------- */
     public MainServer(IHostApplicationLifetime appLifetime)
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, RequestInfo>())
@@ -20,6 +21,7 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         _appLifetime = appLifetime;
         _handlerDictionary = new HandlerDictionary();
         _packetProcessor = new PacketProcessor(_handlerDictionary);
+        _sendResponse += SendData;
 
         // 이 핸들러들은 AppServer를 상속받음으로써 등록해야 하는 이벤트 핸들러들이다.
         NewSessionConnected += new SessionHandler<ClientSession>(OnNewSessionConnected);
@@ -109,18 +111,43 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     protected override void OnNewSessionConnected(ClientSession session)
     {
         Console.WriteLine($"New session connected: {session.RemoteEndPoint}");
-        base.OnNewSessionConnected(session);
+        _packetProcessor.Enqueue(_packetProcessor.MakePacket(session.SessionID));
     }
 
     protected override void OnSessionClosed(ClientSession session, CloseReason reason)
     {
-        Console.WriteLine($"Session closed: {session.RemoteEndPoint}");
-        base.OnSessionClosed(session, reason);
+        Console.WriteLine($"Session closed: {session.RemoteEndPoint}, Reason: {reason}");
+        _packetProcessor.Enqueue(_packetProcessor.MakePacket(session.SessionID));
     }
 
     protected void OnNewRequestReceived(ClientSession session, RequestInfo requestInfo)
     {
         Console.WriteLine($"New request received: {requestInfo.Key}");
-        // base.OnNewRequestReceived(session, requestInfo);
+        requestInfo._sessionId = session.SessionID;
+        _packetProcessor.Enqueue(requestInfo);
+    }
+    /* ----------------------------------- 기타 ----------------------------------- */
+    public bool SendData(string sessionID, byte[] sendData)
+    {
+        var session = GetSessionByID(sessionID);
+
+        // try
+        // {
+            if (session == null)
+            {
+                return false;
+            }
+
+            session.Send(sendData, 0, sendData.Length);
+        // }
+        // catch (Exception ex)
+        // {
+        //     // TimeoutException 예외가 발생할 수 있다
+        //     MainLogger.Error($"{ex.ToString()},  {ex.StackTrace}");
+
+        //     session.SendEndWhenSendingTimeOut();
+        //     session.Close();
+        // }
+        return true;
     }
 }

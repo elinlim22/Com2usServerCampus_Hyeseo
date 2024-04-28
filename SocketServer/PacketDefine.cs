@@ -6,9 +6,10 @@ public enum PacketDefine : Int32
     HeaderSize = 5,
 }
 
-public enum PacketType : Int32
+public enum PacketType : byte
 {
-    LoginRequest = 1,
+    IN_SessionConnectedOrClosed = 0,
+    LoginRequest,
     LoginResponse,
     EnterRoomRequest,
     EnterRoomResponse,

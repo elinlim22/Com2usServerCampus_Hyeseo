@@ -7,7 +7,7 @@ public partial class PacketHeader
 {
     public int Id { get; set; }
     public int Size { get; set; }
-    // public int Type { get; set; }
+    public int Type { get; set; }
 }
 /* ----------------------------------- 로그인 ---------------------------------- */
 [MemoryPackable]
