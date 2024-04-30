@@ -1,93 +1,38 @@
-using SuperSocket;
-using SuperSocket.Common;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketEngine.Protocol;
 
 namespace SocketServer;
 
 public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
 {
+    public static ILog MainLogger;
+    readonly ILogger<MainServer> _appLogger;
     readonly IHostApplicationLifetime _appLifetime;
-    public HandlerDictionary _handlerDictionary;
-    IServerConfig? _serverConfig;
-    public PacketProcessor _packetProcessor;
-    public Func<string, byte[], bool>? _sendResponse;
+    IServerConfig _serverConfig;
+    readonly PacketProcessor _packetProcessor;
+    readonly RoomManager _roomManager = new();
     /* ----------------------------------- 생성자 ---------------------------------- */
-    public MainServer(IHostApplicationLifetime appLifetime)
+    public MainServer(IHostApplicationLifetime appLifetime, ILogger<MainServer> logger)
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, RequestInfo>())
     {
         _appLifetime = appLifetime;
-        _handlerDictionary = new HandlerDictionary();
-        _packetProcessor = new PacketProcessor(_handlerDictionary);
-        _sendResponse += SendData;
+        _appLogger = logger;
+        _packetProcessor = new PacketProcessor();
 
         // 이 핸들러들은 AppServer를 상속받음으로써 등록해야 하는 이벤트 핸들러들이다.
         NewSessionConnected += new SessionHandler<ClientSession>(OnNewSessionConnected);
         SessionClosed += new SessionHandler<ClientSession, CloseReason>(OnSessionClosed);
         NewRequestReceived += new RequestHandler<ClientSession, RequestInfo>(OnNewRequestReceived);
     }
-    /* --------------------------- Init server options -------------------------- */
-    public void InitServerConfig(ServerOption options)
-    {
-        _serverConfig = new ServerConfig
-        {
-            Ip = options.Ip,
-            Port = options.Port,
-            MaxConnectionNumber = options.MaxConnectionNumber,
-            Mode = SocketMode.Tcp,
-            Name = "MainServer",
-            MaxRequestLength = options.MaxRequestLength,
-            ReceiveBufferSize = options.ReceiveBufferSize,
-            SendBufferSize = options.SendBufferSize,
-        };
-    }
-    /* ------------------------------ Init Handlers ----------------------------- */
-    public void InitHandlers()
-    {
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.LoginRequest, Handlers.HandleLoginRequest);
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.EnterRoomRequest, Handlers.HandleEnterRoomRequest);
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.LeaveRoomRequest, Handlers.HandleLeaveRoomRequest);
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.ChatRequest, Handlers.HandleChatRequest);
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.StartGameRequest, Handlers.HandleStartGameRequest);
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.PutStoneRequest, Handlers.HandlePutStoneRequest);
-        _handlerDictionary.RegistPacketHandler((Int32)PacketType.EndGameRequest, Handlers.HandleEndGameRequest);
-    }
-    /* ------------------------------ Start server ------------------------------ */
-    public override bool Start()
-    {
-        InitServerConfig(new ServerOption());
-
-        if (_serverConfig == null)
-        {
-            Console.WriteLine("Server configuration is not set!");
-            return false;
-        }
-
-        if (!Setup(new RootConfig(), _serverConfig))
-        {
-            Console.WriteLine("Failed to setup the server!");
-            return false;
-        }
-
-        if (!base.Start())
-        {
-            Console.WriteLine("Failed to start the server!");
-            return false;
-        }
-
-        _appLifetime.ApplicationStarted.Register(OnStarted);
-        _appLifetime.ApplicationStopped.Register(OnStopped);
-
-        InitHandlers();
-        _packetProcessor.Start();
-
-        return true;
-    }
     /* -------------------------- IHostedService 메서드 구현 ------------------------- */
     public Task StartAsync(CancellationToken cancellationToken)
     {
+        _appLifetime.ApplicationStarted.Register(OnStarted);
+        _appLifetime.ApplicationStopped.Register(OnStopped);
         return Task.Run(() => Start(), cancellationToken);
     }
 
@@ -96,58 +41,107 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         return Task.Run(() => Stop(), cancellationToken);
     }
     /* -------------------------------- 기본 핸들러 구현 ------------------------------- */
+    public override bool Start()
+    {
+        CreateComponent(new ServerOption());
+        if (_serverConfig == null)
+        {
+            MainLogger.Error("Server configuration is not set!");
+            return false;
+        }
+
+        if (!Setup(new RootConfig(), _serverConfig))
+        {
+            MainLogger.Error("Failed to setup the server!");
+            return false;
+        }
+
+        if (!base.Start())
+        {
+            MainLogger.Error("Failed to start the server!");
+            return false;
+        }
+        return true;
+    }
+
     protected override void OnStarted()
     {
-        Console.WriteLine("The server has been started!");
-        base.OnStarted();
+        MainLogger.Info("MainServer on start.");
+        Start();
     }
 
     protected override void OnStopped()
     {
-        Console.WriteLine("The server has been stopped!");
-        base.OnStopped();
+        MainLogger.Info("MainServer on stop.");
+        Stop();
+        _packetProcessor.Destory();
     }
     /* ------------------------------- 이벤트 핸들러 구현 ------------------------------- */
     protected override void OnNewSessionConnected(ClientSession session)
     {
-        Console.WriteLine($"New session connected: {session.RemoteEndPoint}");
-        _packetProcessor.Enqueue(_packetProcessor.MakePacket(session.SessionID));
+        MainLogger.Info($"New session connected: {session.RemoteEndPoint}");
+        _packetProcessor.InsertPacket(PacketMaker.MakeSessionConnectionPacket(true, session.SessionID));
     }
 
     protected override void OnSessionClosed(ClientSession session, CloseReason reason)
     {
-        Console.WriteLine($"Session closed: {session.RemoteEndPoint}, Reason: {reason}");
-        _packetProcessor.Enqueue(_packetProcessor.MakePacket(session.SessionID));
+        MainLogger.Info($"Session closed: {session.RemoteEndPoint}, Reason: {reason}");
+        _packetProcessor.InsertPacket(PacketMaker.MakeSessionConnectionPacket(false, session.SessionID));
     }
 
     protected void OnNewRequestReceived(ClientSession session, RequestInfo requestInfo)
     {
-        Console.WriteLine($"New request received: {requestInfo.Key}");
-        requestInfo._sessionId = session.SessionID;
-        _packetProcessor.Enqueue(requestInfo);
+        MainLogger.Info($"New request received: {requestInfo.Key}");
+        requestInfo.SessionID = session.SessionID;
+        _packetProcessor.InsertPacket(requestInfo);
     }
     /* ----------------------------------- 기타 ----------------------------------- */
     public bool SendData(string sessionID, byte[] sendData)
     {
         var session = GetSessionByID(sessionID);
-
-        // try
-        // {
+        try
+        {
             if (session == null)
             {
                 return false;
             }
 
             session.Send(sendData, 0, sendData.Length);
-        // }
-        // catch (Exception ex)
-        // {
-        //     // TimeoutException 예외가 발생할 수 있다
-        //     MainLogger.Error($"{ex.ToString()},  {ex.StackTrace}");
+        }
+        catch (Exception ex)
+        {
+            MainLogger.Error($"{ex.ToString()},  {ex.StackTrace}");
 
-        //     session.SendEndWhenSendingTimeOut();
-        //     session.Close();
-        // }
+            session.SendEndWhenSendingTimeOut();
+            session.Close();
+        }
         return true;
+    }
+
+    public void InitServerConfig(ServerOption options)
+    {
+        _serverConfig = new ServerConfig
+        {
+            Ip = options.Ip,
+            Port = options.Port,
+            MaxConnectionNumber = options.MaxConnectionNumber,
+            Mode = SocketMode.Tcp,
+            Name = options.Name,
+            MaxRequestLength = options.MaxRequestLength,
+            ReceiveBufferSize = options.ReceiveBufferSize,
+            SendBufferSize = options.SendBufferSize,
+        };
+    }
+    public ErrorCode CreateComponent(ServerOption serverOpt)
+    {
+        InitServerConfig(serverOpt);
+        Room.SendData = this.SendData;
+        _roomManager.CreateRooms(serverOpt);
+
+        _packetProcessor.SendData = this.SendData;
+        _packetProcessor.CreateAndStart(_roomManager.GetRoomsList(), serverOpt);
+
+        MainLogger.Info("CreateComponent - Success");
+        return ErrorCode.Success;
     }
 }

@@ -2,10 +2,13 @@ namespace SocketServer;
 
 public class ServerOption
 {
-    public string Ip { get; set; } = "Any";
-    public int Port { get; set; } = 9000;
-    public int MaxConnectionNumber { get; set; } = 100;
-    public int MaxRequestLength { get; set; } = 1024;
-    public int ReceiveBufferSize { get; set; } = 1024;
-    public int SendBufferSize { get; set; } = 1024;
+    public string Ip { get; set; }
+    public int Port { get; set; }
+    public string Name { get; set; }
+    public int MaxConnectionNumber { get; set; }
+    public int MaxRequestLength { get; set; }
+    public int ReceiveBufferSize { get; set; }
+    public int SendBufferSize { get; set; }
+    public int MaxRoom { get; set; }
+    public int MaxUserPerRoom { get; set; }
 }

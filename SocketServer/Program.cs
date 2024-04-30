@@ -1,3 +1,7 @@
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using SocketServer;
 
 var builder = new HostBuilder();
@@ -13,7 +17,7 @@ builder.ConfigureAppConfiguration((hostingContext, config) =>
 
 builder.ConfigureServices((hostContext, services) =>
 {
-    // services.Configure<ServerOption>(hostContext.Configuration.GetSection("ServerOption"));
+    services.Configure<ServerOption>(hostContext.Configuration.GetSection("ServerOption"));
     services.AddHostedService<MainServer>();
     services.AddLogging(configure => configure.AddConsole());
 });

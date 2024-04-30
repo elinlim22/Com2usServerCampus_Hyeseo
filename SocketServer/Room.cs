@@ -1,13 +1,136 @@
 using MemoryPack;
-using System;
-using System.Collections.Generic;
 
 namespace SocketServer;
-// 방 관련된 로직 처리하기.
-// 방에 들어가기, 방에서 나가기, 방에 있는 클라이언트에게 메시지 보내기
-// 방 정보: 방 이름, 방에 있는 클라이언트 리스트
-public class Room(string name)
+
+public class Room
 {
-    string _name = name;
-    Tuple<User, User> _participants;
+    public const int InvalidRoomNumber = -1;
+
+
+    public int Index { get; private set; }
+    public int Number { get; private set; }
+
+    int _maxUserCount = 0;
+
+    List<RoomUser> _userList = [];
+
+    public static Func<string, byte[], bool> SendData;
+
+
+    public void Init(int index, int number, int maxUserCount)
+    {
+        Index = index;
+        Number = number;
+        _maxUserCount = maxUserCount;
+    }
+
+    public bool AddUser(string UserId, string netSessionID)
+    {
+        if(GetUser(UserId) != null)
+        {
+            return false;
+        }
+
+        var roomUser = new RoomUser();
+        roomUser.Set(UserId, netSessionID);
+        _userList.Add(roomUser);
+
+        return true;
+    }
+
+    public void RemoveUser(string netSessionID)
+    {
+        var index = _userList.FindIndex(x => x.NetSessionID == netSessionID);
+        _userList.RemoveAt(index);
+    }
+
+    public bool RemoveUser(RoomUser user)
+    {
+        return _userList.Remove(user);
+    }
+
+    public RoomUser GetUser(string UserId)
+    {
+        return _userList.Find(x => x.UserId == UserId);
+    }
+
+    public RoomUser GetUserByNetSessionId(string netSessionID)
+    {
+        return _userList.Find(x => x.NetSessionID == netSessionID);
+    }
+
+    public int CurrentUserCount()
+    {
+        return _userList.Count();
+    }
+
+    public void NotifyPacketUserList(string userNetSessionID)
+    {
+        var packet = new NotifyRoomUserList();
+        foreach (var user in _userList)
+        {
+            packet.UserIdList.Add(user.UserId);
+        }
+
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.NotifyRoomUserList);
+
+        SendData(userNetSessionID, sendPacket);
+    }
+
+    public void NofifyPacketNewUser(string newUserNetSessionID, string newUserId)
+    {
+        var packet = new NotifyRoomNewUser
+        {
+            UserId = newUserId
+        };
+
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.NotifyRoomNewUser);
+
+        Broadcast(newUserNetSessionID, sendPacket);
+    }
+
+    public void NotifyPacketLeaveUser(string UserId)
+    {
+        if(CurrentUserCount() == 0)
+        {
+            return;
+        }
+
+        var packet = new NotifyRoomUserLeft
+        {
+            UserId = UserId
+        };
+
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.NotifyRoomUserLeft);
+
+        Broadcast("", sendPacket);
+    }
+
+    public void Broadcast(string excludeNetSessionID, byte[] sendPacket)
+    {
+        foreach(var user in _userList)
+        {
+            if(user.NetSessionID == excludeNetSessionID)
+            {
+                continue;
+            }
+
+            SendData(user.NetSessionID, sendPacket);
+        }
+    }
+}
+
+public class RoomUser
+{
+    public string UserId { get; private set; }
+    public string NetSessionID { get; private set; }
+
+    public void Set(string userId, string netSessionID)
+    {
+        UserId = userId;
+        NetSessionID = netSessionID;
+    }
 }

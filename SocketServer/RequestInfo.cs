@@ -2,8 +2,14 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SocketServer;
 
-public class RequestInfo(byte[] bytes) : BinaryRequestInfo(null, bytes)
+public class RequestInfo : BinaryRequestInfo
 {
-    public string? _sessionId;
-    public byte[]? _bytes = bytes;
+    public string SessionID;
+    public byte[] Data;
+
+    public RequestInfo(byte[] body)
+        : base(null, body)
+    {
+        Data = body;
+    }
 }

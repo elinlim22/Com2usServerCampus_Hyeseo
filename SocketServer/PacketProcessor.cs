@@ -2,68 +2,97 @@ using System.Threading.Tasks.Dataflow;
 
 namespace SocketServer;
 
-public class PacketProcessor(HandlerDictionary handlerDictionary)
+class PacketProcessor
 {
-    bool _isRunning = false;
-    Thread? _thread = null;
-    readonly BufferBlock<RequestInfo> _bufferBlock = new();
-    public Int32 _id;
-    public Int32 _size;
-    public byte _type;
-    public HandlerDictionary _handlerDictionary = handlerDictionary;
-    public Users _users = new();
+    bool _isThreadRunning = false;
+    Thread _processThread = null;
 
-    public void Start()
+    public Func<string, byte[], bool> SendData;
+
+    BufferBlock<RequestInfo> _msgBuffer = new();
+
+    UserManager _userMgr = new();
+
+    List<Room> _roomList = [];
+
+    Dictionary<int, Action<RequestInfo>> PacketHandlers = [];
+    PacketHandlerCommon _commonPacketHandler = new();
+    PacketHandlerRoom _roomPacketHandler = new();
+
+
+    public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
     {
-        _thread = new Thread(Process);
-        _isRunning = true;
-        _thread.Start();
+        var totalUserMaximum = serverOpt.MaxRoom * serverOpt.MaxUserPerRoom;
+        _userMgr.Init(totalUserMaximum);
+
+        _roomList = roomList;
+        var minRoomNum = _roomList[0].Number;
+        var maxRoomNum = _roomList[0].Number + _roomList.Count() - 1;
+
+        RegistPacketHandler();
+
+        _isThreadRunning = true;
+        _processThread = new System.Threading.Thread(this.Process);
+        _processThread.Start();
     }
 
-    public void ReadHeader(byte[] bytes, int offset)
+    public void Destory()
     {
-        _id = BitConverter.ToInt32(bytes, offset);
-        _size = BitConverter.ToInt32(bytes, offset + sizeof(Int32));
-        _type = bytes[offset + sizeof(Int32) * 2];
+        MainServer.MainLogger.Info("PacketProcessor::Destory - begin");
+
+        _isThreadRunning = false;
+        _msgBuffer.Complete();
+
+        _processThread.Join();
+
+        MainServer.MainLogger.Info("PacketProcessor::Destory - end");
     }
 
-    public RequestInfo MakePacket(string sessionId)
+    public void InsertPacket(RequestInfo data)
     {
-        // TODO : 세션이 New Connect이거나 Closed인 경우를 나눠야 하는 이유가 뭘까?
-        var newBytes = new byte[(Int32)PacketDefine.HeaderSize];
-        BitConverter.GetBytes((Int32)PacketType.IN_SessionConnectedOrClosed).CopyTo(newBytes, (Int32)PacketDefine.MemoryPackOffset);
+        _msgBuffer.Post(data);
+    }
 
-        var newPacket = new RequestInfo(newBytes)
+
+    void RegistPacketHandler()
+    {
+        PacketHandler.SendData = SendData;
+        PacketHandler.DistributeInnerPacket = InsertPacket;
+        _commonPacketHandler.Init(_userMgr);
+        _commonPacketHandler.RegistPacketHandler(PacketHandlers);
+
+        _roomPacketHandler.Init(_userMgr);
+        _roomPacketHandler.SetRooomList(_roomList);
+        _roomPacketHandler.RegistPacketHandler(PacketHandlers);
+    }
+
+    void Process()
+    {
+        while (_isThreadRunning)
         {
-            _sessionId = sessionId
-        };
-        return newPacket;
-    }
-
-    public void Process()
-    {
-        while (_isRunning)
-        {
-            var receivedPacket = _bufferBlock.Receive(); // 받은 패킷은 RequestInfo형태이다.
-            if (receivedPacket == null)
+            try
             {
-                break;
+                var packet = _msgBuffer.Receive();
+
+                var header = new PacketHeaderInfo();
+                header.Read(packet.Data);
+
+                if (PacketHandlers.ContainsKey(header.Id))
+                {
+                    PacketHandlers[header.Id](packet);
+                }
+                else
+                {
+                    MainServer.MainLogger.Error($"PacketProcessor::Process - invalid packet id : {header.Id}");
+                }
             }
-
-            ReadHeader(receivedPacket._bytes ?? [], (Int32)PacketDefine.MemoryPackOffset);
-            // var response?
-            _handlerDictionary.HandlePacket(_type, receivedPacket);
+            catch (Exception ex)
+            {
+                if (_isThreadRunning)
+                {
+                    MainServer.MainLogger.Error(ex.ToString());
+                }
+            }
         }
-    }
-
-    public void Enqueue(RequestInfo requestInfo) // 버퍼에 넣기
-    {
-        _bufferBlock.Post(requestInfo);
-    }
-
-    public void Stop()
-    {
-        _isRunning = false;
-        _thread?.Join();
     }
 }

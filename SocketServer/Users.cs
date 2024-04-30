@@ -1,28 +1,37 @@
 namespace SocketServer;
 
-public class Users
+public class User
 {
-    public static Dictionary<string, User> _users = [];
+    UInt64 SequenceNumber = 0;
+    string SessionID;
 
-    public static void AddUser(User user)
+    public int RoomNumber { get; private set; } = -1;
+    string UserId;
+
+    public void Set(UInt64 sequence, string sessionID, string userId)
     {
-        _users.Add(user._sessionId, user);
+        SequenceNumber = sequence;
+        SessionID = sessionID;
+        UserId = userId;
     }
 
-    public static void RemoveUser(string sessionId)
+    public bool IsConfirm(string netSessionID)
     {
-        _users.Remove(sessionId);
+        return SessionID == netSessionID;
     }
 
-    public static User GetUser(string sessionId)
+    public string ID()
     {
-        return _users[sessionId];
+        return UserId;
     }
-}
 
-public class User(string sessionId)
-{
-    public string? _userId;
-    public string _sessionId = sessionId;
-    public Int32 _roomId = -1;
+    public void EnteredRoom(int roomNumber)
+    {
+        RoomNumber = roomNumber;
+    }
+
+    public void LeaveRoom()
+    {
+        RoomNumber = -1;
+    }
 }

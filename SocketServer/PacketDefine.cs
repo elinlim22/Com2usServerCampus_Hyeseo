@@ -1,26 +1,40 @@
 namespace SocketServer;
 
-public enum PacketDefine : Int32
+public enum PacketDefine : UInt16
 {
     MemoryPackOffset = 1,
     HeaderSize = 5,
 }
 
-public enum PacketType : byte
+public enum PacketType : UInt16
 {
-    IN_SessionConnectedOrClosed = 0,
-    LoginRequest,
+    /* ----------------------------------- 세션 ----------------------------------- */
+    InSessionConnected = 0,
+    InSessionDisconnected,
+    /* ----------------------------------- 로그인 ---------------------------------- */
+    LoginRequest = 1000,
     LoginResponse,
-    EnterRoomRequest,
+    /* ---------------------------------- 방 입장 ---------------------------------- */
+    EnterRoomRequest = 2000,
     EnterRoomResponse,
+    NotifyRoomUserList,
+    NotifyRoomNewUser,
+    /* ---------------------------------- 방 나가기 --------------------------------- */
+    NotifyRoomUserLeft = 3000,
     LeaveRoomRequest,
     LeaveRoomResponse,
-    ChatRequest,
+    NotifyUserMustClose,
+    /* ---------------------------------- 방 채팅 ---------------------------------- */
+    ChatRequest = 4000,
     ChatResponse,
-    StartGameRequest,
+    NotifyRoomChat,
+    /* ---------------------------------- 게임 시작 --------------------------------- */
+    StartGameRequest = 5000,
     StartGameResponse,
-    PutStoneRequest,
+    /* ---------------------------------- 돌 두기 ---------------------------------- */
+    PutStoneRequest = 6000,
     PutStoneResponse,
-    EndGameRequest,
+    /* ---------------------------------- 게임 종료 --------------------------------- */
+    EndGameRequest = 7000,
     EndGameResponse,
 }
