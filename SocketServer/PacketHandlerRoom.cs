@@ -15,10 +15,10 @@ public class PacketHandlerRoom : PacketHandler
 
     public void RegistPacketHandler(Dictionary<int, Action<RequestInfo>> packetHandlerMap)
     {
-        packetHandlerMap.Add((int)PacketType.EnterRoomRequest, RequestRoomEnter);
-        packetHandlerMap.Add((int)PacketType.LeaveRoomRequest, RequestLeave);
-        packetHandlerMap.Add((int)PacketType.NotifyRoomUserLeft, NotifyLeaveInternal);
-        packetHandlerMap.Add((int)PacketType.ChatRequest, RequestChat);
+        packetHandlerMap[(int)PacketType.EnterRoomRequest] = RequestRoomEnter;
+        packetHandlerMap[(int)PacketType.LeaveRoomRequest] = RequestLeave;
+        packetHandlerMap[(int)PacketType.NotifyRoomUserLeft] = NotifyLeaveInternal;
+        packetHandlerMap[(int)PacketType.ChatRequest] = RequestChat;
     }
 
 

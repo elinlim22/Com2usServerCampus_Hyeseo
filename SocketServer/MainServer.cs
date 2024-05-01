@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
@@ -12,15 +13,17 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     public static ILog MainLogger;
     readonly ILogger<MainServer> _appLogger;
     readonly IHostApplicationLifetime _appLifetime;
-    IServerConfig _serverConfig;
+    ServerOption _serverOpt;
+    IServerConfig _serverConfig = null;
     readonly PacketProcessor _packetProcessor;
     readonly RoomManager _roomManager = new();
     /* ----------------------------------- 생성자 ---------------------------------- */
-    public MainServer(IHostApplicationLifetime appLifetime, ILogger<MainServer> logger)
+    public MainServer(IHostApplicationLifetime appLifetime, IOptions<ServerOption> serverConfig, ILogger<MainServer> logger)
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, RequestInfo>())
     {
         _appLifetime = appLifetime;
         _appLogger = logger;
+        _serverOpt = serverConfig.Value;
         _packetProcessor = new PacketProcessor();
 
         // 이 핸들러들은 AppServer를 상속받음으로써 등록해야 하는 이벤트 핸들러들이다.
@@ -31,50 +34,64 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     /* -------------------------- IHostedService 메서드 구현 ------------------------- */
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        _appLifetime.ApplicationStarted.Register(OnStarted);
-        _appLifetime.ApplicationStopped.Register(OnStopped);
-        return Task.Run(() => Start(), cancellationToken);
+        _appLifetime.ApplicationStarted.Register(AppOnStarted);
+        _appLifetime.ApplicationStopped.Register(AppOnStopped);
+        return Task.CompletedTask;
     }
 
     public Task StopAsync(CancellationToken cancellationToken)
     {
-        return Task.Run(() => Stop(), cancellationToken);
+        return Task.CompletedTask;
     }
     /* -------------------------------- 기본 핸들러 구현 ------------------------------- */
-    public override bool Start()
+    private void AppOnStarted()
     {
-        CreateComponent(new ServerOption());
-        if (_serverConfig == null)
-        {
-            MainLogger.Error("Server configuration is not set!");
-            return false;
-        }
-
-        if (!Setup(new RootConfig(), _serverConfig))
-        {
-            MainLogger.Error("Failed to setup the server!");
-            return false;
-        }
+        _appLogger.LogInformation("MainServer on start.");
+        InitServerConfig(_serverOpt);
+        CreateServer(_serverOpt);
 
         if (!base.Start())
         {
-            MainLogger.Error("Failed to start the server!");
-            return false;
+            _appLogger.LogError("Failed to start the server!");
+            return;
         }
-        return true;
+        else
+        {
+            _appLogger.LogInformation("Server started.");
+        }
     }
 
-    protected override void OnStarted()
-    {
-        MainLogger.Info("MainServer on start.");
-        Start();
-    }
-
-    protected override void OnStopped()
+    private void AppOnStopped()
     {
         MainLogger.Info("MainServer on stop.");
-        Stop();
+        base.Stop();
         _packetProcessor.Destory();
+    }
+
+
+    public void CreateServer(ServerOption serverOpt)
+    {
+        try
+        {
+            bool bResult = Setup(new RootConfig(), _serverConfig, logFactory: new NLogLogFactory());
+
+            if (bResult == false)
+            {
+                MainLogger.Error("[ERROR] 서버 네트워크 설정 실패 ㅠㅠ");
+                return;
+            }
+            else
+            {
+                MainLogger = base.Logger;
+            }
+
+            CreateComponent(serverOpt);
+            MainLogger.Info("서버 생성 성공");
+        }
+        catch(Exception ex)
+        {
+            MainLogger.Error($"[ERROR] 서버 생성 실패: {ex.ToString()}");
+        }
     }
     /* ------------------------------- 이벤트 핸들러 구현 ------------------------------- */
     protected override void OnNewSessionConnected(ClientSession session)
@@ -145,3 +162,4 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         return ErrorCode.Success;
     }
 }
+

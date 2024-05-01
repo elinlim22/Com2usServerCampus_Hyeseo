@@ -5,9 +5,9 @@ public class PacketHandlerCommon : PacketHandler
 {
     public void RegistPacketHandler(Dictionary<int, Action<RequestInfo>> packetHandlerMap)
     {
-        packetHandlerMap.Add((int)PacketType.InSessionConnected, NotifyInConnectClient);
-        packetHandlerMap.Add((int)PacketType.InSessionDisconnected, NotifyInDisConnectClient);
-        packetHandlerMap.Add((int)PacketType.LoginRequest, HandleLoginRequest);
+        packetHandlerMap[(int)PacketType.InSessionConnected] = NotifyInConnectClient;
+        packetHandlerMap[(int)PacketType.InSessionDisconnected] = NotifyInDisConnectClient;
+        packetHandlerMap[(int)PacketType.LoginRequest] = HandleLoginRequest;
     }
 
     public void NotifyInConnectClient(RequestInfo requestData)
