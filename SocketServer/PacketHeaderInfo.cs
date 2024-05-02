@@ -4,7 +4,7 @@ public struct PacketHeaderInfo
 {
     public UInt16 TotalSize;
     public UInt16 Id;
-    public PacketType Type;
+    public byte Type;
 
     public static UInt16 GetTotalSize(byte[] data, int startPos)
     {
@@ -26,7 +26,8 @@ public struct PacketHeaderInfo
         Id = FastBinaryRead.ReadUInt16FromByteArray(headerData, pos);
         pos += 2;
 
-        Type = (PacketType)headerData[pos];
+        Type = headerData[pos];
+        pos += 1;
     }
 
     public static void Write(byte[] packetData, PacketType packetType, byte type = 0)
