@@ -3,7 +3,7 @@ namespace SocketServer;
 public enum PacketDefine : UInt16
 {
     MemoryPackOffset = 1,
-    HeaderSize = 5,
+    HeaderSize = 6,
 }
 
 public enum PacketType : UInt16
