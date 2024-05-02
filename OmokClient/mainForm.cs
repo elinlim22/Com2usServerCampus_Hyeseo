@@ -368,10 +368,10 @@ namespace csharp_test_client
 
         void SendPacketOmokPut(int x, int y)
         {
-            var requestPkt = new PKTReqPutMok
+            var requestPkt = new PutStoneRequest
             {
-                PosX = x,
-                PosY = y
+                X = x,
+                Y = y
             };
 
             var packet = MemoryPackSerializer.Serialize(requestPkt);
@@ -413,7 +413,7 @@ namespace csharp_test_client
             var ret = v.SetAsync(saveValue).Result;
         }
 
-        [MemoryPackObject]
+        [MemoryPackable]
         public class PvPMatchingResult
         {
             [Key(0)]

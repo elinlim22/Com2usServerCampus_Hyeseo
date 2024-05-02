@@ -6,94 +6,80 @@ using System.Text;
 namespace CSCommon
 {
     [MemoryPackable]
-    public class PacketHeader
+    public partial class PacketHeader
     {
-        [Key(0)]
         public Byte[] Head = new Byte[PacketHeaderInfo.HeadSize];
     }
 
 
     [MemoryPackable]
-    public class NotifyUserMustClose : PacketHeader
+    public partial class NotifyUserMustClose : PacketHeader
     {
-        [Key(1)]
         public short Result;
     }
 
 
     // 로그인 요청
     [MemoryPackable]
-    public class LoginRequest : PacketHeader
+    public partial class LoginRequest : PacketHeader
     {
-        [Key(1)]
         public string UserId;
-        [Key(2)]
         public string Token;
     }
 
     [MemoryPackable]
-    public class LoginResult : PacketHeader
+    public partial class LoginResult : PacketHeader
     {
-        [Key(1)]
         public short Result;
     }
 
 
 
     [MemoryPackable]
-    public class PKTReqLobbyEnter : PacketHeader
+    public partial class PKTReqLobbyEnter : PacketHeader
     {
-        [Key(1)]
         public Int16 LobbyNumber;
     }
 
     [MemoryPackable]
-    public class PKTResLobbyEnter : PacketHeader
+    public partial class PKTResLobbyEnter : PacketHeader
     {
-        [Key(1)]
         public short Result;
-        [Key(2)]
         public Int16 LobbyNumber;
     }
 
     [MemoryPackable]
-    public class PKTNtfLobbyEnterNewUser : PacketHeader
+    public partial class PKTNtfLobbyEnterNewUser : PacketHeader
     {
-        [Key(1)]
         public string UserId;
     }
 
 
     [MemoryPackable]
-    public class PKTResLobbyLeave : PacketHeader
+    public partial class PKTResLobbyLeave : PacketHeader
     {
-        [Key(1)]
         public short Result;
     }
 
     [MemoryPackable]
-    public class PKTNtfLobbyLeaveUser : PacketHeader
+    public partial class PKTNtfLobbyLeaveUser : PacketHeader
     {
-        [Key(1)]
         public string UserId;
     }
 
 
     [MemoryPackable]
-    public class PKTReqLobbyChat : PacketHeader
+    public partial class PKTReqLobbyChat : PacketHeader
     {
-        [Key(1)]
         public string Message;
     }
 
 
     [MemoryPackable]
-    public class PKTNtfLobbyChat : PacketHeader
+    public partial class PKTNtfLobbyChat : PacketHeader
     {
-        [Key(1)]
         public string UserId;
 
-        [Key(2)]
         public string Message;
     }
 
@@ -101,71 +87,62 @@ namespace CSCommon
 
 
     [MemoryPackable]
-    public class EnterRoomRequest : PacketHeader
+    public partial class EnterRoomRequest : PacketHeader
     {
-        [Key(1)]
         public int RoomNumber;
     }
 
     [MemoryPackable]
-    public class EnterRoomResult : PacketHeader
+    public partial class EnterRoomResult : PacketHeader
     {
-        [Key(1)]
         public short Result;
     }
 
     [MemoryPackable]
-    public class NotifyRoomUserList : PacketHeader
+    public partial class NotifyRoomUserList : PacketHeader
     {
-        [Key(1)]
         public List<string> UserIdList = new List<string>();
     }
 
     [MemoryPackable]
-    public class NotifyRoomNewUser : PacketHeader
+    public partial class NotifyRoomNewUser : PacketHeader
     {
-        [Key(1)]
         public string UserId;
     }
 
 
     [MemoryPackable]
-    public class LeaveRoomRequest : PacketHeader
+    public partial class LeaveRoomRequest : PacketHeader
     {
         public string RoomName;
     }
 
     [MemoryPackable]
-    public class LeaveRoomResponse : PacketHeader
+    public partial class LeaveRoomResponse : PacketHeader
     {
-        [Key(1)]
         public short Result;
     }
 
     [MemoryPackable]
-    public class NotifyRoomUserLeft : PacketHeader
+    public partial class NotifyRoomUserLeft : PacketHeader
     {
-        [Key(1)]
         public int RoomNumber;
         public string UserId;
     }
 
 
     [MemoryPackable]
-    public class ChatRequest : PacketHeader
+    public partial class ChatRequest : PacketHeader
     {
-        [Key(1)]
         public string Message;
     }
 
 
     [MemoryPackable]
-    public class NotifyRoomChat : PacketHeader
+    public partial class NotifyRoomChat : PacketHeader
     {
-        [Key(1)]
         public string UserId;
 
-        [Key(2)]
         public string Message;
     }
 }

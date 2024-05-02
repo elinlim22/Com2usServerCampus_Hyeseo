@@ -163,7 +163,7 @@ namespace csharp_test_client
 
         void PacketProcess_RoomChatResponse(byte[] packetData)
         {
-            var responsePkt = MemoryPackSerializer.Deserialize<PKTResRoomChat>(packetData);
+            var responsePkt = MemoryPackSerializer.Deserialize<ChatResponse>(packetData);
 
             DevLog.Write($"방 채팅 결과:  {(ErrorCode)responsePkt.Result}");
         }
@@ -228,7 +228,7 @@ namespace csharp_test_client
 
         void PacketProcess_PutMokResponse(byte[] packetData)
         {
-            var responsePkt = MemoryPackSerializer.Deserialize<PKTResPutMok>(packetData);
+            var responsePkt = MemoryPackSerializer.Deserialize<PutStoneResponse>(packetData);
 
             DevLog.Write($"오목 놓기 실패: {(ErrorCode)responsePkt.Result}");
 
@@ -238,11 +238,11 @@ namespace csharp_test_client
 
         void PacketProcess_PutMokNotify(byte[] packetData)
         {
-            var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfPutMok>(packetData);
+            var notifyPkt = MemoryPackSerializer.Deserialize<NotifyPutStone>(packetData);
 
-            플레이어_돌두기(true, notifyPkt.PosX, notifyPkt.PosY);
+            플레이어_돌두기(true, notifyPkt.X, notifyPkt.Y);
 
-            DevLog.Write($"오목 정보: X: {notifyPkt.PosX},  Y: {notifyPkt.PosY},   알:{notifyPkt.Mok}");
+            DevLog.Write($"오목 정보: X: {notifyPkt.X},  Y: {notifyPkt.Y},   알:{notifyPkt.Mok}");
         }
 
 

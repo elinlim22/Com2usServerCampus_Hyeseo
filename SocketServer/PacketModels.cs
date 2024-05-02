@@ -106,17 +106,45 @@ public partial class NotifyRoomChat : PacketHeader
 }
 
 /* ---------------------------------- 게임 시작 --------------------------------- */
-[MemoryPackable]
-public partial class StartGameRequest : PacketHeader
-{
-    public string RoomName { get; set; }
-}
+// [MemoryPackable]
+// public partial class StartGameRequest : PacketHeader
+// {
+//     public string RoomName { get; set; }
+// }
 
-[MemoryPackable]
-public partial class StartGameResponse : PacketHeader
-{
-    public int Result { get; set; }
-}
+// [MemoryPackable]
+// public partial class StartGameResponse : PacketHeader
+// {
+//     public int Result { get; set; }
+// }
+    // 오목 플레이 준비 완료 요청
+    [MemoryPackable]
+    public partial class PKTReqReadyOmok : PacketHeader
+    {
+        public short Result { get; set; }
+    }
+
+    [MemoryPackable]
+    public partial class PKTResReadyOmok : PacketHeader
+    {
+        public short Result { get; set; }
+    }
+
+    [MemoryPackable]
+    public partial class PKTNtfReadyOmok : PacketHeader
+    {
+        public string UserId { get; set; }
+        public bool IsReady { get; set; }
+    }
+
+
+    // 오목 시작 통보(서버에서 클라이언트들에게)
+    [MemoryPackable]
+    public partial class PKTNtfStartOmok : PacketHeader
+    {
+        public string FirstUserId { get; set; } // 선턴 유저 ID
+    }
+
 
 /* ---------------------------------- 돌 두기 ---------------------------------- */
 [MemoryPackable]
@@ -132,15 +160,28 @@ public partial class PutStoneResponse : PacketHeader
     public int Result { get; set; }
 }
 
-/* ---------------------------------- 게임 종료 --------------------------------- */
 [MemoryPackable]
-public partial class EndGameResponse : PacketHeader
+public partial class NotifyPutStone : PacketHeader
 {
-    public int Result { get; set; }
+    public int X { get; set;}
+    public int Y { get; set;}
+    public int Mok { get; set;}
 }
+/* ---------------------------------- 게임 종료 --------------------------------- */
+// [MemoryPackable]
+// public partial class EndGameResponse : PacketHeader
+// {
+//     public int Result { get; set; }
+// }
 
+// [MemoryPackable]
+// public partial class EndGameRequest : PacketHeader
+// {
+//     public string RoomName { get; set; }
+// }
+    // 오목 게임 종료 통보
 [MemoryPackable]
-public partial class EndGameRequest : PacketHeader
+public partial class PKTNtfEndOmok : PacketHeader
 {
-    public string RoomName { get; set; }
+    public string WinUserId { get; set; }
 }

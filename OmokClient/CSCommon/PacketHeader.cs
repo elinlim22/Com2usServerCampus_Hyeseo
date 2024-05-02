@@ -96,7 +96,7 @@ namespace CSCommon
     }
 
 
-    [MemoryPackObject]
+    [MemoryPackable]
     public class PacketHeader
     {
         [Key(0)]
