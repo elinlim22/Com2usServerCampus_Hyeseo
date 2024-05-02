@@ -1,6 +1,6 @@
 namespace SocketServer;
 
-public enum ErrorCode : int
+public enum ErrorCode : short
 {
     Success = 0,
 

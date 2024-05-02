@@ -67,7 +67,7 @@ public class PacketHandlerCommon : PacketHandler
     {
         var resLogin = new LoginResponse()
         {
-            Result = (int)errorCode
+            Result = (short)errorCode
         };
 
         var sendData = MemoryPackSerializer.Serialize(resLogin);

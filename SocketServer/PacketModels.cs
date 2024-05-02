@@ -32,7 +32,7 @@ public partial class LoginRequest : PacketHeader
 [MemoryPackable]
 public partial class LoginResponse : PacketHeader
 {
-    public int Result { get; set; }
+    public short Result { get; set; }
 }
 
 /* ---------------------------------- 방 입장 ---------------------------------- */
@@ -45,7 +45,7 @@ public partial class EnterRoomRequest : PacketHeader
 [MemoryPackable]
 public partial class EnterRoomResponse : PacketHeader
 {
-    public int Result { get; set; }
+    public short Result { get; set; }
 }
 
 [MemoryPackable]
@@ -70,7 +70,7 @@ public partial class LeaveRoomRequest : PacketHeader
 [MemoryPackable]
 public partial class LeaveRoomResponse : PacketHeader
 {
-    public int Result { get; set; }
+    public short Result { get; set; }
 }
 
 [MemoryPackable]
@@ -83,7 +83,7 @@ public partial class NotifyRoomUserLeft : PacketHeader
 [MemoryPackable]
 public partial class NotifyUserMustClose : PacketHeader
 {
-    public int Result { get; set; }
+    public short Result { get; set; }
 }
 /* ---------------------------------- 방 채팅 ---------------------------------- */
 [MemoryPackable]
@@ -95,7 +95,7 @@ public partial class ChatRequest : PacketHeader
 [MemoryPackable]
 public partial class ChatResponse : PacketHeader
 {
-    public int Result { get; set; }
+    public short Result { get; set; }
 }
 
 [MemoryPackable]
@@ -115,7 +115,7 @@ public partial class NotifyRoomChat : PacketHeader
 // [MemoryPackable]
 // public partial class StartGameResponse : PacketHeader
 // {
-//     public int Result { get; set; }
+//     public short Result { get; set; }
 // }
     // 오목 플레이 준비 완료 요청
     [MemoryPackable]
@@ -157,7 +157,7 @@ public partial class PutStoneRequest : PacketHeader
 [MemoryPackable]
 public partial class PutStoneResponse : PacketHeader
 {
-    public int Result { get; set; }
+    public short Result { get; set; }
 }
 
 [MemoryPackable]
@@ -171,7 +171,7 @@ public partial class NotifyPutStone : PacketHeader
 // [MemoryPackable]
 // public partial class EndGameResponse : PacketHeader
 // {
-//     public int Result { get; set; }
+//     public short Result { get; set; }
 // }
 
 // [MemoryPackable]

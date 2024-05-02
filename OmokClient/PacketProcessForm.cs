@@ -112,7 +112,7 @@ namespace csharp_test_client
 
         void PacketProcess_Loginin(byte[] packetData)
         {
-            var responsePkt = MemoryPackSerializer.Deserialize<LoginResult>(packetData);
+            var responsePkt = MemoryPackSerializer.Deserialize<LoginResponse>(packetData);
             DevLog.Write($"로그인 결과: {(ErrorCode)responsePkt.Result}");
         }
 

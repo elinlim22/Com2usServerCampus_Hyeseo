@@ -14,7 +14,7 @@ namespace CSCommon
     }
 
     [MemoryPackable]
-    public partial class LoginResult : PacketHeader
+    public partial class LoginResponse : PacketHeader
     {
         public short Result;
     }
