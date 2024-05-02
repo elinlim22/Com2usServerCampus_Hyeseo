@@ -15,6 +15,15 @@ namespace CSCommon
         public string Token;
     }
 
+    [MemoryPackable]
+    public partial class PacketHeader
+    {
+        // public Byte[] Head = new Byte[PacketHeadererInfo.HeadSize];
+        public UInt16 Size;
+        public UInt16 Id;
+        public byte Type;
+    }
+
     // 로그인 요청
     [MemoryPackable]
     public partial class LoginRequest : PacketHeader

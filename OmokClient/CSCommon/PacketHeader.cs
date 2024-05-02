@@ -96,9 +96,4 @@ namespace CSCommon
     }
 
 
-    [MemoryPackable]
-    public partial class PacketHeader
-    {
-        public Byte[] Head = new Byte[PacketHeadererInfo.HeadSize];
-    }
 }
