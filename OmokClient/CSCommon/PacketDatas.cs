@@ -5,6 +5,16 @@ using System.Text;
 
 namespace CSCommon
 {
+    [MemoryPackable]
+    public partial class PvPMatchingResult
+    {
+        public string IP;
+        public UInt16 Port;
+        public Int32 RoomNumber;
+        public Int32 Index;
+        public string Token;
+    }
+
     // 로그인 요청
     [MemoryPackable]
     public partial class LoginRequest : PacketHeader

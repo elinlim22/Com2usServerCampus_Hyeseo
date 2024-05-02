@@ -413,16 +413,6 @@ namespace csharp_test_client
             var ret = v.SetAsync(saveValue).Result;
         }
 
-        [MemoryPackable]
-        public partial class PvPMatchingResult
-        {
-            public string IP;
-            public UInt16 Port;
-            public Int32 RoomNumber;
-            public Int32 Index;
-            public string Token;
-        }
-
         // 게임 시작 요청
         private void button3_Click(object sender, EventArgs e)
         {
