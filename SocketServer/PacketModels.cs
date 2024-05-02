@@ -5,9 +5,9 @@ namespace SocketServer;
 [MemoryPackable]
 public partial class PacketHeader
 {
-    public int Id { get; set; }
-    public int Size { get; set; }
-    public int Type { get; set; }
+    public UInt16 Id { get; set; }
+    public UInt16 Size { get; set; }
+    public byte Type { get; set; }
 }
 /* ----------------------------------- 세션 ----------------------------------- */
 [MemoryPackable]
