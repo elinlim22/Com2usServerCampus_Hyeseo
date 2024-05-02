@@ -7,8 +7,8 @@ namespace CSCommon
 {
     public struct PacketHeadererInfo
     {
-        const int PacketHeaderMsgPackStartPos = 3;
-        public const int HeadSize = 8;
+        const int PacketHeaderMsgPackStartPos = 1;
+        public const int HeadSize = 5;
 
         public UInt16 TotalSize;
         public UInt16 ID;
