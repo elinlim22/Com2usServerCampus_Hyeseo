@@ -414,17 +414,12 @@ namespace csharp_test_client
         }
 
         [MemoryPackable]
-        public class PvPMatchingResult
+        public partial class PvPMatchingResult
         {
-            [Key(0)]
             public string IP;
-            [Key(1)]
             public UInt16 Port;
-            [Key(2)]
             public Int32 RoomNumber;
-            [Key(3)]
             public Int32 Index;
-            [Key(4)]
             public string Token;
         }
 
