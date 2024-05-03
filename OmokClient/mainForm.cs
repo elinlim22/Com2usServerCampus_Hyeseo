@@ -412,7 +412,7 @@ namespace csharp_test_client
             var RedisConnection = new CloudStructures.RedisConnection(redisConfig);
 
             var v = new CloudStructures.Structures.RedisString<byte[]>(RedisConnection, key, null);
-            var ret = v.SetAsync(saveValue).Result;
+            // var ret = v.SetAsync(saveValue).Result;
         }
 
         // 게임 시작 요청
