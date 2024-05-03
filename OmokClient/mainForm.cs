@@ -341,10 +341,12 @@ namespace csharp_test_client
                 return;
             }
 
-            //var requestPkt = new RoomChatReqPacket();
-            //requestPkt.SetValue(textBoxRoomSendMsg.Text);
+            // var requestPkt = new RoomChatReqPacket();
+            var requestPkt = new ChatRequest();
+            requestPkt.SetValue(textBoxRoomSendMsg.Text);
 
-            //PostSendPacket(PACKET_ID.ROOM_CHAT_REQ, requestPkt.ToBytes());
+            // PostSendPacket(PACKET_ID.ROOM_CHAT_REQ, requestPkt.ToBytes());
+            PostSendPacket(packetID.ReqRoomChat, MemoryPackSerializer.Serialize(requestPkt));
             DevLog.Write($"방 채팅 요청");
         }
 
