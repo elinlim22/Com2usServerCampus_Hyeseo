@@ -139,6 +139,9 @@ public class PacketHandlerRoom : PacketHandler
             user.LeaveRoom();
 
             ResponseLeaveRoomToClient(sessionID);
+            // 방에 남아있는 유저들에게 통보
+            var notifyPacket = PacketMaker.MakeNotifyRoomUserLeftPacket(sessionID, user.RoomNumber, user.ID());
+            DistributeInnerPacket(notifyPacket);
 
             MainServer.MainLogger.Debug("Room RequestLeave - Success");
         }

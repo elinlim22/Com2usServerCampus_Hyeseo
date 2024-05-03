@@ -329,8 +329,8 @@ namespace csharp_test_client
 
         private void btn_RoomLeave_Click(object sender, EventArgs e)
         {
-            //PostSendPacket(PACKET_ID.ROOM_LEAVE_REQ,  null);
-            DevLog.Write($"방 입장 요청:  {textBoxRoomNumber.Text} 번");
+            PostSendPacket(PacketID.ReqRoomLeave, null);
+            DevLog.Write($"방 퇴장 요청:  {textBoxRoomNumber.Text} 번");
         }
 
         private void btnRoomChat_Click(object sender, EventArgs e)
@@ -343,16 +343,16 @@ namespace csharp_test_client
 
             // var requestPkt = new RoomChatReqPacket();
             var requestPkt = new ChatRequest();
-            requestPkt.SetValue(textBoxRoomSendMsg.Text);
+            // requestPkt.SetValue(textBoxRoomSendMsg.Text);
+            requestPkt.Message = textBoxRoomSendMsg.Text;
 
-            // PostSendPacket(PACKET_ID.ROOM_CHAT_REQ, requestPkt.ToBytes());
-            PostSendPacket(packetID.ReqRoomChat, MemoryPackSerializer.Serialize(requestPkt));
+            PostSendPacket(PacketID.ReqRoomChat, MemoryPackSerializer.Serialize(requestPkt));
             DevLog.Write($"방 채팅 요청");
         }
 
         private void btnMatching_Click(object sender, EventArgs e)
         {
-            //PostSendPacket(PACKET_ID.MATCH_USER_REQ, null);
+            // PostSendPacket(PacketID.ReqMatching, null);
             DevLog.Write($"매칭 요청");
         }
 
@@ -384,7 +384,8 @@ namespace csharp_test_client
 
         private void btn_GameStartClick(object sender, EventArgs e)
         {
-            //PostSendPacket(PACKET_ID.GAME_START_REQ, null);
+            DevLog.Write($"게임 시작 요청");
+            PostSendPacket(PacketID.ReqReadyOmok, null);
             StartGame(true, "My", "Other");
         }
 

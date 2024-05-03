@@ -89,6 +89,7 @@ namespace CSCommon
     [MemoryPackable]
     public partial class NotifyRoomUserLeft : PacketHeader
     {
+        public int RoomNumber;
         public string UserId;
     }
 

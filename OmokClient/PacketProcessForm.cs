@@ -2,6 +2,7 @@
 using MemoryPack;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -149,6 +150,8 @@ namespace csharp_test_client
             var responsePkt = MemoryPackSerializer.Deserialize<LeaveRoomResponse>(packetData);
 
             DevLog.Write($"방 나가기 결과:  {(ErrorCode)responsePkt.Result}");
+
+            // TODO : NotifyRoomUserLeft 패킷 보내는 것을 서버에서 처리하는가?
         }
 
         void PacketProcess_RoomLeaveUserNotify(byte[] packetData)
