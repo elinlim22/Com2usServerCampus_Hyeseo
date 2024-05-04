@@ -1,4 +1,5 @@
 using MemoryPack;
+using System.ComponentModel;
 
 namespace SocketServer;
 
@@ -19,6 +20,8 @@ public class PacketHandlerRoom : PacketHandler
         packetHandlerMap[(int)PacketType.LeaveRoomRequest] = RequestLeave;
         packetHandlerMap[(int)PacketType.NotifyRoomUserLeft] = NotifyLeaveInternal;
         packetHandlerMap[(int)PacketType.ChatRequest] = RequestChat;
+        packetHandlerMap[(int)PacketType.PKTReqReadyOmok] = RequestReadyOmok;
+        packetHandlerMap[(int)PacketType.PKTNtfStartOmok] = RequestStartOmok;
     }
 
 
@@ -139,9 +142,6 @@ public class PacketHandlerRoom : PacketHandler
             user.LeaveRoom();
 
             ResponseLeaveRoomToClient(sessionID);
-            // 방에 남아있는 유저들에게 통보
-            var notifyPacket = PacketMaker.MakeNotifyRoomUserLeftPacket(sessionID, user.RoomNumber, user.ID());
-            DistributeInnerPacket(notifyPacket);
 
             MainServer.MainLogger.Debug("Room RequestLeave - Success");
         }
@@ -231,4 +231,66 @@ public class PacketHandlerRoom : PacketHandler
             MainServer.MainLogger.Error(ex.ToString());
         }
     }
+
+    public void RequestReadyOmok(RequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        MainServer.MainLogger.Debug("RequestReadyOmok");
+
+        try
+        {
+            var roomObject = CheckRoomAndRoomUser(sessionID);
+
+            if (roomObject.Item1 == false)
+            {
+                return;
+            }
+
+            var room = roomObject.Item2;
+            var roomUser = roomObject.Item3;
+
+            roomUser.ReadyOmok();
+
+            if (room.IsAllUserReadyOmok())
+            {
+                room.StartOmok();
+            }
+            else
+            {
+                room.NotifyPacketReadyOmok(roomUser.UserId);
+            }
+
+            MainServer.MainLogger.Debug("RequestReadyOmok - Success");
+        }
+        catch (Exception ex)
+        {
+            MainServer.MainLogger.Error(ex.ToString());
+        }
+    }
+
+    public void RequestStartOmok(RequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        MainServer.MainLogger.Debug("RequestStartOmok");
+
+        try
+        {
+            var roomObject = CheckRoomAndRoomUser(sessionID);
+
+            if (roomObject.Item1 == false)
+            {
+                return;
+            }
+
+            var room = roomObject.Item2;
+            room.StartOmok();
+
+            MainServer.MainLogger.Debug("RequestStartOmok - Success");
+        }
+        catch (Exception ex)
+        {
+            MainServer.MainLogger.Error(ex.ToString());
+        }
+    }
+
 }

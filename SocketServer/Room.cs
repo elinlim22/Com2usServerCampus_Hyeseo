@@ -93,10 +93,10 @@ public class Room
 
     public void NotifyPacketLeaveUser(string UserId)
     {
-        if(CurrentUserCount() == 0)
-        {
-            return;
-        }
+        //if(CurrentUserCount() == 0)
+        //{
+          //  return;
+        //}
 
         var packet = new NotifyRoomUserLeft
         {
@@ -121,16 +121,64 @@ public class Room
             SendData(user.NetSessionID, sendPacket);
         }
     }
+
+    public bool IsAllUserReadyOmok()
+    {
+        foreach(var user in _userList)
+        {
+            if(user.IsReady == false)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public void StartOmok()
+    {
+        var packet = new PKTNtfStartOmok();
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfStartOmok);
+
+        Broadcast("", sendPacket);
+    }
+
+    public void NotifyPacketReadyOmok(string UserId)
+    {
+        var packet = new PKTNtfReadyOmok
+        {
+            UserId = UserId,
+            IsReady = true
+        };
+
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfReadyOmok);
+
+        Broadcast("", sendPacket);
+    }
 }
 
 public class RoomUser
 {
     public string UserId { get; private set; }
     public string NetSessionID { get; private set; }
+    public bool IsReady { get; set; }
 
     public void Set(string userId, string netSessionID)
     {
         UserId = userId;
         NetSessionID = netSessionID;
     }
+
+    public void ReadyOmok()
+    {
+        IsReady = true;
+    }
+
+    public void CancelReadyOmok()
+    {
+        IsReady = false;
+    }
+
 }

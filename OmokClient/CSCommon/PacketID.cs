@@ -21,7 +21,7 @@ namespace CSCommon
 
         public const UInt16 ReqRoomLeave = 1021;
         public const UInt16 ResRoomLeave = 1022;
-        public const UInt16 NtfRoomLeaveUser = 1023;
+        public const UInt16 NotifyRoomUserLeft = 1023;
 
         public const UInt16 ReqRoomChat = 1026;
         public const UInt16 ResRoomChat = 1027;

@@ -271,7 +271,7 @@ namespace csharp_test_client
             listBoxRoomUserList.Items.Add(userID);
         }
 
-        void RemoveRoomUserList(string userID)
+        void RemoveRoomUserList(string userID) // TODO : 방에서 나간 유저는 clear되어야 한다.
         {
             object removeItem = null;
 
@@ -280,7 +280,7 @@ namespace csharp_test_client
                 if((string)user == userID)
                 {
                     removeItem = user;
-                    return;
+                    break;
                 }
             }
 

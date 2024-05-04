@@ -24,7 +24,7 @@ namespace csharp_test_client
             PacketFuncDic.Add(PacketID.NtfRoomUserList, PacketProcess_RoomUserListNotify);
             PacketFuncDic.Add(PacketID.NtfRoomNewUser, PacketProcess_RoomNewUserNotify);
             PacketFuncDic.Add(PacketID.ResRoomLeave, PacketProcess_RoomLeaveResponse);
-            PacketFuncDic.Add(PacketID.NtfRoomLeaveUser, PacketProcess_RoomLeaveUserNotify);
+            PacketFuncDic.Add(PacketID.NotifyRoomUserLeft, PacketProcess_RoomLeaveUserNotify);
             PacketFuncDic.Add(PacketID.ResRoomChat, PacketProcess_RoomChatResponse);
             PacketFuncDic.Add(PacketID.NtfRoomChat, PacketProcess_RoomChatNotify);
             PacketFuncDic.Add(PacketID.ResReadyOmok, PacketProcess_ReadyOmokResponse);
@@ -151,7 +151,12 @@ namespace csharp_test_client
 
             DevLog.Write($"방 나가기 결과:  {(ErrorCode)responsePkt.Result}");
 
-            // TODO : NotifyRoomUserLeft 패킷 보내는 것을 서버에서 처리하는가?
+            // TODO : 방 나가기 성공 시 ListBox 초기화
+            if (responsePkt.Result == (int)ErrorCode.None)
+            {
+                // listBoxRoomUser.Items.Clear();
+
+            }
         }
 
         void PacketProcess_RoomLeaveUserNotify(byte[] packetData)

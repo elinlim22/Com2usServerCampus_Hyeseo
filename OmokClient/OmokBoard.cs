@@ -56,7 +56,8 @@ namespace csharp_test_client
         {
             DoubleBuffered = true;
 
-            var curDir = System.Windows.Forms.Application.StartupPath;
+            // var curDir = System.Windows.Forms.Application.StartupPath;
+            var curDir = "C:\\Users\\HYESEO\\Desktop\\Com2usServerCampus_Hyeseo\\OmokClient";
             시작효과음 = new SoundPlayer($"{curDir}\\sound\\대국시작.wav");
             승리효과음 = new SoundPlayer($"{curDir}\\sound\\대국승리.wav");
             바둑돌소리 = new SoundPlayer($"{curDir}\\sound\\바둑돌소리.wav");
