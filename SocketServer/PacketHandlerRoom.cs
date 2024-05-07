@@ -22,6 +22,7 @@ public class PacketHandlerRoom : PacketHandler
         packetHandlerMap[(int)PacketType.ChatRequest] = RequestChat;
         packetHandlerMap[(int)PacketType.PKTReqReadyOmok] = RequestReadyOmok;
         packetHandlerMap[(int)PacketType.PKTNtfStartOmok] = RequestStartOmok;
+        packetHandlerMap[(int)PacketType.PutStoneRequest] = RequestPutOmok;
     }
 
 
@@ -286,6 +287,49 @@ public class PacketHandlerRoom : PacketHandler
             room.StartOmok();
 
             MainServer.MainLogger.Debug("RequestStartOmok - Success");
+        }
+        catch (Exception ex)
+        {
+            MainServer.MainLogger.Error(ex.ToString());
+        }
+    }
+
+    public void ReqeustPutOmok(RequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        MainServer.MainLogger.Debug("ReqeustPutOmok");
+
+        try
+        {
+            var roomObject = CheckRoomAndRoomUser(sessionID);
+
+            if (roomObject.Item1 == false)
+            {
+                return;
+            }
+
+            var room = roomObject.Item2;
+            var roomUser = roomObject.Item3;
+
+            var reqData = MemoryPackSerializer.Deserialize<PutStoneRequest>(packetData.Data);
+
+            // 돌 두기 요청 처리(오목 규칙 체크, 게임 종료 체크), 돌 두기 응답
+            room.PutStoneRequest(roomUser.UserId, reqData.X, reqData.Y);
+            
+            // 게임 종료 시 게임 종료 응답
+            if (room.omokRule.게임종료 == true)
+            {
+                var packet = new PKTNtfEndOmok();
+                // 승자 정보 저장
+
+                var sendPacket = MemoryPackSerializer.Serialize(packet);
+                PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
+                room.Broadcast("", sendPacket);
+            }
+            // 승리 조건을 만족하면, 승리 응답을 보낸다. << 승패 저장
+            // TODO : 승리 조건을 만족하지 않으면, 다음 턴을 알린다. << ??
+
+            MainServer.MainLogger.Debug("ReqeustPutOmok - Success");
         }
         catch (Exception ex)
         {

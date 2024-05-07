@@ -238,7 +238,7 @@ namespace csharp_test_client
         {
             var responsePkt = MemoryPackSerializer.Deserialize<PutStoneResponse>(packetData);
 
-            DevLog.Write($"오목 놓기 실패: {(ErrorCode)responsePkt.Result}");
+            DevLog.Write($"오목 놓기 결과: {(ErrorCode)responsePkt.Result}");
 
             //TODO 방금 놓은 오목 정보를 취소 시켜야 한다
         }

@@ -15,6 +15,8 @@ public class Room
     List<RoomUser> _userList = [];
 
     public static Func<string, byte[], bool> SendData;
+    
+    public OmokRule omokRule = new OmokRule();
 
 
     public void Init(int index, int number, int maxUserCount)
@@ -26,7 +28,7 @@ public class Room
 
     public bool AddUser(string UserId, string netSessionID)
     {
-        if(GetUser(UserId) != null)
+        if (GetUser(UserId) != null)
         {
             return false;
         }
@@ -95,7 +97,7 @@ public class Room
     {
         //if(CurrentUserCount() == 0)
         //{
-          //  return;
+        //  return;
         //}
 
         var packet = new NotifyRoomUserLeft
@@ -111,9 +113,9 @@ public class Room
 
     public void Broadcast(string excludeNetSessionID, byte[] sendPacket)
     {
-        foreach(var user in _userList)
+        foreach (var user in _userList)
         {
-            if(user.NetSessionID == excludeNetSessionID)
+            if (user.NetSessionID == excludeNetSessionID)
             {
                 continue;
             }
@@ -124,9 +126,9 @@ public class Room
 
     public bool IsAllUserReadyOmok()
     {
-        foreach(var user in _userList)
+        foreach (var user in _userList)
         {
-            if(user.IsReady == false)
+            if (user.IsReady == false)
             {
                 return false;
             }
@@ -154,6 +156,34 @@ public class Room
 
         var sendPacket = MemoryPackSerializer.Serialize(packet);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfReadyOmok);
+
+        Broadcast("", sendPacket);
+    }
+
+    public void PutStoneRequest(string UserId, int x, int y)
+    {
+        var packet = new PutStoneResponse();
+        돌두기_결과 result = omokRule.돌두기(x, y);
+        omokRule.오목확인(x, y);
+        packet.Result = (short)result;
+
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.PutStoneResponse);
+
+        Broadcast("", sendPacket);
+    }
+
+    public void NotifyPutStone(string UserId, int x, int y, int mok)
+    {
+        var packet = new NotifyPutStone
+        {
+            X = x,
+            Y = y,
+            Mok = mok
+        };
+
+        var sendPacket = MemoryPackSerializer.Serialize(packet);
+        PacketHeaderInfo.Write(sendPacket, PacketType.NotifyPutStone);
 
         Broadcast("", sendPacket);
     }

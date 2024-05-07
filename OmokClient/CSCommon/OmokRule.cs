@@ -46,7 +46,7 @@ namespace CSCommon
         {
             게임종료 = true;
         }
-
+        
         public int 바둑판알(int x, int y)
         {
             return 바둑판[x,y];
