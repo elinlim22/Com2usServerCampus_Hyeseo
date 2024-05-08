@@ -216,6 +216,18 @@ namespace csharp_test_client
             }
 
         }
+        /*
+        void PacketProcess_StartOmokResponse(byte[] packetData)
+        {
+            var responsePkt = MemoryPackSerializer.Deserialize<PKTResStart>(packetData);
+
+            DevLog.Write($"게임 시작 요청 결과:  {(ErrorCode)responsePkt.Result}");
+            if (responsePkt.Result == (short)ErrorCode.None)
+            {
+                // 게임 시작
+                // notify패킷 보내기
+            }
+        }*/
 
         void PacketProcess_StartOmokNotify(byte[] packetData)
         {
@@ -240,7 +252,7 @@ namespace csharp_test_client
 
             DevLog.Write($"오목 놓기 결과: {(ErrorCode)responsePkt.Result}");
 
-            //TODO 방금 놓은 오목 정보를 취소 시켜야 한다
+            //TODO : 요청 실패할 경우 방금 놓은 오목 정보를 취소 시켜야 한다
         }
 
 
@@ -250,7 +262,7 @@ namespace csharp_test_client
 
             플레이어_돌두기(true, notifyPkt.X, notifyPkt.Y);
 
-            DevLog.Write($"오목 정보: X: {notifyPkt.X},  Y: {notifyPkt.Y},   알:{notifyPkt.Mok}");
+            DevLog.Write($"오목 정보: X: {notifyPkt.X},  Y: {notifyPkt.Y}");
         }
 
 

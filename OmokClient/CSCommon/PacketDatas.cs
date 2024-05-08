@@ -143,6 +143,18 @@ namespace CSCommon
         public bool IsReady;
     }
 
+    [MemoryPackable]
+    public partial class PKTReqStart : PacketHeader
+    {
+
+    }
+
+    [MemoryPackable]
+    public partial class PKTResStart : PacketHeader
+    {
+        public short Result;
+    }
+
 
     // 오목 시작 통보(서버에서 클라이언트들에게)
     [MemoryPackable]

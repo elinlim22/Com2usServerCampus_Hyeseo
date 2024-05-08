@@ -165,7 +165,7 @@ public partial class NotifyPutStone : PacketHeader
 {
     public int X { get; set;}
     public int Y { get; set;}
-    public int Mok { get; set;}
+    // public int Mok { get; set;}
 }
 /* ---------------------------------- 게임 종료 --------------------------------- */
 // [MemoryPackable]

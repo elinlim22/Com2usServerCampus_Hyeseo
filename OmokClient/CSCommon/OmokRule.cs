@@ -45,6 +45,9 @@ namespace CSCommon
         public void EndGame()
         {
             게임종료 = true;
+            // TODO : 바둑판 초기화
+            Array.Clear(바둑판, 0, 바둑판크기 * 바둑판크기);
+            st.Clear();
         }
         
         public int 바둑판알(int x, int y)

@@ -294,7 +294,7 @@ public class PacketHandlerRoom : PacketHandler
         }
     }
 
-    public void ReqeustPutOmok(RequestInfo packetData)
+    public void RequestPutOmok(RequestInfo packetData)
     {
         var sessionID = packetData.SessionID;
         MainServer.MainLogger.Debug("ReqeustPutOmok");
@@ -310,26 +310,35 @@ public class PacketHandlerRoom : PacketHandler
 
             var room = roomObject.Item2;
             var roomUser = roomObject.Item3;
+            var roomOtherUser = room.GetOtherUser(roomUser.UserId);
 
             var reqData = MemoryPackSerializer.Deserialize<PutStoneRequest>(packetData.Data);
 
             // 돌 두기 요청 처리(오목 규칙 체크, 게임 종료 체크), 돌 두기 응답
-            room.PutStoneRequest(roomUser.UserId, reqData.X, reqData.Y);
+            room.PutStoneRequest(roomUser.UserId, reqData.X, reqData.Y); // 요청을 보낸 플레이어에게는 PutStoneResponse가 전송된다.
+            // 요청을 보내지 않은 플레이어에게는 NotifyPutStone이 전송된다.
+            room.NotifyPutStone(roomOtherUser.UserId, reqData.X, reqData.Y); // 이 패킷을 받은 클라이언트는 돌을 그린다.
+            MainServer.MainLogger.Debug("ReqeustPutOmok - Success");
             
             // 게임 종료 시 게임 종료 응답
             if (room.omokRule.게임종료 == true)
             {
-                var packet = new PKTNtfEndOmok();
-                // 승자 정보 저장
+                var endPacket = new PKTNtfEndOmok
+                {
+                    // 승자 정보 저장
+                    WinUserId = roomUser.UserId
+                };
+                room.omokRule.EndGame();
+                // 플레이어 준비 상태 초기화
+                roomUser.CancelReadyOmok();
+                roomOtherUser.CancelReadyOmok();
 
-                var sendPacket = MemoryPackSerializer.Serialize(packet);
+                var sendPacket = MemoryPackSerializer.Serialize(endPacket);
                 PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
                 room.Broadcast("", sendPacket);
+                MainServer.MainLogger.Debug("게임 종료");
             }
-            // 승리 조건을 만족하면, 승리 응답을 보낸다. << 승패 저장
-            // TODO : 승리 조건을 만족하지 않으면, 다음 턴을 알린다. << ??
 
-            MainServer.MainLogger.Debug("ReqeustPutOmok - Success");
         }
         catch (Exception ex)
         {

@@ -341,9 +341,7 @@ namespace csharp_test_client
                 return;
             }
 
-            // var requestPkt = new RoomChatReqPacket();
             var requestPkt = new ChatRequest();
-            // requestPkt.SetValue(textBoxRoomSendMsg.Text);
             requestPkt.Message = textBoxRoomSendMsg.Text;
 
             PostSendPacket(PacketID.ReqRoomChat, MemoryPackSerializer.Serialize(requestPkt));

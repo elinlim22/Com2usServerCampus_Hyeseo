@@ -337,7 +337,6 @@ namespace csharp_test_client
 
             돌그리기(x, y);
             현재돌표시();
-            OmokLogic.오목확인(x, y);
                         
             
             if (isNotify == false)
