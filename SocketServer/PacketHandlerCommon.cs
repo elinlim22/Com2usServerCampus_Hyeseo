@@ -97,7 +97,7 @@ public class PacketHandlerCommon : PacketHandler
         var user = _userMgr.GetUser(sessionID);
         TimeSpan now = DateTime.Now.TimeOfDay;
 
-        if (now - user.LastPing > TimeSpan.FromSeconds(10))
+        if (now - user.LastPing > TimeSpan.FromSeconds(10)) // TODO : Config로 빼기
         {
             resHeartBeat.Result = (short)ErrorCode.PingTimeout;
             MainServer.MainLogger.Error($"Ping Timeout. SessionID:{sessionID}");
