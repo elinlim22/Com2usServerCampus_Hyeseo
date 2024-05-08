@@ -94,7 +94,7 @@ public partial class NotifyRoomUserLeft : PacketHeader
 [MemoryPackable]
 public partial class NotifyUserMustClose : PacketHeader
 {
-    public short Result { get; set; }
+    public short ErrorCode { get; set; }
 }
 /* ---------------------------------- 방 채팅 ---------------------------------- */
 [MemoryPackable]

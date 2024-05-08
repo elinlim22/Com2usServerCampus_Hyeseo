@@ -43,4 +43,22 @@ public class PacketMaker
         return newPacket;
     }
 
+    public static RequestInfo MakeNotifyUserMustClose(ErrorCode errorCode, string sessionID)
+    {
+        var notifyPacket = new NotifyUserMustClose()
+        {
+            ErrorCode = (short)errorCode
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(notifyPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.NotifyUserMustClose);
+
+        var newPacket = new RequestInfo(null)
+        {
+            Data = sendData,
+            SessionID = sessionID
+        };
+        return newPacket;
+    }
+
 }

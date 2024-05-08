@@ -34,6 +34,7 @@ namespace csharp_test_client
             PacketFuncDic.Add(PacketID.NTFPutMok, PacketProcess_PutMokNotify);
             PacketFuncDic.Add(PacketID.NTFEndOmok, PacketProcess_EndOmokNotify);
             PacketFuncDic.Add(PacketID.ResHeartBeat, PacketProcess_HeartBeatPong);
+            packetFuncDic.Add(PacketID.NtfMustClose, PacketProcess_MustCloseNotify);
         }
 
         void PacketProcess(byte[] packet)
@@ -297,5 +298,14 @@ namespace csharp_test_client
                 DevLog.Write("HeartBeat Pong..oO");
             }*/
         }
+
+        void PacketProcess_MustCloseNotify(byte[] packetData)
+        {
+            var notifyPkt = MemoryPackSerializer.Deserialize<NotifyUserMustClose>(packetData);
+
+            DevLog.Write($"강제 종료 통보 받음: {notifyPkt.ErrorCode}");
+
+            SetDisconnected();
+        }   
     }
 }

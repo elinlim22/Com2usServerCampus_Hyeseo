@@ -13,6 +13,16 @@ public class PacketHandlerCommon : PacketHandler
 
     public void NotifyInConnectClient(RequestInfo requestData)
     {
+        var sessionID = requestData.SessionID;
+        MainServer.MainLogger.Debug($"세션 연결됨. SessionID:{sessionID}");
+
+        // 유저상태조사 리스트에 추가
+        var errorCode = _userMgr.AddSession(sessionID);
+        if (errorCode != ErrorCode.Success)
+        {
+            MainServer.MainLogger.Error($"세션 연결 실패. ErrorCode:{errorCode}");
+            return;
+        }
     }
 
     public void NotifyInDisConnectClient(RequestInfo requestData)
@@ -105,7 +115,7 @@ public class PacketHandlerCommon : PacketHandler
         else
         {
             resHeartBeat.Result = (short)ErrorCode.Success;
-            user.UpdatePing();
+            user.UpdateLastPing();
             MainServer.MainLogger.Debug($"SessionID:{sessionID}, Pong..oO");
         }
 

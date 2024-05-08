@@ -55,7 +55,7 @@ namespace CSCommon
     [MemoryPackable]
     public partial class NotifyUserMustClose : PacketHeader
     {
-        public short Result;
+        public short ErrorCode;
     }
 
 
