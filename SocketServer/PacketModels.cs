@@ -96,6 +96,13 @@ public partial class NotifyUserMustClose : PacketHeader
 {
     public short ErrorCode { get; set; }
 }
+
+[MemoryPackable]
+public partial class NotifyUserMustLeave : PacketHeader
+{
+    public int RoomNumber { get; set; }
+    public string UserId { get; set; }
+}
 /* ---------------------------------- 방 채팅 ---------------------------------- */
 [MemoryPackable]
 public partial class ChatRequest : PacketHeader

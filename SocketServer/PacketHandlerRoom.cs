@@ -302,12 +302,10 @@ public class PacketHandlerRoom : PacketHandler
         try
         {
             var roomObject = CheckRoomAndRoomUser(sessionID);
-
             if (roomObject.Item1 == false)
             {
                 return;
             }
-
             var room = roomObject.Item2;
             var roomUser = roomObject.Item3;
             var roomOtherUser = room.GetOtherUser(roomUser.UserId);
@@ -316,29 +314,19 @@ public class PacketHandlerRoom : PacketHandler
 
             // 돌 두기 요청 처리(오목 규칙 체크, 게임 종료 체크), 돌 두기 응답
             room.PutStoneRequest(roomUser.UserId, reqData.X, reqData.Y); // 요청을 보낸 플레이어에게는 PutStoneResponse가 전송된다.
+            roomUser.IsMyTurn = true;
             // 요청을 보내지 않은 플레이어에게는 NotifyPutStone이 전송된다.
             room.NotifyPutStone(roomOtherUser.UserId, reqData.X, reqData.Y); // 이 패킷을 받은 클라이언트는 돌을 그린다.
+            roomOtherUser.IsMyTurn = false;
             MainServer.MainLogger.Debug("ReqeustPutOmok - Success");
             
             // 게임 종료 시 게임 종료 응답
             if (room.omokRule.게임종료 == true)
             {
-                var endPacket = new PKTNtfEndOmok
-                {
-                    // 승자 정보 저장
-                    WinUserId = roomUser.UserId
-                };
-                room.omokRule.EndGame();
-                // 플레이어 준비 상태 초기화
-                roomUser.CancelReadyOmok();
-                roomOtherUser.CancelReadyOmok();
+                room.EndRoomGame(roomUser, roomOtherUser);
                 // 유저 타이머 업데이트
                 _userMgr.UpdateUserLastConnection(roomUser.UserId);
                 _userMgr.UpdateUserLastConnection(roomOtherUser.UserId);
-
-                var sendPacket = MemoryPackSerializer.Serialize(endPacket);
-                PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
-                room.Broadcast("", sendPacket);
                 MainServer.MainLogger.Debug("게임 종료");
             }
 

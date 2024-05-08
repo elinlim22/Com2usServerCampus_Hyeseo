@@ -34,7 +34,8 @@ namespace csharp_test_client
             PacketFuncDic.Add(PacketID.NTFPutMok, PacketProcess_PutMokNotify);
             PacketFuncDic.Add(PacketID.NTFEndOmok, PacketProcess_EndOmokNotify);
             PacketFuncDic.Add(PacketID.ResHeartBeat, PacketProcess_HeartBeatPong);
-            packetFuncDic.Add(PacketID.NtfMustClose, PacketProcess_MustCloseNotify);
+            PacketFuncDic.Add(PacketID.NtfMustClose, PacketProcess_MustCloseNotify);
+            PacketFuncDic.Add(PacketID.NotifyUserMustLeave, PacketProcess_NotifyUserMustLeave);
         }
 
         void PacketProcess(byte[] packet)
@@ -306,6 +307,15 @@ namespace csharp_test_client
             DevLog.Write($"강제 종료 통보 받음: {notifyPkt.ErrorCode}");
 
             SetDisconnected();
-        }   
+        }
+
+        void PacketProcess_NotifyUserMustLeave(byte[] packetData)
+        {
+            var notifyPkt = MemoryPackSerializer.Deserialize<NotifyUserMustLeave>(packetData);
+
+            DevLog.Write($"활동 없으므로 방에서 나가짐: {notifyPkt.RoomNumber}번방 {notifyPkt.UserId} 유저");
+            // 모든 유저 내보내기
+            RemoveRoomUserList(notifyPkt.UserId);
+        }
     }
 }

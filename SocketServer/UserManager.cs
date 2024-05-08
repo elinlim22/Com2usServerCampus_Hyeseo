@@ -1,6 +1,8 @@
+using MemoryPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks.Dataflow;
 
 
 namespace SocketServer;
@@ -18,7 +20,7 @@ public class UserManager
     TimeSpan StatusStandardTime = TimeSpan.FromHours(1); // TODO : Config로 빼기
 
     Dictionary<string, User> Users = [];
-    public static Action<RequestInfo> DistributeInnerPacket;
+    public static Func<string, byte[], bool> SendData;
 
     public void Init(int totalUserMaximum)
     {
@@ -76,7 +78,10 @@ public class UserManager
             {
                 // 유저 강제종료 패킷 전송하여 클라이언트에서 세션을 종료시킨다.
                 var sendPacket = PacketMaker.MakeNotifyUserMustClose(ErrorCode.UserForcedClose, userSession.Item1);
-                DistributeInnerPacket(sendPacket);
+                var packet = MemoryPackSerializer.Serialize(sendPacket);
+                PacketHeaderInfo.Write(packet, PacketType.NotifyUserMustClose);
+                SendData(userSession.Item1, packet);
+
                 MainServer.MainLogger.Error($"User Forced Close due to Inactivity. SessionID:{userSession.Item1}");
                 RemoveUser(userSession.Item1);
             }

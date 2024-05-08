@@ -5,7 +5,8 @@ namespace SocketServer;
 public class Room
 {
     public const int InvalidRoomNumber = -1;
-
+    public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
+    public TimeSpan LastActivity;
 
     public int Index { get; private set; }
     public int Number { get; private set; }
@@ -24,6 +25,12 @@ public class Room
         Index = index;
         Number = number;
         _maxUserCount = maxUserCount;
+        UpdateLastActivity();
+    }
+
+    public void UpdateLastActivity()
+    {
+        LastActivity = DateTime.Now.TimeOfDay;
     }
 
     public bool AddUser(string UserId, string netSessionID)
@@ -36,6 +43,7 @@ public class Room
         var roomUser = new RoomUser();
         roomUser.Set(UserId, netSessionID);
         _userList.Add(roomUser);
+        UpdateLastActivity();
 
         return true;
     }
@@ -64,6 +72,21 @@ public class Room
     public RoomUser GetUserByNetSessionId(string netSessionID)
     {
         return _userList.Find(x => x.NetSessionID == netSessionID);
+    }
+
+    public List<RoomUser> GetUserList()
+    {
+        return _userList;
+    }
+
+    public RoomUser GetNextUser()
+    {
+        return _userList.Find(x => x.IsMyTurn == false);
+    }
+
+    public RoomUser GetCurrentUser()
+    {
+        return _userList.Find(x => x.IsMyTurn == true);
     }
 
     public int CurrentUserCount()
@@ -149,6 +172,8 @@ public class Room
     public void StartOmok()
     {
         omokRule.StartGame();
+        StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config로 빼기
+        UpdateLastActivity();
         var packet = new PKTNtfStartOmok
         {
             FirstUserId = _userList[0].UserId
@@ -185,6 +210,8 @@ public class Room
         PacketHeaderInfo.Write(sendPacket, PacketType.PutStoneResponse);
 
         SendData(user.NetSessionID, sendPacket);
+
+        UpdateLastActivity();
     }
 
     public void NotifyPutStone(string UserId, int x, int y)
@@ -201,6 +228,26 @@ public class Room
 
         SendData(user.NetSessionID, sendPacket);
     }
+
+    public void EndRoomGame(RoomUser roomUser, RoomUser roomOtherUser)
+    {
+        var endPacket = new PKTNtfEndOmok
+        {
+            WinUserId = roomUser.UserId
+        };
+        omokRule.EndGame();
+        // 플레이어 준비 상태 초기화
+        roomUser.CancelReadyOmok();
+        roomOtherUser.CancelReadyOmok();
+        // 방 타이머 업데이트
+        UpdateLastActivity();
+        StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
+
+        var sendPacket = MemoryPackSerializer.Serialize(endPacket);
+        PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
+
+        Broadcast("", sendPacket);
+    }
 }
 
 public class RoomUser
@@ -208,6 +255,7 @@ public class RoomUser
     public string UserId { get; private set; }
     public string NetSessionID { get; private set; }
     public bool IsReady { get; set; }
+    public bool IsMyTurn { get; set; }
 
     public void Set(string userId, string netSessionID)
     {

@@ -1,4 +1,5 @@
 using MemoryPack;
+using System.Dynamic;
 
 namespace SocketServer;
 
@@ -57,6 +58,25 @@ public class PacketMaker
         {
             Data = sendData,
             SessionID = sessionID
+        };
+        return newPacket;
+    }
+
+    public static RequestInfo MakeNotifyUserMustLeave(string userId, string sessionId, int roomNumber)
+    {
+        var notifyPacket = new NotifyUserMustLeave()
+        {
+            RoomNumber = roomNumber,
+            UserId = userId
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(notifyPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.NotifyUserMustLeave);
+
+        var newPacket = new RequestInfo(null)
+        {
+            Data = sendData,
+            SessionID = sessionId
         };
         return newPacket;
     }

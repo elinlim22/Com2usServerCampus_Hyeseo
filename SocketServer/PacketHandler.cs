@@ -9,6 +9,6 @@ public class PacketHandler
     public void Init(UserManager userMgr)
     {
         this._userMgr = userMgr;
-        UserManager.DistributeInnerPacket = DistributeInnerPacket;
+        UserManager.SendData = SendData;
     }
 }

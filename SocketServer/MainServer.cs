@@ -154,6 +154,7 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         InitServerConfig(serverOpt);
         Room.SendData = this.SendData;
         _roomManager.CreateRooms(serverOpt);
+        RoomManager.SendData = this.SendData;
 
         _packetProcessor.SendData = this.SendData;
         _packetProcessor.CreateAndStart(_roomManager.GetRoomsList(), serverOpt);

@@ -44,10 +44,10 @@ public class User
         RoomNumber = roomNumber;
     }
 
-    //public string GetSessionID()
-    //{
-    //    return SessionID;
-    //}
+    public string GetSessionID()
+    {
+        return SessionID;
+    }
 
     public void LeaveRoom()
     {

@@ -333,6 +333,15 @@ namespace csharp_test_client
             panel1.Invalidate();
         }
 
+        void LeaveRoom()
+        {             
+            listBoxRoomUserList.Items.Clear();
+            listBoxRoomChatMsg.Items.Clear();
+            textBoxRoomNumber.Text = "";
+            textBoxRoomSendMsg.Text = "";
+            ClearRoom();
+        }
+
         // 로그인 요청
         private void button2_Click(object sender, EventArgs e) // 로그인 요청
         {

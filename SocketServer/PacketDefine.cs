@@ -26,6 +26,7 @@ public enum PacketType : UInt16
     LeaveRoomRequest = 1021,
     LeaveRoomResponse,
     NotifyUserMustClose = 1005,
+    NotifyUserMustLeave,
     /* ---------------------------------- 방 채팅 ---------------------------------- */
     ChatRequest = 1026,
     ChatResponse,

@@ -105,6 +105,13 @@ namespace CSCommon
         public string UserId;
     }
 
+    [MemoryPackable]
+    public partial class NotifyUserMustLeave : PacketHeader
+    {
+        public int RoomNumber;
+        public string UserId;
+    }
+
 
     [MemoryPackable]
     public partial class ChatRequest : PacketHeader

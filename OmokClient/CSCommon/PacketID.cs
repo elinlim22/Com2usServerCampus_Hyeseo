@@ -15,6 +15,7 @@ namespace CSCommon
         public const UInt16 ResLogin = 1003;
 
         public const UInt16 NtfMustClose = 1005;
+        public const UInt16 NotifyUserMustLeave = 1006;
 
         public const UInt16 ReqRoomEnter = 1015;
         public const UInt16 ResRoomEnter = 1016;
