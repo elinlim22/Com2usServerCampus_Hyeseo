@@ -68,7 +68,7 @@ public class UserManager
         int startIndex = currentGroupIndex * batchSize;
         foreach (var userSession in UserStatusCheckList.GetRange(startIndex, batchSize))
         {
-            if (userSession == null || userSession.Item2.RoomNumber == -1)
+            if (userSession == null || userSession.Item2.RoomNumber != -1)
             {
                 continue;
             }
@@ -122,6 +122,19 @@ public class UserManager
         var userSessionIndex = UserStatusCheckList.FindIndex(x => x.Item1 == sessionID);
         UserStatusCheckList[userSessionIndex] = null;
         return ErrorCode.Success;
+    }
+
+    public void UpdateUserLastConnection(string sessionID)
+    {
+        var user = GetUser(sessionID);
+        if(user != null)
+        {
+            user.UpdateLastConnection();
+        }
+        else
+        {
+            MainServer.MainLogger.Error($"UpdateUserLastConnection: User Not Found. SessionID:{sessionID}");
+        }
     }
 
     public User GetUser(string sessionID)

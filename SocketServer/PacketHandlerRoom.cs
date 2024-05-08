@@ -332,6 +332,9 @@ public class PacketHandlerRoom : PacketHandler
                 // 플레이어 준비 상태 초기화
                 roomUser.CancelReadyOmok();
                 roomOtherUser.CancelReadyOmok();
+                // 유저 타이머 업데이트
+                _userMgr.UpdateUserLastConnection(roomUser.UserId);
+                _userMgr.UpdateUserLastConnection(roomOtherUser.UserId);
 
                 var sendPacket = MemoryPackSerializer.Serialize(endPacket);
                 PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
