@@ -24,6 +24,18 @@ namespace CSCommon
         public byte Type;
     }
 
+    // 하트비트 패킷
+    [MemoryPackable]
+    public partial class HeartBeatPing : PacketHeader
+    {
+    }
+
+    [MemoryPackable]
+    public partial class HeartBeatPong : PacketHeader
+    {
+        public short Result;
+    }
+
     // 로그인 요청
     [MemoryPackable]
     public partial class LoginRequest : PacketHeader

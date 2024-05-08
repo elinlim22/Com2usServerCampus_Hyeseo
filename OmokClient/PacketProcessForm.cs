@@ -33,6 +33,7 @@ namespace csharp_test_client
             PacketFuncDic.Add(PacketID.ResPutMok, PacketProcess_PutMokResponse);
             PacketFuncDic.Add(PacketID.NTFPutMok, PacketProcess_PutMokNotify);
             PacketFuncDic.Add(PacketID.NTFEndOmok, PacketProcess_EndOmokNotify);
+            PacketFuncDic.Add(PacketID.ResHeartBeat, PacketProcess_HeartBeatPong);
         }
 
         void PacketProcess(byte[] packet)
@@ -115,6 +116,11 @@ namespace csharp_test_client
         {
             var responsePkt = MemoryPackSerializer.Deserialize<LoginResponse>(packetData);
             DevLog.Write($"로그인 결과: {(ErrorCode)responsePkt.Result}");
+            // TODO : 로그인 성공 시 타이머 시작
+            if (responsePkt.Result == (int)ErrorCode.None)
+            {
+                SetTimer();
+            }
         }
 
         void PacketProcess_RoomEnterResponse(byte[] packetData)
@@ -274,6 +280,22 @@ namespace csharp_test_client
             ClearRoom(); // 바둑판 초기화
 
             DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserId}");
+        }
+
+        void PacketProcess_HeartBeatPong(byte[] packetData)
+        {
+            // 받은 Pong 패킷에 대한 처리
+            // Result가 ErrorCode.None이 아닐 경우, 접속 해제
+            var responsePkt = MemoryPackSerializer.Deserialize<HeartBeatPong>(packetData);
+            if (responsePkt.Result != (int)ErrorCode.None)
+            {
+                DevLog.Write($"HeartBeat Pong Error: {(ErrorCode)responsePkt.Result}");
+                SetDisconnected();
+            }/*
+            else
+            {
+                DevLog.Write("HeartBeat Pong..oO");
+            }*/
         }
     }
 }

@@ -11,6 +11,8 @@ public enum PacketType : UInt16
     /* ----------------------------------- 세션 ----------------------------------- */
     InSessionConnected = 0,
     InSessionDisconnected,
+    ReqHeartBeat,
+    ResHeartBeat,
     /* ----------------------------------- 로그인 ---------------------------------- */
     LoginRequest = 1002,
     LoginResponse,

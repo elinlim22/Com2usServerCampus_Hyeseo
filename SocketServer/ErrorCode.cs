@@ -10,4 +10,5 @@ public enum ErrorCode : short
     UserNotFound,
     InvalidUser,
     InvalidRoomNumber,
+    PingTimeout,
 }

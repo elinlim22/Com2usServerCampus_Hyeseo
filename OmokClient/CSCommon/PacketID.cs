@@ -7,6 +7,8 @@ namespace CSCommon
     // 1001 ~ 2000
     public class PacketID
     {
+        public const UInt16 ReqHeartBeat = 2;
+        public const UInt16 ResHeartBeat = 3;
         public const UInt16 BEGIN = 1001;
 
         public const UInt16 ReqLogin = 1002;

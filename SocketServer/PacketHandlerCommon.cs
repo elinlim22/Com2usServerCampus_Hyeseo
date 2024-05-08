@@ -8,6 +8,7 @@ public class PacketHandlerCommon : PacketHandler
         packetHandlerMap[(int)PacketType.InSessionConnected] = NotifyInConnectClient;
         packetHandlerMap[(int)PacketType.InSessionDisconnected] = NotifyInDisConnectClient;
         packetHandlerMap[(int)PacketType.LoginRequest] = HandleLoginRequest;
+        packetHandlerMap[(int)PacketType.ReqHeartBeat] = HandleHeartBeatRequest;
     }
 
     public void NotifyInConnectClient(RequestInfo requestData)
@@ -85,6 +86,31 @@ public class PacketHandlerCommon : PacketHandler
 
         var sendData = MemoryPackSerializer.Serialize(resLogin);
         PacketHeaderInfo.Write(sendData, PacketType.NotifyUserMustClose);
+
+        SendData(sessionID, sendData);
+    }
+
+    public void HandleHeartBeatRequest(RequestInfo packetData)
+    {
+        var resHeartBeat = new HeartBeatPong();
+        var sessionID = packetData.SessionID;
+        var user = _userMgr.GetUser(sessionID);
+        TimeSpan now = DateTime.Now.TimeOfDay;
+
+        if (now - user.LastPing > TimeSpan.FromSeconds(10))
+        {
+            resHeartBeat.Result = (short)ErrorCode.PingTimeout;
+            MainServer.MainLogger.Error($"Ping Timeout. SessionID:{sessionID}");
+        }
+        else
+        {
+            resHeartBeat.Result = (short)ErrorCode.Success;
+            user.UpdatePing();
+            MainServer.MainLogger.Debug($"SessionID:{sessionID}, Pong..oO");
+        }
+
+        var sendData = MemoryPackSerializer.Serialize(resHeartBeat);
+        PacketHeaderInfo.Write(sendData, PacketType.ResHeartBeat);
 
         SendData(sessionID, sendData);
     }

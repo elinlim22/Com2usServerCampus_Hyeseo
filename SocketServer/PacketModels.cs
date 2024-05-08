@@ -9,6 +9,17 @@ public partial class PacketHeader
     public UInt16 Id { get; set; }
     public byte Type { get; set; }
 }
+
+[MemoryPackable]
+public partial class HeartBeatPing : PacketHeader
+{
+}
+
+[MemoryPackable]
+public partial class HeartBeatPong : PacketHeader
+{
+    public short Result { get; set; }
+}
 /* ----------------------------------- 세션 ----------------------------------- */
 [MemoryPackable]
 public partial class InSessionConnected : PacketHeader

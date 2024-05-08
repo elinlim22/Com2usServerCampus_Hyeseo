@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Versioning;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -28,12 +29,28 @@ namespace csharp_test_client
         ConcurrentQueue<byte[]> SendPacketQueue = new ConcurrentQueue<byte[]>();
 
         System.Windows.Forms.Timer dispatcherUITimer = new();
+        System.Threading.Timer HeartBeatPingTimer;
+        TimerCallback TimerCallback;
 
 
 
         public mainForm()
         {
             InitializeComponent();
+            // SetTimer(); >> Login응답 받은 뒤 실행
+        }
+
+        void SetTimer()
+        {
+            TimerCallback = new TimerCallback(HeartBeatPingRequest);
+            HeartBeatPingTimer = new System.Threading.Timer(TimerCallback, null, 0, 1000);
+        }
+
+        void HeartBeatPingRequest(object state)
+        {
+            var requestPkt = new HeartBeatPing();
+            var packet = MemoryPackSerializer.Serialize(requestPkt);
+            PostSendPacket(PacketID.ReqHeartBeat, packet);
         }
 
         private void mainForm_Load(object sender, EventArgs e)
@@ -68,7 +85,7 @@ namespace csharp_test_client
             Network.Close();
         }
 
-        private void btnConnect_Click(object sender, EventArgs e)
+        private void btnConnect_Click(object sender, EventArgs e) // 서버 접속
         {
             string address = textBoxIP.Text;
 
@@ -97,7 +114,7 @@ namespace csharp_test_client
 
         private void btnDisconnect_Click(object sender, EventArgs e)
         {
-            SetDisconnectd();
+            SetDisconnected();
             Network.Close();
         }
 
@@ -134,7 +151,7 @@ namespace csharp_test_client
                 else
                 {
                     Network.Close();
-                    SetDisconnectd();
+                    SetDisconnected();
                     DevLog.Write("서버와 접속 종료 !!!", LOG_LEVEL.INFO);
                 }
             }
@@ -215,7 +232,7 @@ namespace csharp_test_client
         }
 
 
-        public void SetDisconnectd()
+        public void SetDisconnected()
         {
             if (btnConnect.Enabled == false)
             {
@@ -235,6 +252,8 @@ namespace csharp_test_client
             listBoxRoomUserList.Items.Clear();
 
             EndGame();
+            // 타이머 종료
+            HeartBeatPingTimer.Dispose();
 
             labelStatus.Text = "서버 접속이 끊어짐";
         }
@@ -315,7 +334,7 @@ namespace csharp_test_client
         }
 
         // 로그인 요청
-        private void button2_Click(object sender, EventArgs e)
+        private void button2_Click(object sender, EventArgs e) // 로그인 요청
         {
             var loginReq = new LoginRequest();
             loginReq.UserId = textBoxUserId.Text;
