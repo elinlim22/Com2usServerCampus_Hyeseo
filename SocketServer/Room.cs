@@ -56,6 +56,11 @@ public class Room
         return _userList.Find(x => x.UserId == UserId);
     }
 
+    public RoomUser GetOtherUser(string UserId)
+    {
+        return _userList.Find(x => x.UserId != UserId);
+    }
+
     public RoomUser GetUserByNetSessionId(string netSessionID)
     {
         return _userList.Find(x => x.NetSessionID == netSessionID);
@@ -126,6 +131,10 @@ public class Room
 
     public bool IsAllUserReadyOmok()
     {
+        if (_userList.Count() != _maxUserCount)
+        {
+            return false;
+        }
         foreach (var user in _userList)
         {
             if (user.IsReady == false)
@@ -139,7 +148,11 @@ public class Room
 
     public void StartOmok()
     {
-        var packet = new PKTNtfStartOmok();
+        omokRule.StartGame();
+        var packet = new PKTNtfStartOmok
+        {
+            FirstUserId = _userList[0].UserId
+        };
         var sendPacket = MemoryPackSerializer.Serialize(packet);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfStartOmok);
 
@@ -162,30 +175,31 @@ public class Room
 
     public void PutStoneRequest(string UserId, int x, int y)
     {
+        RoomUser user = GetUser(UserId);
         var packet = new PutStoneResponse();
-        돌두기_결과 result = omokRule.돌두기(x, y);
+        돌두기_결과 result = omokRule.돌두기(x, y); // TODO : 삼삼 체크가 안됨..
         omokRule.오목확인(x, y);
         packet.Result = (short)result;
 
         var sendPacket = MemoryPackSerializer.Serialize(packet);
         PacketHeaderInfo.Write(sendPacket, PacketType.PutStoneResponse);
 
-        Broadcast("", sendPacket);
+        SendData(user.NetSessionID, sendPacket);
     }
 
-    public void NotifyPutStone(string UserId, int x, int y, int mok)
+    public void NotifyPutStone(string UserId, int x, int y)
     {
+        RoomUser user = GetUser(UserId);
         var packet = new NotifyPutStone
         {
             X = x,
             Y = y,
-            Mok = mok
         };
 
         var sendPacket = MemoryPackSerializer.Serialize(packet);
         PacketHeaderInfo.Write(sendPacket, PacketType.NotifyPutStone);
 
-        Broadcast("", sendPacket);
+        SendData(user.NetSessionID, sendPacket);
     }
 }
 

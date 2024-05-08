@@ -8,6 +8,10 @@ public enum ErrorCode : short
     RoomEnterFailed,
     UserFull,
     UserNotFound,
+    UserSessionAlreadyExist,
+    UserSessionNotFound,
+    UserForcedClose,
     InvalidUser,
     InvalidRoomNumber,
+    PingTimeout,
 }

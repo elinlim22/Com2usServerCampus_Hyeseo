@@ -24,6 +24,18 @@ namespace CSCommon
         public byte Type;
     }
 
+    // 하트비트 패킷
+    [MemoryPackable]
+    public partial class HeartBeatPing : PacketHeader
+    {
+    }
+
+    [MemoryPackable]
+    public partial class HeartBeatPong : PacketHeader
+    {
+        public short Result;
+    }
+
     // 로그인 요청
     [MemoryPackable]
     public partial class LoginRequest : PacketHeader
@@ -43,7 +55,7 @@ namespace CSCommon
     [MemoryPackable]
     public partial class NotifyUserMustClose : PacketHeader
     {
-        public short Result;
+        public short ErrorCode;
     }
 
 
@@ -141,6 +153,18 @@ namespace CSCommon
     {
         public string UserId;
         public bool IsReady;
+    }
+
+    [MemoryPackable]
+    public partial class PKTReqStart : PacketHeader
+    {
+
+    }
+
+    [MemoryPackable]
+    public partial class PKTResStart : PacketHeader
+    {
+        public short Result;
     }
 
 

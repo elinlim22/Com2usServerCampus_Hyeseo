@@ -33,6 +33,8 @@ namespace csharp_test_client
             PacketFuncDic.Add(PacketID.ResPutMok, PacketProcess_PutMokResponse);
             PacketFuncDic.Add(PacketID.NTFPutMok, PacketProcess_PutMokNotify);
             PacketFuncDic.Add(PacketID.NTFEndOmok, PacketProcess_EndOmokNotify);
+            PacketFuncDic.Add(PacketID.ResHeartBeat, PacketProcess_HeartBeatPong);
+            packetFuncDic.Add(PacketID.NtfMustClose, PacketProcess_MustCloseNotify);
         }
 
         void PacketProcess(byte[] packet)
@@ -115,6 +117,11 @@ namespace csharp_test_client
         {
             var responsePkt = MemoryPackSerializer.Deserialize<LoginResponse>(packetData);
             DevLog.Write($"로그인 결과: {(ErrorCode)responsePkt.Result}");
+            // TODO : 로그인 성공 시 타이머 시작
+            if (responsePkt.Result == (int)ErrorCode.None)
+            {
+                SetTimer();
+            }
         }
 
         void PacketProcess_RoomEnterResponse(byte[] packetData)
@@ -216,6 +223,18 @@ namespace csharp_test_client
             }
 
         }
+        /*
+        void PacketProcess_StartOmokResponse(byte[] packetData)
+        {
+            var responsePkt = MemoryPackSerializer.Deserialize<PKTResStart>(packetData);
+
+            DevLog.Write($"게임 시작 요청 결과:  {(ErrorCode)responsePkt.Result}");
+            if (responsePkt.Result == (short)ErrorCode.None)
+            {
+                // 게임 시작
+                // notify패킷 보내기
+            }
+        }*/
 
         void PacketProcess_StartOmokNotify(byte[] packetData)
         {
@@ -240,7 +259,7 @@ namespace csharp_test_client
 
             DevLog.Write($"오목 놓기 결과: {(ErrorCode)responsePkt.Result}");
 
-            //TODO 방금 놓은 오목 정보를 취소 시켜야 한다
+            //TODO : 요청 실패할 경우 방금 놓은 오목 정보를 취소 시켜야 한다
         }
 
 
@@ -250,7 +269,7 @@ namespace csharp_test_client
 
             플레이어_돌두기(true, notifyPkt.X, notifyPkt.Y);
 
-            DevLog.Write($"오목 정보: X: {notifyPkt.X},  Y: {notifyPkt.Y},   알:{notifyPkt.Mok}");
+            DevLog.Write($"오목 정보: X: {notifyPkt.X},  Y: {notifyPkt.Y}");
         }
 
 
@@ -259,8 +278,34 @@ namespace csharp_test_client
             var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
 
             EndGame();
+            ClearRoom(); // 바둑판 초기화
 
             DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserId}");
         }
+
+        void PacketProcess_HeartBeatPong(byte[] packetData)
+        {
+            // 받은 Pong 패킷에 대한 처리
+            // Result가 ErrorCode.None이 아닐 경우, 접속 해제
+            var responsePkt = MemoryPackSerializer.Deserialize<HeartBeatPong>(packetData);
+            if (responsePkt.Result != (int)ErrorCode.None)
+            {
+                DevLog.Write($"HeartBeat Pong Error: {(ErrorCode)responsePkt.Result}");
+                SetDisconnected();
+            }/*
+            else
+            {
+                DevLog.Write("HeartBeat Pong..oO");
+            }*/
+        }
+
+        void PacketProcess_MustCloseNotify(byte[] packetData)
+        {
+            var notifyPkt = MemoryPackSerializer.Deserialize<NotifyUserMustClose>(packetData);
+
+            DevLog.Write($"강제 종료 통보 받음: {notifyPkt.ErrorCode}");
+
+            SetDisconnected();
+        }   
     }
 }

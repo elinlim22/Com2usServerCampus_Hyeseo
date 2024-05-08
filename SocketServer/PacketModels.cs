@@ -9,6 +9,17 @@ public partial class PacketHeader
     public UInt16 Id { get; set; }
     public byte Type { get; set; }
 }
+
+[MemoryPackable]
+public partial class HeartBeatPing : PacketHeader
+{
+}
+
+[MemoryPackable]
+public partial class HeartBeatPong : PacketHeader
+{
+    public short Result { get; set; }
+}
 /* ----------------------------------- 세션 ----------------------------------- */
 [MemoryPackable]
 public partial class InSessionConnected : PacketHeader
@@ -83,7 +94,7 @@ public partial class NotifyRoomUserLeft : PacketHeader
 [MemoryPackable]
 public partial class NotifyUserMustClose : PacketHeader
 {
-    public short Result { get; set; }
+    public short ErrorCode { get; set; }
 }
 /* ---------------------------------- 방 채팅 ---------------------------------- */
 [MemoryPackable]
@@ -165,7 +176,7 @@ public partial class NotifyPutStone : PacketHeader
 {
     public int X { get; set;}
     public int Y { get; set;}
-    public int Mok { get; set;}
+    // public int Mok { get; set;}
 }
 /* ---------------------------------- 게임 종료 --------------------------------- */
 // [MemoryPackable]
