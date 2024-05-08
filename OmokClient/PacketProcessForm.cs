@@ -271,6 +271,7 @@ namespace csharp_test_client
             var notifyPkt = MemoryPackSerializer.Deserialize<PKTNtfEndOmok>(packetData);
 
             EndGame();
+            ClearRoom(); // 바둑판 초기화
 
             DevLog.Write($"오목 GameOver: Win: {notifyPkt.WinUserId}");
         }

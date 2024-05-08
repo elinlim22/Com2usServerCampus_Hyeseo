@@ -307,7 +307,12 @@ namespace csharp_test_client
                 return (string)listBoxRoomUserList.Items[1];
             }
         }
-
+        
+        void ClearRoom()
+        {
+            OmokLogic.StartGame();
+            panel1.Invalidate();
+        }
 
         // 로그인 요청
         private void button2_Click(object sender, EventArgs e)

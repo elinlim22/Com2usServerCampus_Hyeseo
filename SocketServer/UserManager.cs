@@ -9,6 +9,11 @@ public class UserManager
 {
     int _totalUserMaximum;
     UInt64 _userSequenceNumber = 0;
+    
+    // HeartBeat
+    int _maxUserCount;
+    List<User> _usersHeartBeat = [];
+    //Timer _timer;
 
     Dictionary<string, User> Users = [];
 
@@ -16,6 +21,8 @@ public class UserManager
     public void Init(int totalUserMaximum)
     {
         _totalUserMaximum = totalUserMaximum;
+       // _timer.Inverval = 250; // TODO : 상수로 넣지 말고 Config로 빼자
+       // _timer.Run(OnHeartBeat);
     }
 
     public ErrorCode AddUser(string UserId, string sessionID)
