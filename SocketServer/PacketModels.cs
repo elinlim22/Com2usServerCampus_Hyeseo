@@ -75,7 +75,6 @@ public partial class NotifyRoomNewUser : PacketHeader
 [MemoryPackable]
 public partial class LeaveRoomRequest : PacketHeader
 {
-    public string RoomName { get; set; }
 }
 
 [MemoryPackable]

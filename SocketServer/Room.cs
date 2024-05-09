@@ -5,7 +5,8 @@ namespace SocketServer;
 public class Room
 {
     public const int InvalidRoomNumber = -1;
-    public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config·Î »©±â
+    // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config·Î »©±â
+    public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug¿ë
     public TimeSpan LastActivity;
 
     public int Index { get; private set; }
@@ -16,6 +17,7 @@ public class Room
     List<RoomUser> _userList = [];
 
     public static Func<string, byte[], bool> SendData;
+    public static Action<RequestInfo> DistributeInnerPacket;
     
     public OmokRule omokRule = new OmokRule();
 
@@ -50,8 +52,8 @@ public class Room
 
     public void RemoveUser(string netSessionID)
     {
-        var index = _userList.FindIndex(x => x.NetSessionID == netSessionID);
-        _userList.RemoveAt(index);
+        var innerPacket = PacketMaker.MakeInnerUserLeaveRoom(netSessionID);
+        DistributeInnerPacket(innerPacket);
     }
 
     public bool RemoveUser(RoomUser user)
@@ -172,7 +174,8 @@ public class Room
     public void StartOmok()
     {
         omokRule.StartGame();
-        StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config·Î »©±â
+        // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config·Î »©±â
+        StatusStandardTime = TimeSpan.FromSeconds(3); // Debug¿ë
         UpdateLastActivity();
         var packet = new PKTNtfStartOmok
         {
@@ -241,7 +244,8 @@ public class Room
         roomOtherUser.CancelReadyOmok();
         // ¹æ Å¸ÀÌ¸Ó ¾÷µ¥ÀÌÆ®
         UpdateLastActivity();
-        StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config·Î »©±â
+        // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config·Î »©±â
+        StatusStandardTime = TimeSpan.FromSeconds(10); // Debug¿ë
 
         var sendPacket = MemoryPackSerializer.Serialize(endPacket);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);

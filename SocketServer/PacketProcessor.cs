@@ -8,6 +8,7 @@ class PacketProcessor
     Thread _processThread = null;
 
     public Func<string, byte[], bool> SendData;
+    public Func<string, ClientSession> GetSession;
 
     BufferBlock<RequestInfo> _msgBuffer = new();
 

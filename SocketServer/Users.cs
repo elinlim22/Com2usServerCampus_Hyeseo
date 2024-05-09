@@ -51,6 +51,7 @@ public class User
 
     public void LeaveRoom()
     {
+        UpdateLastConnection();
         RoomNumber = -1;
     }
 }

@@ -253,7 +253,7 @@ namespace csharp_test_client
 
             EndGame();
             // 타이머 종료
-            HeartBeatPingTimer.Dispose();
+            HeartBeatPingTimer?.Dispose();
 
             labelStatus.Text = "서버 접속이 끊어짐";
         }

@@ -135,6 +135,12 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         return true;
     }
 
+    public void CloseSession(string sessionID)
+    {
+        var session = GetSessionByID(sessionID);
+        session.Close();
+    }
+
     public void InitServerConfig(ServerOption options)
     {
         _serverConfig = new ServerConfig
@@ -153,10 +159,12 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     {
         InitServerConfig(serverOpt);
         Room.SendData = this.SendData;
+        Room.DistributeInnerPacket = _packetProcessor.InsertPacket;
         _roomManager.CreateRooms(serverOpt);
         RoomManager.SendData = this.SendData;
 
         _packetProcessor.SendData = this.SendData;
+        UserManager.CloseSession = this.CloseSession;
         _packetProcessor.CreateAndStart(_roomManager.GetRoomsList(), serverOpt);
 
         MainLogger.Info("CreateComponent - Success");

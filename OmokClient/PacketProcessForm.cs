@@ -162,8 +162,7 @@ namespace csharp_test_client
             // TODO : 방 나가기 성공 시 ListBox 초기화
             if (responsePkt.Result == (int)ErrorCode.None)
             {
-                // listBoxRoomUser.Items.Clear();
-
+                LeaveRoom();
             }
         }
 
@@ -224,18 +223,6 @@ namespace csharp_test_client
             }
 
         }
-        /*
-        void PacketProcess_StartOmokResponse(byte[] packetData)
-        {
-            var responsePkt = MemoryPackSerializer.Deserialize<PKTResStart>(packetData);
-
-            DevLog.Write($"게임 시작 요청 결과:  {(ErrorCode)responsePkt.Result}");
-            if (responsePkt.Result == (short)ErrorCode.None)
-            {
-                // 게임 시작
-                // notify패킷 보내기
-            }
-        }*/
 
         void PacketProcess_StartOmokNotify(byte[] packetData)
         {

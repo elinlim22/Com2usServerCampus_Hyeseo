@@ -53,20 +53,21 @@ public class PacketHandlerCommon : PacketHandler
         try
         {
             var reqData = MemoryPackSerializer.Deserialize<LoginRequest>(packetData.Data);
-            var errorCode = _userMgr.AddUser(reqData.UserId, sessionID);
-            if (errorCode != ErrorCode.Success)
+            var errorCodeAddUser = _userMgr.AddUser(reqData.UserId, sessionID);
+            var errorCodeAddSession = _userMgr.AddSession(sessionID);
+            if (errorCodeAddUser != ErrorCode.Success)
             {
-                MakeLoginResponse(errorCode, packetData.SessionID);
+                MakeLoginResponse(errorCodeAddUser, packetData.SessionID);
 
-                if (errorCode == ErrorCode.UserFull)
+                if (errorCodeAddUser == ErrorCode.UserFull)
                 {
                     MakeNotifyUserMustClose(ErrorCode.UserFull, packetData.SessionID);
                 }
                 return;
             }
 
-            MakeLoginResponse(errorCode, packetData.SessionID);
-            MainServer.MainLogger.Debug($"로그인 결과. UserId:{reqData.UserId}, {errorCode}");
+            MakeLoginResponse(errorCodeAddUser, packetData.SessionID);
+            MainServer.MainLogger.Debug($"로그인 결과. UserId:{reqData.UserId}, {errorCodeAddUser}");
         }
         catch(Exception ex)
         {
@@ -91,7 +92,7 @@ public class PacketHandlerCommon : PacketHandler
     {
         var resLogin = new NotifyUserMustClose()
         {
-            Result = (short)errorCode
+            ErrorCode = (short)errorCode
         };
 
         var sendData = MemoryPackSerializer.Serialize(resLogin);

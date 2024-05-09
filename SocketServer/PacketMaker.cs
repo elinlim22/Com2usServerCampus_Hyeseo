@@ -44,7 +44,7 @@ public class PacketMaker
         return newPacket;
     }
 
-    public static RequestInfo MakeNotifyUserMustClose(ErrorCode errorCode, string sessionID)
+    public static byte[] MakeNotifyUserMustClose(ErrorCode errorCode, string sessionID)
     {
         var notifyPacket = new NotifyUserMustClose()
         {
@@ -54,31 +54,20 @@ public class PacketMaker
         var sendData = MemoryPackSerializer.Serialize(notifyPacket);
         PacketHeaderInfo.Write(sendData, PacketType.NotifyUserMustClose);
 
-        var newPacket = new RequestInfo(null)
-        {
-            Data = sendData,
-            SessionID = sessionID
-        };
-        return newPacket;
+        return sendData;
     }
 
-    public static RequestInfo MakeNotifyUserMustLeave(string userId, string sessionId, int roomNumber)
+    public static RequestInfo MakeInnerUserLeaveRoom(string sessionId)
     {
-        var notifyPacket = new NotifyUserMustLeave()
-        {
-            RoomNumber = roomNumber,
-            UserId = userId
-        };
+        var innerPacket = new LeaveRoomRequest();
 
-        var sendData = MemoryPackSerializer.Serialize(notifyPacket);
-        PacketHeaderInfo.Write(sendData, PacketType.NotifyUserMustLeave);
-
-        var newPacket = new RequestInfo(null)
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.LeaveRoomRequest);
+        var newInnerPacket = new RequestInfo(sendData)
         {
-            Data = sendData,
             SessionID = sessionId
         };
-        return newPacket;
+        return newInnerPacket;
     }
 
 }

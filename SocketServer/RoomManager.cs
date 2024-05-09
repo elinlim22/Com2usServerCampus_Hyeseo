@@ -25,6 +25,7 @@ class RoomManager
 
             _roomsList.Add(room);
         }
+        SetTimer();
     }
 
 
@@ -52,21 +53,21 @@ class RoomManager
             }
             if (DateTime.Now.TimeOfDay - room.LastActivity > room.StatusStandardTime)
             {
-                if (room.StatusStandardTime == TimeSpan.FromMinutes(5)) // 돌 안둔거면
+                //if (room.StatusStandardTime == TimeSpan.FromMinutes(5)) // 게임 시작한거면
+                if (room.StatusStandardTime == TimeSpan.FromSeconds(3)) // Debug용
                 {
                     // 몰수패 처리:
-                    room.EndRoomGame(room.GetNextUser(), room.GetCurrentUser());
-                    // 현재 턴 유저를 내보낸다.
-                    ClientKickUser(room.GetCurrentUser(), room);
+                    room.EndRoomGame(room.GetCurrentUser(), room.GetNextUser());
+                    ClientKickUser(room.GetNextUser(), room);
+                    room.RemoveUser(room.GetNextUser().NetSessionID);
                 }
                 else // 게임 시작 안한거면
                 {
-                    // 인원 모두 내보내기
-                    foreach (var user in room.GetUserList())
+                    var users = room.GetUserList();
+                    for (int i = 0; i < room.CurrentUserCount(); ++i)
                     {
-                        ClientKickUser(user, room);
-                        // 방에서 유저 제거
-                        room.RemoveUser(user.NetSessionID);
+                        ClientKickUser(users[i], room);
+                        room.RemoveUser(users[i].NetSessionID);
                     }
                 }
             }
@@ -77,7 +78,11 @@ class RoomManager
     void ClientKickUser(RoomUser user, Room room)
     {
         // 클라이언트에 내보내기 처리 요청
-        var sendPacket = PacketMaker.MakeNotifyUserMustLeave(user.UserId, user.NetSessionID, room.Number);
+        var sendPacket = new NotifyUserMustLeave()
+        {
+            RoomNumber = room.Number,
+            UserId = user.UserId
+        };
         var packet = MemoryPackSerializer.Serialize(sendPacket);
         PacketHeaderInfo.Write(packet, PacketType.NotifyUserMustLeave);
         SendData(user.NetSessionID, packet);
