@@ -1,12 +1,12 @@
-using MemoryPack;
+ï»¿using MemoryPack;
 
 namespace SocketServer;
 
 public class Room
 {
     public const int InvalidRoomNumber = -1;
-    // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config·Î »©±â
-    public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug¿ë
+    // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Configë¡œ ë¹¼ê¸°
+    public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debugìš©
     public TimeSpan LastActivity;
 
     public int Index { get; private set; }
@@ -174,8 +174,8 @@ public class Room
     public void StartOmok()
     {
         omokRule.StartGame();
-        // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config·Î »©±â
-        StatusStandardTime = TimeSpan.FromSeconds(3); // Debug¿ë
+        // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Configë¡œ ë¹¼ê¸°
+        StatusStandardTime = TimeSpan.FromSeconds(3); // Debugìš©
         UpdateLastActivity();
         var packet = new PKTNtfStartOmok
         {
@@ -205,8 +205,8 @@ public class Room
     {
         RoomUser user = GetUser(UserId);
         var packet = new PutStoneResponse();
-        µ¹µÎ±â_°á°ú result = omokRule.µ¹µÎ±â(x, y); // TODO : »ï»ï Ã¼Å©°¡ ¾ÈµÊ..
-        omokRule.¿À¸ñÈ®ÀÎ(x, y);
+        ëŒë‘ê¸°_ê²°ê³¼ result = omokRule.ëŒë‘ê¸°(x, y); // TODO : ì‚¼ì‚¼ ì²´í¬ê°€ ì•ˆë¨..
+        omokRule.ì˜¤ëª©í™•ì¸(x, y);
         packet.Result = (short)result;
 
         var sendPacket = MemoryPackSerializer.Serialize(packet);
@@ -239,13 +239,13 @@ public class Room
             WinUserId = roomUser.UserId
         };
         omokRule.EndGame();
-        // ÇÃ·¹ÀÌ¾î ÁØºñ »óÅÂ ÃÊ±âÈ­
+        // í”Œë ˆì´ì–´ ì¤€ë¹„ ìƒíƒœ ì´ˆê¸°í™”
         roomUser.CancelReadyOmok();
         roomOtherUser.CancelReadyOmok();
-        // ¹æ Å¸ÀÌ¸Ó ¾÷µ¥ÀÌÆ®
+        // ë°© íƒ€ì´ë¨¸ ì—…ë°ì´íŠ¸
         UpdateLastActivity();
-        // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config·Î »©±â
-        StatusStandardTime = TimeSpan.FromSeconds(10); // Debug¿ë
+        // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Configë¡œ ë¹¼ê¸°
+        StatusStandardTime = TimeSpan.FromSeconds(10); // Debugìš©
 
         var sendPacket = MemoryPackSerializer.Serialize(endPacket);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
