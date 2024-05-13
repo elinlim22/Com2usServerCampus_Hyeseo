@@ -85,11 +85,11 @@ public class MySQLConnection
 
     // 패킷 핸들러 목록
 
-    /*Packet*/ GetUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
+    /*Packet GetUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
     {
         var reqData = MemoryPackSerializer.Deserialize<GetUserGameData>(requestInfo.Data);
         var userId = reqData.UserId;
         var user = queryFactory.Query("UserGameData").Where("Email", userId).FirstOrDefaultAsync<UserGameData>();
         return user;
-    }
+    }*/
 }
