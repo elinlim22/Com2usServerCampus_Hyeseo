@@ -6,7 +6,7 @@ public class Room
 {
     public const int InvalidRoomNumber = -1;
     // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
-    public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
+    public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(30); // Debug용
     public TimeSpan LastActivity;
 
     public int Index { get; private set; }
@@ -175,7 +175,7 @@ public class Room
     {
         omokRule.StartGame();
         // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config로 빼기
-        StatusStandardTime = TimeSpan.FromSeconds(3); // Debug용
+        StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
         UpdateLastActivity();
         var packet = new PKTNtfStartOmok
         {
@@ -245,7 +245,7 @@ public class Room
         // 방 타이머 업데이트
         UpdateLastActivity();
         // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
-        StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
+        StatusStandardTime = TimeSpan.FromSeconds(30); // Debug용
 
         var sendPacket = MemoryPackSerializer.Serialize(endPacket);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);

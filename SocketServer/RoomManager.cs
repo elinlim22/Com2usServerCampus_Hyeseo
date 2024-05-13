@@ -1,4 +1,4 @@
-using MemoryPack;
+ï»¿using MemoryPack;
 
 namespace SocketServer;
 
@@ -36,7 +36,7 @@ class RoomManager
     public void SetTimer()
     {
         RoomStatusCheckTimerCallback = new TimerCallback(RoomStatusCheck);
-        RoomStatusCheckTimer = new System.Threading.Timer(RoomStatusCheckTimerCallback, null, 0, 250); // TODO : Config·Î »©±â
+        RoomStatusCheckTimer = new System.Threading.Timer(RoomStatusCheckTimerCallback, null, 0, 250); // TODO : Configë¡œ ë¹¼ê¸°
     }
 
     public void RoomStatusCheck(object state)
@@ -44,7 +44,7 @@ class RoomManager
         int batchSize = _roomsList.Count / 2;
 
         int startIndex = currentGroupIndex * batchSize;
-        // ¹æÀ» ¼øÈ¸ÇÏ¸é¼­...
+        // ë°©ì„ ìˆœíšŒí•˜ë©´ì„œ...
         foreach(var room in _roomsList.GetRange(startIndex, batchSize))
         {
             if (room == null || room.CurrentUserCount() == 0)
@@ -53,15 +53,15 @@ class RoomManager
             }
             if (DateTime.Now.TimeOfDay - room.LastActivity > room.StatusStandardTime)
             {
-                //if (room.StatusStandardTime == TimeSpan.FromMinutes(5)) // °ÔÀÓ ½ÃÀÛÇÑ°Å¸é
-                if (room.StatusStandardTime == TimeSpan.FromSeconds(3)) // Debug¿ë
+                //if (room.StatusStandardTime == TimeSpan.FromMinutes(5)) // ê²Œìž„ ì‹œìž‘í•œê±°ë©´
+                if (room.StatusStandardTime == TimeSpan.FromSeconds(10)) // Debugìš©
                 {
-                    // ¸ô¼öÆÐ Ã³¸®:
+                    // ëª°ìˆ˜íŒ¨ ì²˜ë¦¬:
                     room.EndRoomGame(room.GetCurrentUser(), room.GetNextUser());
                     ClientKickUser(room.GetNextUser(), room);
                     room.RemoveUser(room.GetNextUser().NetSessionID);
                 }
-                else // °ÔÀÓ ½ÃÀÛ ¾ÈÇÑ°Å¸é
+                else // ê²Œìž„ ì‹œìž‘ ì•ˆí•œê±°ë©´
                 {
                     var users = room.GetUserList();
                     for (int i = 0; i < room.CurrentUserCount(); ++i)
@@ -77,7 +77,7 @@ class RoomManager
 
     void ClientKickUser(RoomUser user, Room room)
     {
-        // Å¬¶óÀÌ¾ðÆ®¿¡ ³»º¸³»±â Ã³¸® ¿äÃ»
+        // í´ë¼ì´ì–¸íŠ¸ì— ë‚´ë³´ë‚´ê¸° ì²˜ë¦¬ ìš”ì²­
         var sendPacket = new NotifyUserMustLeave()
         {
             RoomNumber = room.Number,

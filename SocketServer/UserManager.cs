@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +17,7 @@ public class UserManager
     Timer UserStatusCheckTimer;
     TimerCallback UserStatusCheckTimerCallback;
     // TimeSpan StatusStandardTime = TimeSpan.FromHours(1); // TODO : Config로 빼기
-    TimeSpan StatusStandardTime = TimeSpan.FromSeconds(5); // Debug용
+    TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
     Dictionary<string, User> Users = [];
     public static Func<string, byte[], bool> SendData;
     public static Action<string> CloseSession;
