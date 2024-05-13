@@ -1,4 +1,4 @@
-namespace SocketServer;
+﻿namespace SocketServer;
 
 public class ServerOption
 {
@@ -11,4 +11,5 @@ public class ServerOption
     public int SendBufferSize { get; set; }
     public int MaxRoom { get; set; }
     public int MaxUserPerRoom { get; set; }
+    public int MaxThread { get; set; }
 }

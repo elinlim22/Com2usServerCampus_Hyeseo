@@ -1,4 +1,4 @@
-namespace SocketServer;
+﻿namespace SocketServer;
 
 public enum PacketDefine : UInt16
 {
@@ -11,6 +11,7 @@ public enum PacketType : UInt16
     /* ----------------------------------- 세션 ----------------------------------- */
     InSessionConnected = 0,
     InSessionDisconnected,
+    /* ---------------------------------- 하트비트 --------------------------------- */
     ReqHeartBeat,
     ResHeartBeat,
     /* ----------------------------------- 로그인 ---------------------------------- */
@@ -46,4 +47,6 @@ public enum PacketType : UInt16
     // EndGameRequest = 7000,
     // EndGameResponse,
     PKTNtfEndOmok = 1038,
+    /* ---------------------------------- MySQL --------------------------------- */
+    GetUserGameData = 2000,
 }

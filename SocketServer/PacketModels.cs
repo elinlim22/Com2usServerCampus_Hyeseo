@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 
 namespace SocketServer;
 
@@ -201,4 +201,10 @@ public partial class NotifyPutStone : PacketHeader
 public partial class PKTNtfEndOmok : PacketHeader
 {
     public string WinUserId { get; set; }
+}
+
+[MemoryPackable]
+public partial class GetUserGameData : PacketHeader
+{
+    public string UserId { get; set; }
 }

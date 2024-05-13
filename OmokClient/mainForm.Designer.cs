@@ -120,7 +120,7 @@
             //
             this.checkBoxLocalHostIP.AutoSize = true;
             this.checkBoxLocalHostIP.Checked = true;
-            this.checkBoxLocalHostIP.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.checkBoxLocalHostIP.CheckState = System.Windows.Forms.CheckState.Unchecked;
             this.checkBoxLocalHostIP.Location = new System.Drawing.Point(282, 18);
             this.checkBoxLocalHostIP.Name = "checkBoxLocalHostIP";
             this.checkBoxLocalHostIP.Size = new System.Drawing.Size(103, 16);
@@ -134,8 +134,8 @@
             this.textBoxIP.MaxLength = 6;
             this.textBoxIP.Name = "textBoxIP";
             this.textBoxIP.Size = new System.Drawing.Size(87, 21);
-            this.textBoxIP.TabIndex = 11;
-            this.textBoxIP.Text = "0.0.0.0";
+            this.textBoxIP.TabIndex = 30;
+            this.textBoxIP.Text = "34.64.46.227";
             this.textBoxIP.WordWrap = false;
             //
             // label9
