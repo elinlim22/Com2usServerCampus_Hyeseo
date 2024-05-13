@@ -19,7 +19,7 @@ class PacketProcessor
     PacketHandlerCommon _commonPacketHandler = new();
     PacketHandlerRoom _roomPacketHandler = new();
 
-    MySQLConnection _mySQLConnection;
+    // MySQLConnection _mySQLConnection;
 
 
     public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
@@ -31,7 +31,7 @@ class PacketProcessor
         var minRoomNum = _roomList[0].Number;
         var maxRoomNum = _roomList[0].Number + _roomList.Count() - 1;
 
-        RegistPacketHandler();
+        // RegistPacketHandler();
 
         _isThreadRunning = true;
         _processThread = new System.Threading.Thread(this.Process);
@@ -56,7 +56,7 @@ class PacketProcessor
     }
 
 
-    void RegistPacketHandler()
+    /*void RegistPacketHandler()
     {
         PacketHandler.SendData = SendData;
         PacketHandler.DistributeInnerPacket = InsertPacket;
@@ -70,7 +70,7 @@ class PacketProcessor
         _roomPacketHandler.Init(_userMgr);
         _roomPacketHandler.SetRooomList(_roomList);
         _roomPacketHandler.RegistPacketHandler(PacketHandlers);
-    }
+    }*/
 
     void Process()
     {
