@@ -31,7 +31,7 @@ class PacketProcessor
         var minRoomNum = _roomList[0].Number;
         var maxRoomNum = _roomList[0].Number + _roomList.Count() - 1;
 
-        // RegistPacketHandler();
+        RegistPacketHandler();
 
         _isThreadRunning = true;
         _processThread = new System.Threading.Thread(this.Process);
@@ -56,13 +56,13 @@ class PacketProcessor
     }
 
 
-    /*void RegistPacketHandler()
+    void RegistPacketHandler()
     {
         PacketHandler.SendData = SendData;
         PacketHandler.DistributeInnerPacket = InsertPacket;
 
-        _mySQLConnection.SendData = SendData;
-        _mySQLConnection.DistributeInnerPacket = InsertPacket;
+        // _mySQLConnection.SendData = SendData;
+        // _mySQLConnection.DistributeInnerPacket = InsertPacket;
 
         _commonPacketHandler.Init(_userMgr);
         _commonPacketHandler.RegistPacketHandler(PacketHandlers);
@@ -70,7 +70,7 @@ class PacketProcessor
         _roomPacketHandler.Init(_userMgr);
         _roomPacketHandler.SetRooomList(_roomList);
         _roomPacketHandler.RegistPacketHandler(PacketHandlers);
-    }*/
+    }
 
     void Process()
     {
