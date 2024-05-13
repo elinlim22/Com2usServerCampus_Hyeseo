@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+﻿/*using MemoryPack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
@@ -23,7 +23,7 @@ public class MySQLConnection
     public Func<string, byte[], bool> SendData;
     public Action<RequestInfo> DistributeInnerPacket;
     List<Thread> Threads = null;
-    ConcurrentDictionary<int, Func<RequestInfo, QueryFactory, /*Packet*/>> PacketHandlers = [];
+    ConcurrentDictionary<int, Func<RequestInfo, QueryFactory, >> PacketHandlers = [];
 
     public MySQLConnection(IConfiguration configuration, IOptions<ServerOption> serverConfig)
     {
@@ -91,5 +91,5 @@ public class MySQLConnection
         var userId = reqData.UserId;
         var user = queryFactory.Query("UserGameData").Where("Email", userId).FirstOrDefaultAsync<UserGameData>();
         return user;
-    }*/
-}
+    }
+}*/
