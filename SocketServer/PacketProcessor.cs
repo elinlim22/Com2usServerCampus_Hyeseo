@@ -2,16 +2,17 @@
 
 namespace SocketServer;
 
-class PacketProcessor
+class PacketProcessor(ServerOption serverOption)
 {
     bool _isThreadRunning = false;
     Thread _processThread = null;
 
     public Func<string, byte[], bool> SendData;
+    public Action<string> CloseSession;
 
     BufferBlock<RequestInfo> _msgBuffer = new();
 
-    UserManager _userMgr = new();
+    UserManager _userMgr = new(serverOption);
 
     List<Room> _roomList = [];
 
@@ -19,7 +20,7 @@ class PacketProcessor
     PacketHandlerCommon _commonPacketHandler = new();
     PacketHandlerRoom _roomPacketHandler = new();
 
-    MySQLConnection _mySQLConnection;
+    DBMySQLConnection _mySQLConnection;
 
 
     public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
@@ -60,6 +61,7 @@ class PacketProcessor
     {
         PacketHandler.SendData = SendData;
         PacketHandler.DistributeInnerPacket = InsertPacket;
+        PacketHandler.CloseSession = CloseSession;
 
         _mySQLConnection.SendData = SendData;
         _mySQLConnection.DistributeInnerPacket = InsertPacket;

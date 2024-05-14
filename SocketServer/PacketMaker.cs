@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 using System.Dynamic;
 
 namespace SocketServer;
@@ -70,4 +70,16 @@ public class PacketMaker
         return newInnerPacket;
     }
 
+    public static RequestInfo MakeCloseSessionRequest(string sessionId)
+    {
+        var innerPacket = new CloseSessionRequest();
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.CloseSessionRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
 }

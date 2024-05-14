@@ -24,7 +24,7 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         _appLifetime = appLifetime;
         _appLogger = logger;
         _serverOpt = serverConfig.Value;
-        _packetProcessor = new PacketProcessor();
+        _packetProcessor = new PacketProcessor(_serverOpt);
 
         // 이 핸들러들은 AppServer를 상속받음으로써 등록해야 하는 이벤트 핸들러들이다.
         NewSessionConnected += new SessionHandler<ClientSession>(OnNewSessionConnected);
@@ -164,7 +164,7 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
         RoomManager.SendData = this.SendData;
 
         _packetProcessor.SendData = this.SendData;
-        UserManager.CloseSession = this.CloseSession;
+        _packetProcessor.CloseSession = this.CloseSession;
         _packetProcessor.CreateAndStart(_roomManager.GetRoomsList(), serverOpt);
 
         MainLogger.Info("CreateComponent - Success");

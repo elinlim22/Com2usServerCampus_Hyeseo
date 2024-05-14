@@ -51,4 +51,5 @@ public enum PacketType : UInt16
     GetUserGameDataRequest = 2000,
     SetUserGameDataRequest,
     ValidateUserTokenRequest,
+    CloseSessionRequest,
 }

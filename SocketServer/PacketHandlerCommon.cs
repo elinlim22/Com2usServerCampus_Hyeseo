@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 
 namespace SocketServer;
 public class PacketHandlerCommon : PacketHandler
@@ -9,6 +9,7 @@ public class PacketHandlerCommon : PacketHandler
         packetHandlerMap[(int)PacketType.InSessionDisconnected] = NotifyInDisConnectClient;
         packetHandlerMap[(int)PacketType.LoginRequest] = HandleLoginRequest;
         packetHandlerMap[(int)PacketType.ReqHeartBeat] = HandleHeartBeatRequest;
+        packetHandlerMap[(int)PacketType.CloseSessionRequest] = HandleCloseSessionRequest;
     }
 
     public void NotifyInConnectClient(RequestInfo requestData)
@@ -124,5 +125,11 @@ public class PacketHandlerCommon : PacketHandler
         PacketHeaderInfo.Write(sendData, PacketType.ResHeartBeat);
 
         SendData(sessionID, sendData);
+    }
+
+    public void HandleCloseSessionRequest(RequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        CloseSession(sessionID);
     }
 }

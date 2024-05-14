@@ -1,10 +1,12 @@
 ﻿using MemoryPack;
+using System.Data;
 
 namespace SocketServer;
 
 public class Room
 {
     public const int InvalidRoomNumber = -1;
+    public RoomStatus Status = RoomStatus.Empty;
     // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
     public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(30); // Debug용
     public TimeSpan LastActivity;
@@ -46,7 +48,7 @@ public class Room
         roomUser.Set(UserId, netSessionID);
         _userList.Add(roomUser);
         UpdateLastActivity();
-
+        UpdateUserCountStatus();
         return true;
     }
 
@@ -54,11 +56,32 @@ public class Room
     {
         var innerPacket = PacketMaker.MakeInnerUserLeaveRoom(netSessionID);
         DistributeInnerPacket(innerPacket);
+        UpdateUserCountStatus();
     }
 
     public bool RemoveUser(RoomUser user)
     {
-        return _userList.Remove(user);
+        var result = _userList.Remove(user);
+        UpdateUserCountStatus();
+        return result;
+    }
+
+    public void UpdateUserCountStatus()
+    {
+        switch (CurrentUserCount())
+        {
+            case 0:
+                Status = RoomStatus.Empty;
+                break;
+            case 1:
+                Status = RoomStatus.OneUser;
+                break;
+            case 2:
+                Status = RoomStatus.Full;
+                break;
+            default:
+                break;
+        }
     }
 
     public RoomUser GetUser(string UserId)
@@ -177,6 +200,7 @@ public class Room
         // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config로 빼기
         StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
         UpdateLastActivity();
+        Status = RoomStatus.Playing;
         var packet = new PKTNtfStartOmok
         {
             FirstUserId = _userList[0].UserId
@@ -244,6 +268,7 @@ public class Room
         roomOtherUser.CancelReadyOmok();
         // 방 타이머 업데이트
         UpdateLastActivity();
+        Status = RoomStatus.Full;
         // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
         StatusStandardTime = TimeSpan.FromSeconds(30); // Debug용
 

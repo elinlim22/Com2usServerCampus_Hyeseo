@@ -12,4 +12,5 @@ public class ServerOption
     public int MaxRoom { get; set; }
     public int MaxUserPerRoom { get; set; }
     public int MaxThread { get; set; }
+    public int UserStatusCheckSize { get; set; }
 }
