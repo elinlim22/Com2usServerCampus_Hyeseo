@@ -1,4 +1,4 @@
-﻿/*using MemoryPack;
+﻿using MemoryPack;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using MySql.Data.MySqlClient;
@@ -6,14 +6,15 @@ using SqlKata.Execution;
 using SuperSocket.SocketBase.Config;
 using System.Collections.Concurrent;
 using System.Threading.Tasks.Dataflow;
+using GameServer.Models;
 
 namespace SocketServer;
 
-public class MySQLConnection
+public class DBMySQLConnection
 {
     bool isRunning = false;
 
-    BufferBlock<RequestInfo> _msgBuffer = new(); // 이 버퍼블록은 PacketProcessor에 있는 버퍼블록과 다른 것이다. mySQL연결을 위한 패킷만 여기에 담기게 된다. 마찬가지로, Redis연결을 위한 패킷은 다른 버퍼에 담기게 되겠죵?
+    BufferBlock<RequestInfo> _msgBuffer = new();
 
     readonly IConfiguration _configuration;
     readonly SqlKata.Compilers.MySqlCompiler _compiler;
@@ -23,9 +24,9 @@ public class MySQLConnection
     public Func<string, byte[], bool> SendData;
     public Action<RequestInfo> DistributeInnerPacket;
     List<Thread> Threads = null;
-    ConcurrentDictionary<int, Func<RequestInfo, QueryFactory, >> PacketHandlers = [];
+    ConcurrentDictionary<int, Action<RequestInfo, QueryFactory>> PacketHandlers = [];
 
-    public MySQLConnection(IConfiguration configuration, IOptions<ServerOption> serverConfig)
+    public DBMySQLConnection(IConfiguration configuration, IOptions<ServerOption> serverConfig)
     {
         _configuration = configuration;
         _serverOption = serverConfig.Value;
@@ -40,7 +41,7 @@ public class MySQLConnection
 
     public void StartIO()
     {
-        Threads = new List<Thread>();
+        Threads = [];
         isRunning = true;
         for (int i = 0; i < _serverOption.MaxThread; i++)
         {
@@ -52,7 +53,8 @@ public class MySQLConnection
 
     void RegistPacketHandler()
     {
-        PacketHandlers[(int)PacketType.GetUserGameData] = GetUserGameData; // >> 예시입니다~ 패킷타입과 핸들러를 만들어야 한다!
+        // PacketHandlers[(int)PacketType.GetUserGameDataRequest] = GetUserGameData;
+        PacketHandlers[(int)PacketType.SetUserGameDataRequest] = SetUserGameData;
     }
 
     public void Process()
@@ -69,7 +71,7 @@ public class MySQLConnection
 
                 if (PacketHandlers.ContainsKey(header.Id))
                 {
-                    var data = PacketHandlers[header.Id](packet, _queryFactory);
+                    PacketHandlers[header.Id](packet, _queryFactory);
                 }
                 else
                 {
@@ -85,11 +87,34 @@ public class MySQLConnection
 
     // 패킷 핸들러 목록
 
-    /*Packet GetUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
+    /*public void GetUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
     {
-        var reqData = MemoryPackSerializer.Deserialize<GetUserGameData>(requestInfo.Data);
+        // 이 패킷은 이너패킷이다.
+        // 이 패킷(GetUserGameData)에는 유저 아이디가 들어있다. 이 아이디로 쿼리에서 찾아와야 한다.
+        var reqData = MemoryPackSerializer.Deserialize<GetUserGameDataRequest>(requestInfo.Data);
         var userId = reqData.UserId;
-        var user = queryFactory.Query("UserGameData").Where("Email", userId).FirstOrDefaultAsync<UserGameData>();
-        return user;
+        var userSessionId = requestInfo.SessionID;
+        // 1. 쿼리로 유저게임데이터를 가져온다. 
+        var userGameData = queryFactory.Query("UserGameData").Where("Email", userId).FirstOrDefaultAsync<UserGameData>();
+        // 2. 해당 유저 객체에 접근해서 유저게임데이터를 저장해야 한다.
+        // var user = GetUser(userSessionId); // 패킷으로 넘겨라... 패킷으로 넘겨라... 패킷으로 넘겨서 유저객체에 저장해라... 에반데
+    }*/
+
+    public void SetUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
+    {
+        var reqData = MemoryPackSerializer.Deserialize<SetUserGameDataRequest>(requestInfo.Data);
+        var userId = reqData.UserId;
+        // var userSessionId = requestInfo.SessionID;
+        var affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).UpdateAsync(new
+        {
+            Level = reqData.Level,
+            Exp = reqData.Exp,
+            Win = reqData.Win,
+            Lose = reqData.Lose
+        });
+        if (affectedRows.Result == 0)
+        {
+            MainServer.MainLogger.Error($"MySQLProcessor - SetUserGameData: No rows affected. UserId:{userId}");
+        }
     }
-}*/
+}

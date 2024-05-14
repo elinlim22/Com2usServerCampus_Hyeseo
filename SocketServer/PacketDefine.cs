@@ -48,5 +48,7 @@ public enum PacketType : UInt16
     // EndGameResponse,
     PKTNtfEndOmok = 1038,
     /* ---------------------------------- MySQL --------------------------------- */
-    GetUserGameData = 2000,
+    GetUserGameDataRequest = 2000,
+    SetUserGameDataRequest,
+    ValidateUserTokenRequest,
 }

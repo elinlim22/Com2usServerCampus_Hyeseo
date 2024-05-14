@@ -46,7 +46,7 @@ public class MemoryDB : IMemoryDB
         if (roomNumber % 2 == 1)
         {
             roomNumber -= 1;
-        }
+        } // TODO : 방 매칭 로직 수정 필요!!
 
         return (int)roomNumber;
     }

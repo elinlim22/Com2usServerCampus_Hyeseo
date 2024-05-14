@@ -204,7 +204,24 @@ public partial class PKTNtfEndOmok : PacketHeader
 }
 
 [MemoryPackable]
-public partial class GetUserGameData : PacketHeader
+public partial class GetUserGameDataRequest : PacketHeader
 {
     public string UserId { get; set; }
+}
+
+[MemoryPackable]
+public partial class SetUserGameDataRequest : PacketHeader
+{
+    public string UserId { get; set; }
+    public Int32 Level { get; set; }
+    public Int32 Exp { get; set; }
+    public Int32 Win { get; set; }
+    public Int32 Lose { get; set; }
+}
+
+[MemoryPackable]
+public partial class ValidateUserTokenRequest : PacketHeader
+{
+    public string UserId { get; set; }
+    public string Token { get; set; }
 }
