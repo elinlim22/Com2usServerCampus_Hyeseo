@@ -1,8 +1,9 @@
 ﻿using MemoryPack;
 
 namespace SocketServer;
-public class PacketHandlerCommon : PacketHandler
+public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
 {
+    ServerOption _serverOption = serverOption;
     public void RegistPacketHandler(Dictionary<int, Action<RequestInfo>> packetHandlerMap)
     {
         packetHandlerMap[(int)PacketType.InSessionConnected] = NotifyInConnectClient;
@@ -55,7 +56,7 @@ public class PacketHandlerCommon : PacketHandler
         {
             var reqData = MemoryPackSerializer.Deserialize<LoginRequest>(packetData.Data);
             var errorCodeAddUser = _userMgr.AddUser(reqData.UserId, sessionID);
-            var errorCodeAddSession = _userMgr.AddSession(sessionID);
+            // var errorCodeAddSession = _userMgr.AddSession(sessionID);
             if (errorCodeAddUser != ErrorCode.Success)
             {
                 MakeLoginResponse(errorCodeAddUser, packetData.SessionID);
@@ -107,9 +108,13 @@ public class PacketHandlerCommon : PacketHandler
         var resHeartBeat = new HeartBeatPong();
         var sessionID = packetData.SessionID;
         var user = _userMgr.GetUser(sessionID);
-        TimeSpan now = DateTime.Now.TimeOfDay;
+        if (user.ID() == "")
+        {
+            return;
+        }
+        // TimeSpan now = DateTime.Now.TimeOfDay;
 
-        if (now - user.LastPing > TimeSpan.FromSeconds(10)) // TODO : Config로 빼기
+        if (DateTime.Now.TimeOfDay - user.LastPing > TimeSpan.FromSeconds(_serverOption.HeartBeatInSeconds))
         {
             resHeartBeat.Result = (short)ErrorCode.PingTimeout;
             MainServer.MainLogger.Error($"Ping Timeout. SessionID:{sessionID}");
@@ -118,7 +123,7 @@ public class PacketHandlerCommon : PacketHandler
         {
             resHeartBeat.Result = (short)ErrorCode.Success;
             user.UpdateLastPing();
-            MainServer.MainLogger.Debug($"SessionID:{sessionID}, Pong..oO");
+            // MainServer.MainLogger.Debug($"SessionID:{sessionID}, Pong..oO");
         }
 
         var sendData = MemoryPackSerializer.Serialize(resHeartBeat);
@@ -132,4 +137,6 @@ public class PacketHandlerCommon : PacketHandler
         var sessionID = packetData.SessionID;
         CloseSession(sessionID);
     }
+
+
 }

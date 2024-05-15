@@ -2,32 +2,32 @@
 
 namespace SocketServer;
 
-class RoomManager
+class RoomManager(ServerOption serverOption)
 {
     int currentGroupIndex = 0;
+    int batchSize = serverOption.RoomStatusCheckSize;
     List<Room> _roomsList = [];
 
     Timer RoomStatusCheckTimer;
     TimerCallback RoomStatusCheckTimerCallback;
-    public static Func<string, byte[], bool> SendData;
+    public Func<string, byte[], bool> SendData;
+    public Action<RequestInfo> DistributeInnerPacket;
+    public Action<RequestInfo> DistributeMySQLPacket;
 
-    public void CreateRooms(ServerOption serverOpt)
+    public void CreateRooms()
     {
-        var maxRoomCount = serverOpt.MaxRoom;
         var startNumber = 0;
-        var maxUserCount = serverOpt.MaxUserPerRoom;
 
-        for(int i = 0; i < maxRoomCount; ++i)
+        for(int i = 0; i < serverOption.MaxRoom; ++i)
         {
             var roomNumber = (startNumber + i);
-            var room = new Room();
-            room.Init(i, roomNumber, maxUserCount);
+            var room = new Room(serverOption);
+            room.Init(i, roomNumber, serverOption.MaxUserPerRoom);
 
             _roomsList.Add(room);
         }
         SetTimer();
     }
-
 
     public List<Room> GetRoomsList()
     {
@@ -36,43 +36,53 @@ class RoomManager
     public void SetTimer()
     {
         RoomStatusCheckTimerCallback = new TimerCallback(RoomStatusCheck);
-        RoomStatusCheckTimer = new System.Threading.Timer(RoomStatusCheckTimerCallback, null, 0, 250); // TODO : Config로 빼기
+        RoomStatusCheckTimer = new System.Threading.Timer(RoomStatusCheckTimerCallback, null, 0, serverOption.RoomStatusCheckSize);
     }
 
     public void RoomStatusCheck(object state)
     {
-        int batchSize = _roomsList.Count / 2;
-
-        int startIndex = currentGroupIndex * batchSize;
-        // 방을 순회하면서...
-        foreach(var room in _roomsList.GetRange(startIndex, batchSize))
+        int startIndex = currentGroupIndex++ * batchSize;
+        int endIndex = startIndex + batchSize;
+        if (endIndex > serverOption.MaxRoom)
         {
-            if (room == null || room.CurrentUserCount() == 0)
+            endIndex = serverOption.MaxRoom;
+            currentGroupIndex = 0;
+        }
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            if (i >= serverOption.MaxRoom)
+            {
+                break;
+            }
+            var room = _roomsList[i];
+            if (room.Status == RoomStatus.Empty)
             {
                 continue;
             }
-            if (DateTime.Now.TimeOfDay - room.LastActivity > room.StatusStandardTime)
+            if (DateTime.Now.TimeOfDay - room.LastActivity > room.TimeoutThreshold)
             {
-                //if (room.StatusStandardTime == TimeSpan.FromMinutes(5)) // 게임 시작한거면
-                if (room.StatusStandardTime == TimeSpan.FromSeconds(10)) // Debug용
+                if (room.Status == RoomStatus.OneUser)
                 {
-                    // 몰수패 처리:
-                    room.EndRoomGame(room.GetCurrentUser(), room.GetNextUser());
-                    ClientKickUser(room.GetNextUser(), room);
-                    room.RemoveUser(room.GetNextUser().NetSessionID);
+                    ClientKickUser(room.GetUserList()[0], room);
+
+                    MainServer.MainLogger.Error($"User Forced Leave due to Inactivity. RoomNumber:{room.Number}");
+                    var innerPacket = PacketMaker.MakeInnerUserLeaveRoom(room.GetUserList()[0].NetSessionID);
+                    DistributeInnerPacket(innerPacket);
                 }
-                else // 게임 시작 안한거면
+                else if (room.Status == RoomStatus.Playing)
                 {
-                    var users = room.GetUserList();
-                    for (int i = 0; i < room.CurrentUserCount(); ++i)
-                    {
-                        ClientKickUser(users[i], room);
-                        room.RemoveUser(users[i].NetSessionID);
-                    }
+                    var roomWinner = room.GetCurrentUser();
+                    var roomLoser = room.GetNextUser();
+
+                    var innerForfeiturePacket = PacketMaker.MakeForfeitureRequest(roomWinner.NetSessionID);
+                    DistributeInnerPacket(innerForfeiturePacket);
+                    ClientKickUser(roomLoser, room);
+                    var innerLeavePacket = PacketMaker.MakeInnerUserLeaveRoom(roomLoser.NetSessionID);
+                    DistributeInnerPacket(innerLeavePacket);
+
                 }
             }
         }
-        currentGroupIndex = (currentGroupIndex + 1) % 2;
     }
 
     void ClientKickUser(RoomUser user, Room room)

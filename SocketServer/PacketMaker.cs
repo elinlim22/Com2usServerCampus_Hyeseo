@@ -82,4 +82,51 @@ public class PacketMaker
         };
         return newInnerPacket;
     }
+
+    public static RequestInfo MakeForfeitureRequest(string sessionId)
+    {
+        var innerPacket = new ForfeitureRequest();
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.ForfeitureRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeWinnerDBUpdate(string userId, string sessionId)
+    {
+        var innerPacket = new UpdateUserGameDataRequest()
+        {
+            UserId = userId,
+            IsWinner = true
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.UpdateUserGameDataRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeLoserDBUpdate(string userId, string sessionId)
+    {
+        var innerPacket = new UpdateUserGameDataRequest()
+        {
+            UserId = userId,
+            IsWinner = false
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.UpdateUserGameDataRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
 }

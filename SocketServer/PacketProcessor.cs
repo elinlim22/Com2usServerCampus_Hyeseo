@@ -17,7 +17,7 @@ class PacketProcessor(ServerOption serverOption)
     List<Room> _roomList = [];
 
     Dictionary<int, Action<RequestInfo>> PacketHandlers = [];
-    PacketHandlerCommon _commonPacketHandler = new();
+    PacketHandlerCommon _commonPacketHandler = new(serverOption);
     PacketHandlerRoom _roomPacketHandler = new();
 
     DBMySQLConnection _mySQLConnection;
@@ -62,12 +62,14 @@ class PacketProcessor(ServerOption serverOption)
         PacketHandler.SendData = SendData;
         PacketHandler.DistributeInnerPacket = InsertPacket;
         PacketHandler.CloseSession = CloseSession;
+        // PacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
 
-        _mySQLConnection.SendData = SendData;
-        _mySQLConnection.DistributeInnerPacket = InsertPacket;
+        //_mySQLConnection.SendData = SendData;
+        //_mySQLConnection.DistributeInnerPacket = InsertPacket;
 
         _commonPacketHandler.Init(_userMgr);
         _commonPacketHandler.RegistPacketHandler(PacketHandlers);
+        // _commonPacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
 
         _roomPacketHandler.Init(_userMgr);
         _roomPacketHandler.SetRooomList(_roomList);

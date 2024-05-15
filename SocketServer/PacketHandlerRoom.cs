@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 using System.ComponentModel;
 
 namespace SocketServer;
@@ -23,6 +23,7 @@ public class PacketHandlerRoom : PacketHandler
         packetHandlerMap[(int)PacketType.PKTReqReadyOmok] = RequestReadyOmok;
         packetHandlerMap[(int)PacketType.PKTNtfStartOmok] = RequestStartOmok;
         packetHandlerMap[(int)PacketType.PutStoneRequest] = RequestPutOmok;
+        packetHandlerMap[(int)PacketType.ForfeitureRequest] = RequestForfeiture;
     }
 
 
@@ -314,6 +315,7 @@ public class PacketHandlerRoom : PacketHandler
 
             // 돌 두기 요청 처리(오목 규칙 체크, 게임 종료 체크), 돌 두기 응답
             room.PutStoneRequest(roomUser.UserId, reqData.X, reqData.Y); // 요청을 보낸 플레이어에게는 PutStoneResponse가 전송된다.
+            // 여기서 만약 오목확인이 되면 게임종료가 true가 된다.
             roomUser.IsMyTurn = true;
             // 요청을 보내지 않은 플레이어에게는 NotifyPutStone이 전송된다.
             room.NotifyPutStone(roomOtherUser.UserId, reqData.X, reqData.Y); // 이 패킷을 받은 클라이언트는 돌을 그린다.
@@ -323,18 +325,42 @@ public class PacketHandlerRoom : PacketHandler
             // 게임 종료 시 게임 종료 응답
             if (room.omokRule.게임종료 == true)
             {
-                room.EndRoomGame(roomUser, roomOtherUser);
-                // 유저 타이머 업데이트
-                _userMgr.UpdateUserLastConnection(roomUser.UserId);
-                _userMgr.UpdateUserLastConnection(roomOtherUser.UserId);
-                MainServer.MainLogger.Debug("게임 종료");
+                EndGame(room, roomUser, roomOtherUser);
             }
-
         }
         catch (Exception ex)
         {
             MainServer.MainLogger.Error(ex.ToString());
         }
+    }
+
+    public void EndGame(Room room, RoomUser roomWinner, RoomUser roomLoser)
+    {
+        room.EndRoomGame(roomWinner, roomLoser); // DB업데이트, 방 타이머 업데이트, 플레이어 준비상태 초기화, 클라이언트에 메세지 전송
+        // 유저 타이머 업데이트
+        _userMgr.UpdateUserLastConnection(roomWinner.UserId);
+        _userMgr.UpdateUserLastConnection(roomLoser.UserId);
+        MainServer.MainLogger.Debug("게임 종료");
+    }
+
+    public void RequestForfeiture(RequestInfo packetData)
+    {
+        var winnerSessionID = packetData.SessionID;
+
+        var roomObject = CheckRoomAndRoomUser(winnerSessionID);
+        if (roomObject.Item1 == false)
+        {
+            MainServer.MainLogger.Error("RequestForfeiture - Invalid User");
+            return;
+        }
+        var room = roomObject.Item2;
+        var roomWinner = roomObject.Item3;
+        var roomLoser = room.GetOtherUser(roomWinner.UserId);
+
+        EndGame(room, roomWinner, roomLoser);
+
+        MainServer.MainLogger.Debug("RequestForfeiture - Success");
+
     }
 
 }

@@ -50,6 +50,8 @@ public enum PacketType : UInt16
     /* ---------------------------------- MySQL --------------------------------- */
     GetUserGameDataRequest = 2000,
     SetUserGameDataRequest,
+    UpdateUserGameDataRequest,
     ValidateUserTokenRequest,
     CloseSessionRequest,
+    ForfeitureRequest,
 }

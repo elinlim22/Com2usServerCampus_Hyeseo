@@ -9,7 +9,7 @@ namespace SocketServer;
 
 public class UserManager(ServerOption serverOption)
 {
-    int _totalUserMaximum; // TODO : Config에서 MaxUserCount 불러와서 설정하기
+    int _totalUserMaximum;
     int currentGroupIndex = 0;
     UInt64 _userSequenceNumber = 0;
     int batchSize = serverOption.UserStatusCheckSize;
@@ -17,11 +17,11 @@ public class UserManager(ServerOption serverOption)
     List<User> Users = [];
     Timer UserStatusCheckTimer;
     TimerCallback UserStatusCheckTimerCallback;
-    // TimeSpan StatusStandardTime = TimeSpan.FromHours(1); // TODO : Config로 빼기
-    TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
+    TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.UserInactivityInMinutes);
+    // TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
 
-    public static Func<string, byte[], bool> SendData;
-    public static Action<RequestInfo> DistributeInnerPacket;
+    public Func<string, byte[], bool> SendData;
+    public Action<RequestInfo> DistributeInnerPacket;
 
     public void Init(int totalUserMaximum)
     {
@@ -36,17 +36,18 @@ public class UserManager(ServerOption serverOption)
     public void SetTimer()
     {
         UserStatusCheckTimerCallback = new TimerCallback(UserStatusCheck);
-        UserStatusCheckTimer = new System.Threading.Timer(UserStatusCheckTimerCallback, null, 0, 250); // TODO : Config로 빼기
+        UserStatusCheckTimer = new System.Threading.Timer(UserStatusCheckTimerCallback, null, 0, serverOption.UserStatusCheckSize); // TODO : Config로 빼기
         MainServer.MainLogger.Debug("UserStatusCheckTimer Start");
     }
 
     public void UserStatusCheck(object state)
     {
-        int startIndex = currentGroupIndex * batchSize;
+        int startIndex = currentGroupIndex++ * batchSize;
         int endIndex = startIndex + batchSize;
         if (endIndex > _totalUserMaximum)
         {
             endIndex = _totalUserMaximum;
+            currentGroupIndex = 0;
         }
         for (int i = startIndex; i < endIndex; i++)
         {
@@ -54,9 +55,13 @@ public class UserManager(ServerOption serverOption)
             {
                 break;
             }
+            if (Users[i].SequenceNumber == 0)
+            {
+                continue;
+            }
             var user = Users[i];
             var sessionID = user.GetSessionID();
-            if (DateTime.Now.TimeOfDay - user.LastConnection > StatusStandardTime)
+            if (DateTime.Now.TimeOfDay - user.LastConnection > TimeoutThreshold)
             {
                 // 유저 강제종료 패킷 전송하여 클라이언트에서 세션을 종료시킨다. << TODO : 불필요?
                 var sendPacket = PacketMaker.MakeNotifyUserMustClose(ErrorCode.UserForcedClose, sessionID);
@@ -67,11 +72,6 @@ public class UserManager(ServerOption serverOption)
                 var innerPacket = PacketMaker.MakeCloseSessionRequest(sessionID);
                 DistributeInnerPacket(innerPacket);
             }
-        }
-        currentGroupIndex++;
-        if (endIndex == _totalUserMaximum)
-        {
-            currentGroupIndex = 0;
         }
     }
 
@@ -116,7 +116,8 @@ public class UserManager(ServerOption serverOption)
             MainServer.MainLogger.Error($"RemoveUser: User Not Found. SessionID:{sessionID}");
             return ErrorCode.UserNotFound;
         }
-        Users.Remove(user);
+        //Users.Remove(user);
+        user.Set(0, "", "");
         return ErrorCode.Success;
     }
 

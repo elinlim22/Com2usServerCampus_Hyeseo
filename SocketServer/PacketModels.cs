@@ -220,6 +220,13 @@ public partial class SetUserGameDataRequest : PacketHeader
 }
 
 [MemoryPackable]
+public partial class UpdateUserGameDataRequest : PacketHeader
+{
+    public string UserId { get; set; }
+    public bool IsWinner { get; set; }
+}
+
+[MemoryPackable]
 public partial class ValidateUserTokenRequest : PacketHeader
 {
     public string UserId { get; set; }
@@ -228,5 +235,10 @@ public partial class ValidateUserTokenRequest : PacketHeader
 
 [MemoryPackable]
 public partial class CloseSessionRequest : PacketHeader
+{
+}
+
+[MemoryPackable]
+public partial class ForfeitureRequest : PacketHeader
 {
 }

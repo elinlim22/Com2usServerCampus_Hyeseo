@@ -21,8 +21,8 @@ public class DBMySQLConnection
     readonly ServerOption _serverOption;
     readonly string _connectionString;
 
-    public Func<string, byte[], bool> SendData;
-    public Action<RequestInfo> DistributeInnerPacket;
+    //public Func<string, byte[], bool> SendData;
+    //public Action<RequestInfo> DistributeInnerPacket;
     List<Thread> Threads = null;
     ConcurrentDictionary<int, Action<RequestInfo, QueryFactory>> PacketHandlers = [];
 
@@ -55,6 +55,11 @@ public class DBMySQLConnection
     {
         // PacketHandlers[(int)PacketType.GetUserGameDataRequest] = GetUserGameData;
         PacketHandlers[(int)PacketType.SetUserGameDataRequest] = SetUserGameData;
+    }
+
+    public void InsertPacket(RequestInfo data)
+    {
+        _msgBuffer.Post(data);
     }
 
     public void Process()
@@ -115,6 +120,25 @@ public class DBMySQLConnection
         if (affectedRows.Result == 0)
         {
             MainServer.MainLogger.Error($"MySQLProcessor - SetUserGameData: No rows affected. UserId:{userId}");
+        }
+    }
+
+    public void UpdateUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
+    {
+        var reqData = MemoryPackSerializer.Deserialize<UpdateUserGameDataRequest>(requestInfo.Data);
+        var userId = reqData.UserId;
+        Task<int> affectedRows;
+        if (reqData.IsWinner)
+        {
+            affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).IncrementAsync("Win", 1);
+        }
+        else
+        {
+            affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).IncrementAsync("Lose", 1);
+        }
+        if (affectedRows.Result == 0)
+        {
+            MainServer.MainLogger.Error($"MySQLProcessor - UpdateUserGameData: No rows affected. UserId:{userId}");
         }
     }
 }
