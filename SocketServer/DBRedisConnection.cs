@@ -27,8 +27,10 @@ public class DBRedisConnection
     {
         _configuration = configuration;
         _serverOption = serverConfig.Value;
+        var connStr = _configuration.GetConnectionString("RedisConnection");
+        connStr = connStr.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
 
-        _redisConfig = new RedisConfig("MemoryDB", _configuration.GetConnectionString("RedisConnection") ?? "localhost:6400");
+        _redisConfig = new RedisConfig("MemoryDB", connStr);
 
         RegistPacketHandler();
     }

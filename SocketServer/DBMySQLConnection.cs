@@ -33,7 +33,7 @@ public class DBMySQLConnection
 
         var toReplace = _configuration.GetConnectionString("DefaultConnection") ?? "";
         _connectionString = toReplace.Replace("{myPassword}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
-        
+        _connectionString = _connectionString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
         _compiler = new SqlKata.Compilers.MySqlCompiler();
 
         RegistPacketHandler();
