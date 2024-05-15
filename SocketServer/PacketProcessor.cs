@@ -20,7 +20,7 @@ class PacketProcessor(ServerOption serverOption)
     PacketHandlerCommon _commonPacketHandler = new(serverOption);
     PacketHandlerRoom _roomPacketHandler = new();
 
-    DBMySQLConnection _mySQLConnection;
+    public DBMySQLConnection _mySQLConnection;
 
 
     public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
@@ -62,7 +62,7 @@ class PacketProcessor(ServerOption serverOption)
         PacketHandler.SendData = SendData;
         PacketHandler.DistributeInnerPacket = InsertPacket;
         PacketHandler.CloseSession = CloseSession;
-        // PacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
+        PacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
 
         //_mySQLConnection.SendData = SendData;
         //_mySQLConnection.DistributeInnerPacket = InsertPacket;
