@@ -1,24 +1,16 @@
 ﻿using MemoryPack;
-<<<<<<< HEAD
-=======
 using System.Data;
->>>>>>> ClientTest
 
 namespace SocketServer;
 
 public class Room(ServerOption serverOption)
 {
     public const int InvalidRoomNumber = -1;
-<<<<<<< HEAD
-    // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
-    public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
-    public TimeSpan LastActivity;
-=======
+
     public RoomStatus Status = RoomStatus.Empty;
     // public TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.RoomInactivityInMinutes);
     public TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(30); // Debug용
     public TimeSpan LastActivity = DateTime.Now.TimeOfDay;
->>>>>>> ClientTest
 
     public int Index { get; private set; }
     public int Number { get; private set; }
@@ -207,13 +199,8 @@ public class Room(ServerOption serverOption)
     public void StartOmok()
     {
         omokRule.StartGame();
-<<<<<<< HEAD
-        // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config로 빼기
-        StatusStandardTime = TimeSpan.FromSeconds(3); // Debug용
-=======
         // TimeoutThreshold = TimeSpan.FromMinutes(serverOption.PlayerInactivityInMinutes);
         TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
->>>>>>> ClientTest
         UpdateLastActivity();
         Status = RoomStatus.Playing;
         var packet = new PKTNtfStartOmok
@@ -292,18 +279,6 @@ public class Room(ServerOption serverOption)
         {
             WinUserId = roomWinner.UserId
         };
-<<<<<<< HEAD
-        omokRule.EndGame();
-        // 플레이어 준비 상태 초기화
-        roomUser.CancelReadyOmok();
-        roomOtherUser.CancelReadyOmok();
-        // 방 타이머 업데이트
-        UpdateLastActivity();
-        // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
-        StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
-
-=======
->>>>>>> ClientTest
         var sendPacket = MemoryPackSerializer.Serialize(endPacket);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
 
