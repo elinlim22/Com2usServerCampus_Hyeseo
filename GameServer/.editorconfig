@@ -1,20 +1,12 @@
 # 상위 디렉터리에서 .editorconfig 설정을 상속하려면 아래 행을 제거하세요.
 root = true
 
-<<<<<<< HEAD
+# C# 파일
+[*.cs]
+
 [*]
 charset = utf-8
-# C# 파일
-[*.cs]
 
-=======
-# C# 파일
-[*.cs]
-
-[*]
-charset = utf-8-bom
-
->>>>>>> ClientTest
 #### 코어 EditorConfig 옵션 ####
 
 # 들여쓰기 및 간격

@@ -131,10 +131,17 @@
             // textBoxIP
             //
             this.textBoxIP.Location = new System.Drawing.Point(68, 18);
+<<<<<<< HEAD
             this.textBoxIP.MaxLength = 30;
             this.textBoxIP.Name = "textBoxIP";
             this.textBoxIP.Size = new System.Drawing.Size(87, 21);
             this.textBoxIP.TabIndex = 11;
+=======
+            this.textBoxIP.MaxLength = 24;
+            this.textBoxIP.Name = "textBoxIP";
+            this.textBoxIP.Size = new System.Drawing.Size(87, 21);
+            this.textBoxIP.TabIndex = 30;
+>>>>>>> ClientTest
             this.textBoxIP.Text = "34.64.46.227";
             this.textBoxIP.WordWrap = false;
             //

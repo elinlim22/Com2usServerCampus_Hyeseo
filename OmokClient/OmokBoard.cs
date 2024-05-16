@@ -57,12 +57,12 @@ namespace csharp_test_client
             DoubleBuffered = true;
 
             // var curDir = System.Windows.Forms.Application.StartupPath;
-            var curDir = "C:\\Users\\HYESEO\\Desktop\\Com2usServerCampus_Hyeseo\\OmokClient";
+            /*var curDir = "C:\\Users\\HYESEO\\Desktop\\Com2usServerCampus_Hyeseo\\OmokClient";
             시작효과음 = new SoundPlayer($"{curDir}\\sound\\대국시작.wav");
             승리효과음 = new SoundPlayer($"{curDir}\\sound\\대국승리.wav");
             바둑돌소리 = new SoundPlayer($"{curDir}\\sound\\바둑돌소리.wav");
             무르기요청 = new SoundPlayer($"{curDir}\\sound\\무르기.wav");
-            오류효과음 = new SoundPlayer($"{curDir}\\sound\\오류.wav");
+            오류효과음 = new SoundPlayer($"{curDir}\\sound\\오류.wav");*/
 
             //ai = new AI(바둑판);
             //컴퓨터돌 = 돌종류.백돌;
@@ -87,7 +87,7 @@ namespace csharp_test_client
             IsMyTurn = isMyTurn;
 
             전x좌표 = 전y좌표 = -1;
-            시작효과음.Play();
+            //시작효과음.Play();
 
             OmokLogic.StartGame();
             

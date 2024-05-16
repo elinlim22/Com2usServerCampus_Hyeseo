@@ -1,14 +1,14 @@
-namespace SocketServer;
+﻿namespace SocketServer;
 
 public class User
 {
-    UInt64 SequenceNumber = 0;
-    string SessionID;
+    public UInt64 SequenceNumber { get; private set; } = 0;
+    string SessionID = "";
 
     public int RoomNumber { get; private set; } = -1;
-    string UserId;
-    public TimeSpan LastPing;
-    public TimeSpan LastConnection;
+    string UserId = "";
+    public TimeSpan LastPing = DateTime.Now.TimeOfDay;
+    public TimeSpan LastConnection = DateTime.Now.TimeOfDay;
 
     public void Set(UInt64 sequence, string sessionID, string userId)
     {

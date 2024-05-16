@@ -1,4 +1,4 @@
-using MemoryPack;
+ï»¿using MemoryPack;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,170 +7,142 @@ using System.Threading.Tasks.Dataflow;
 
 namespace SocketServer;
 
-public class UserManager
+public class UserManager(ServerOption serverOption)
 {
-    int _totalUserMaximum; // TODO : Config¿¡¼­ MaxUserCount ºÒ·¯¿Í¼­ ¼³Á¤ÇÏ±â
+    int _totalUserMaximum;
     int currentGroupIndex = 0;
     UInt64 _userSequenceNumber = 0;
-    
-    List<Tuple<string, User>> UserStatusCheckList;
+    int batchSize = serverOption.UserStatusCheckSize;
+
+    List<User> Users = [];
     Timer UserStatusCheckTimer;
     TimerCallback UserStatusCheckTimerCallback;
-    // TimeSpan StatusStandardTime = TimeSpan.FromHours(1); // TODO : Config·Î »©±â
-    TimeSpan StatusStandardTime = TimeSpan.FromSeconds(5); // Debug¿ë
-    Dictionary<string, User> Users = [];
-    public static Func<string, byte[], bool> SendData;
-    public static Action<string> CloseSession;
+    TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.UserInactivityInMinutes);
+    // TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(10); // Debugìš©
+
+    public Func<string, byte[], bool> SendData;
+    public Action<RequestInfo> DistributeInnerPacket;
+    public Action<RequestInfo> DistributeRedisPacket;
 
     public void Init(int totalUserMaximum)
     {
         _totalUserMaximum = totalUserMaximum;
-        UserStatusCheckList = new List<Tuple<string, User>>(_totalUserMaximum);
-        // UserStatusCheckList ÃÊ±âÈ­
         for (int i = 0; i < _totalUserMaximum; i++)
         {
-            UserStatusCheckList.Add(null);
+            Users.Add(new User());
         }
-
-        // À¯Àú »óÅÂÁ¶»ç Å¸ÀÌ¸Ó ¼¼ÆÃ
         SetTimer();
-    }
-
-    public ErrorCode AddSession(string sessionID) // Session¸¸ ¿¬°áµÇ°í ·Î±×ÀÎÇÏÁö ¾ÊÀº °æ¿ì, ¼¼¼ÇÀ» Ãß°¡ÇÔ(Ã¹ Á¢¼Ó)
-    {
-        var findUserSession = UserStatusCheckList.Find(x => x?.Item1 == sessionID);
-        if (findUserSession != null)
-        {
-            return ErrorCode.UserSessionAlreadyExist;
-        }
-        else
-        {
-            var newUserSession = new Tuple<string, User>(sessionID, new User());
-            newUserSession.Item2.Set(0, sessionID, null); // ¼¼¼Ç¾ÆÀÌµð¸¸ ÀúÀå
-            newUserSession.Item2.UpdateLastConnection();
-            var insertIndex = UserStatusCheckList.FindIndex(x => x?.Item1 == null);
-            if(insertIndex == -1)
-            {
-                return ErrorCode.UserFull;
-            }
-            else
-            {
-                UserStatusCheckList[insertIndex] = newUserSession;
-                if (UserStatusCheckList.FindIndex(x => x?.Item1 == sessionID) == -1)
-                {
-                    MainServer.MainLogger.Error($"AddSession Fail : SessionID : {sessionID} Not Added.");
-                }
-                else
-                {
-                    MainServer.MainLogger.Debug($"AddSession Success : SessionID : {sessionID}");
-                }
-            }
-            return ErrorCode.Success;
-        } // ÇØ´ç À¯Àú(¼¼¼Ç)ÀÌ ·Î±×ÀÎÇÑ °æ¿ì AddUser¿¡¼­ UserStatusCheckList¿¡ Ãß°¡µÊ
     }
 
     public void SetTimer()
     {
         UserStatusCheckTimerCallback = new TimerCallback(UserStatusCheck);
-        UserStatusCheckTimer = new System.Threading.Timer(UserStatusCheckTimerCallback, null, 0, 250); // TODO : Config·Î »©±â
+        UserStatusCheckTimer = new System.Threading.Timer(UserStatusCheckTimerCallback, null, 0, serverOption.UserStatusCheckSize); // TODO : Configë¡œ ë¹¼ê¸°
         MainServer.MainLogger.Debug("UserStatusCheckTimer Start");
     }
 
     public void UserStatusCheck(object state)
     {
-        int batchSize = UserStatusCheckList.Count / 4;
-
-        int startIndex = currentGroupIndex * batchSize;
-        for (int i = startIndex; i < startIndex + batchSize; i++)
+        int startIndex = currentGroupIndex++ * batchSize;
+        int endIndex = startIndex + batchSize;
+        if (endIndex > _totalUserMaximum)
         {
-            var userSession = UserStatusCheckList[i];
-
-            if (userSession == null || userSession.Item2.RoomNumber != -1)
+            endIndex = _totalUserMaximum;
+            currentGroupIndex = 0;
+        }
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            if (i >= _totalUserMaximum)
+            {
+                break;
+            }
+            if (Users[i].SequenceNumber == 0)
             {
                 continue;
             }
-            if (DateTime.Now.TimeOfDay - userSession.Item2.LastConnection > StatusStandardTime)
+            var user = Users[i];
+            var sessionID = user.GetSessionID();
+            if (DateTime.Now.TimeOfDay - user.LastConnection > TimeoutThreshold)
             {
-                // À¯Àú °­Á¦Á¾·á ÆÐÅ¶ Àü¼ÛÇÏ¿© Å¬¶óÀÌ¾ðÆ®¿¡¼­ ¼¼¼ÇÀ» Á¾·á½ÃÅ²´Ù. << TODO : ºÒÇÊ¿ä?
-                var sendPacket = PacketMaker.MakeNotifyUserMustClose(ErrorCode.UserForcedClose, userSession.Item1);
-                SendData(userSession.Item1, sendPacket);
+                // ìœ ì € ê°•ì œì¢…ë£Œ íŒ¨í‚· ì „ì†¡í•˜ì—¬ í´ë¼ì´ì–¸íŠ¸ì—ì„œ ì„¸ì…˜ì„ ì¢…ë£Œì‹œí‚¨ë‹¤. << TODO : ë¶ˆí•„ìš”?
+                var sendPacket = PacketMaker.MakeNotifyUserMustClose(ErrorCode.UserForcedClose, sessionID);
+                SendData(sessionID, sendPacket);
 
-                // ¼¼¼ÇÀ» ´Ý±â
-                CloseSession(userSession.Item1);
-                MainServer.MainLogger.Error($"User Forced Close due to Inactivity. SessionID:{userSession.Item1}");
-                RemoveUser(userSession.Item1);
-                UserStatusCheckList[i] = null;
+                // ì„¸ì…˜ì„ ë‹«ê¸° ì´ë„ˆíŒ¨í‚· ì „ì†¡
+                MainServer.MainLogger.Error($"User Forced Close due to Inactivity. SessionID:{sessionID}");
+                var innerPacket = PacketMaker.MakeCloseSessionRequest(sessionID);
+                DistributeInnerPacket(innerPacket);
             }
-        }
-        currentGroupIndex++;
-        if (currentGroupIndex >= 4)
-        {
-            currentGroupIndex = 0;
         }
     }
 
-    public ErrorCode AddUser(string UserId, string sessionID) // À¯Àú°¡ ·Î±×ÀÎÇÒ ¶§
+    public ErrorCode AddSession(string sessionID)
     {
-        if(IsFull())
+        if (IsFull())
         {
+            MainServer.MainLogger.Error($"AddSession failed: User Full: SessionID:{sessionID}");
             return ErrorCode.UserFull;
         }
-        ++_userSequenceNumber; // << ?
-
-        // ÇØ´ç ¼¼¼ÇÀÇ À¯Àú¸¦ Ã£¾Æ¼­ À¯Àú¸®½ºÆ®¿¡ Ãß°¡
-        var userSession = UserStatusCheckList.Find(x => x?.Item1 == sessionID);
-        if(userSession == null)
-        {
-            MainServer.MainLogger.Error($"UserSession Not Found. SessionID:{sessionID}");
-            return ErrorCode.UserSessionNotFound; // Á¢¼ÓÇÏÁö ¾ÊÀº À¯Àú°¡ ·Î±×ÀÎ ½Ãµµ
-        }
-        userSession.Item2.Set(_userSequenceNumber, sessionID, UserId);
-        Users.Add(sessionID, userSession.Item2);
-        
-        userSession.Item2.UpdateLastConnection();
+        var user = GetUser(sessionID) ?? Users.Find(x => x.SequenceNumber == 0);
+        ++_userSequenceNumber;
+        user.Set(_userSequenceNumber, sessionID, "");
+        user.UpdateLastConnection();
         return ErrorCode.Success;
     }
 
-    public ErrorCode RemoveUser(string sessionID) // ¼¼¼Ç Á¾·á ½Ã
+    public ErrorCode AddUser(string UserId, string sessionID)
     {
-        // À¯Àú »óÅÂÁ¶»ç¿ë ¸®½ºÆ®¿¡¼­ »èÁ¦
-        var userSessionIndex = UserStatusCheckList.FindIndex(x => x?.Item1 == sessionID);
-        if(userSessionIndex == -1)
+        if(IsFull())
         {
-            MainServer.MainLogger.Error($"UserSession Not Found. SessionID:{sessionID}");
-            return ErrorCode.UserSessionNotFound;
+            MainServer.MainLogger.Error($"AddUser failed: User Full: SessionID:{sessionID}");
+            return ErrorCode.UserFull;
         }
-        UserStatusCheckList[userSessionIndex] = null;
-        // À¯Àú µñ¼Å³Ê¸®¿¡¼­ »èÁ¦
-        if (!Users.ContainsKey(sessionID))
+        var user = GetUser(sessionID);
+        if(user == null)
         {
-            return ErrorCode.UserSessionNotFound;
+            MainServer.MainLogger.Error($"AddUser: UserSession Not Found. SessionID:{sessionID}");
+            return ErrorCode.UserSessionNotFound; // ì ‘ì†í•˜ì§€ ì•Šì€ ìœ ì €ê°€ ë¡œê·¸ì¸ ì‹œë„
         }
-        Users.Remove(sessionID);
+        user.Set(_userSequenceNumber, sessionID, UserId);
+        
+        user.UpdateLastConnection();
+        return ErrorCode.Success;
+    }
+
+    public ErrorCode RemoveUser(string sessionID) // ì„¸ì…˜ ì¢…ë£Œ ì‹œ
+    {
+        var user = GetUser(sessionID);
+        if (user == null)
+        {
+            MainServer.MainLogger.Error($"RemoveUser: User Not Found. SessionID:{sessionID}");
+            return ErrorCode.UserNotFound;
+        }
+        //Users.Remove(user);
+        user.Set(0, "", "");
         return ErrorCode.Success;
     }
 
     public void UpdateUserLastConnection(string sessionID)
     {
         var user = GetUser(sessionID);
-        if(user != null)
-        {
-            user.UpdateLastConnection();
-        }
-        else
+        if(user == null)
         {
             MainServer.MainLogger.Error($"UpdateUserLastConnection: User Not Found. SessionID:{sessionID}");
+            return;
         }
+        user.UpdateLastConnection();
     }
 
     public User GetUser(string sessionID)
     {
-        Users.TryGetValue(sessionID, out User user);
+        var user = Users.Find(x => x.GetSessionID() == sessionID);
         return user;
     }
 
     bool IsFull()
     {
-        return _totalUserMaximum <= Users.Count;
+        var userSpace = Users.Find(x => x.SequenceNumber == 0);
+        return userSpace == null;
     }
+
 }

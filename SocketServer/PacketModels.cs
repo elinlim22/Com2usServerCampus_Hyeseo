@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 
 namespace SocketServer;
 
@@ -201,4 +201,51 @@ public partial class NotifyPutStone : PacketHeader
 public partial class PKTNtfEndOmok : PacketHeader
 {
     public string WinUserId { get; set; }
+}
+
+[MemoryPackable]
+public partial class GetUserGameDataRequest : PacketHeader
+{
+    public string UserId { get; set; }
+}
+
+[MemoryPackable]
+public partial class SetUserGameDataRequest : PacketHeader
+{
+    public string UserId { get; set; }
+    public Int32 Level { get; set; }
+    public Int32 Exp { get; set; }
+    public Int32 Win { get; set; }
+    public Int32 Lose { get; set; }
+}
+
+[MemoryPackable]
+public partial class UpdateUserGameDataRequest : PacketHeader
+{
+    public string UserId { get; set; }
+    public bool IsWinner { get; set; }
+}
+
+[MemoryPackable]
+public partial class ValidateUserTokenRequest : PacketHeader
+{
+    public string UserId { get; set; }
+    public string Token { get; set; }
+}
+
+[MemoryPackable]
+public partial class ValidateUserTokenResponse : PacketHeader
+{
+    public short Result { get; set; }
+    public string UserId { get; set; }
+}
+
+[MemoryPackable]
+public partial class CloseSessionRequest : PacketHeader
+{
+}
+
+[MemoryPackable]
+public partial class ForfeitureRequest : PacketHeader
+{
 }

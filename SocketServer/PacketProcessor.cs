@@ -1,25 +1,28 @@
+﻿using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks.Dataflow;
 
 namespace SocketServer;
 
-class PacketProcessor
+class PacketProcessor(ServerOption serverOption, ConnectionStrings connStr)
 {
     bool _isThreadRunning = false;
     Thread _processThread = null;
 
     public Func<string, byte[], bool> SendData;
-    public Func<string, ClientSession> GetSession;
+    public Action<string> CloseSession;
 
     BufferBlock<RequestInfo> _msgBuffer = new();
 
-    UserManager _userMgr = new();
+    UserManager _userMgr = new(serverOption);
 
     List<Room> _roomList = [];
 
     Dictionary<int, Action<RequestInfo>> PacketHandlers = [];
-    PacketHandlerCommon _commonPacketHandler = new();
+    PacketHandlerCommon _commonPacketHandler = new(serverOption);
     PacketHandlerRoom _roomPacketHandler = new();
 
+    public DBMySQLConnection _mySQLConnection = new(serverOption, connStr);
+    public DBRedisConnection _redisConnection = new(serverOption, connStr);
 
     public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
     {
@@ -59,6 +62,10 @@ class PacketProcessor
     {
         PacketHandler.SendData = SendData;
         PacketHandler.DistributeInnerPacket = InsertPacket;
+        PacketHandler.CloseSession = CloseSession;
+        PacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
+        PacketHandler.DistributeRedisPacket = _redisConnection.InsertPacket;
+
         _commonPacketHandler.Init(_userMgr);
         _commonPacketHandler.RegistPacketHandler(PacketHandlers);
 

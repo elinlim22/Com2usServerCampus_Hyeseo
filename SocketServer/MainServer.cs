@@ -1,4 +1,4 @@
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.SocketBase;
@@ -16,15 +16,16 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     ServerOption _serverOpt;
     IServerConfig _serverConfig = null;
     readonly PacketProcessor _packetProcessor;
-    readonly RoomManager _roomManager = new();
+    readonly RoomManager _roomManager;
     /* ----------------------------------- 생성자 ---------------------------------- */
-    public MainServer(IHostApplicationLifetime appLifetime, IOptions<ServerOption> serverConfig, ILogger<MainServer> logger)
+    public MainServer(IHostApplicationLifetime appLifetime, IOptions<ServerOption> serverConfig, IOptions<ConnectionStrings> connStr, ILogger<MainServer> logger)
         : base(new DefaultReceiveFilterFactory<ReceiveFilter, RequestInfo>())
     {
         _appLifetime = appLifetime;
         _appLogger = logger;
         _serverOpt = serverConfig.Value;
-        _packetProcessor = new PacketProcessor();
+        _packetProcessor = new PacketProcessor(_serverOpt, connStr.Value);
+        _roomManager = new RoomManager(_serverOpt);
 
         // 이 핸들러들은 AppServer를 상속받음으로써 등록해야 하는 이벤트 핸들러들이다.
         NewSessionConnected += new SessionHandler<ClientSession>(OnNewSessionConnected);
@@ -158,13 +159,17 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
     public ErrorCode CreateComponent(ServerOption serverOpt)
     {
         InitServerConfig(serverOpt);
+
         Room.SendData = this.SendData;
         Room.DistributeInnerPacket = _packetProcessor.InsertPacket;
-        _roomManager.CreateRooms(serverOpt);
-        RoomManager.SendData = this.SendData;
+
+        _roomManager.CreateRooms();
+        _roomManager.SendData = this.SendData;
+        _roomManager.DistributeMySQLPacket = _packetProcessor._mySQLConnection.InsertPacket;
+        _roomManager.DistributeInnerPacket = _packetProcessor.InsertPacket;
 
         _packetProcessor.SendData = this.SendData;
-        UserManager.CloseSession = this.CloseSession;
+        _packetProcessor.CloseSession = this.CloseSession;
         _packetProcessor.CreateAndStart(_roomManager.GetRoomsList(), serverOpt);
 
         MainLogger.Info("CreateComponent - Success");

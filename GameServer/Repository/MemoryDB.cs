@@ -1,6 +1,7 @@
 using GameServer.Models;
 using CloudStructures;
 using CloudStructures.Structures;
+using StackExchange.Redis;
 
 namespace GameServer.Repository;
 
@@ -9,12 +10,15 @@ public class MemoryDB : IMemoryDB
 	readonly RedisConfig _redisConfig;
 	readonly RedisConnection _redisConnection;
 	readonly IConfiguration _configuration;
+    RedisString<int> _incr;
+
 	public MemoryDB(IConfiguration configuration)
 	{
 		_configuration = configuration;
 		_redisConfig = new RedisConfig("MemoryDB", _configuration.GetConnectionString("RedisConnection") ?? "localhost:6400");
 		_redisConnection = new RedisConnection(_redisConfig);
-	}
+        _incr = new RedisString<int>(_redisConnection, "incr", null);
+    }
 
 	public async Task<string> SetAsync(string email, string token, ExpiryDays expiryDays)
 	{
@@ -30,4 +34,20 @@ public class MemoryDB : IMemoryDB
 		var token = redisResult.Value;
 		return token;
 	}
+
+    public async Task<int> MatchRoomId()
+    {
+        long roomNumber = await _incr.IncrementAsync(1);
+        if (roomNumber >= 200)
+        {
+            await _incr.SetAsync(0);
+            roomNumber = 0;
+        }
+        if (roomNumber % 2 == 1)
+        {
+            roomNumber -= 1;
+        } // TODO : 방 매칭 로직 수정 필요!!
+
+        return (int)roomNumber;
+    }
 }

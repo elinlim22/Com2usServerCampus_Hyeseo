@@ -1,4 +1,4 @@
-using MemoryPack;
+﻿using MemoryPack;
 using System.Dynamic;
 
 namespace SocketServer;
@@ -70,4 +70,96 @@ public class PacketMaker
         return newInnerPacket;
     }
 
+    public static RequestInfo MakeCloseSessionRequest(string sessionId)
+    {
+        var innerPacket = new CloseSessionRequest();
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.CloseSessionRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeForfeitureRequest(string sessionId)
+    {
+        var innerPacket = new ForfeitureRequest();
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.ForfeitureRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeWinnerDBUpdate(string userId, string sessionId)
+    {
+        var innerPacket = new UpdateUserGameDataRequest()
+        {
+            UserId = userId,
+            IsWinner = true
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.UpdateUserGameDataRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeLoserDBUpdate(string userId, string sessionId)
+    {
+        var innerPacket = new UpdateUserGameDataRequest()
+        {
+            UserId = userId,
+            IsWinner = false
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.UpdateUserGameDataRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeValidateUserTokenRequest(string userId, string sessionId, string token)
+    {
+        var innerPacket = new ValidateUserTokenRequest()
+        {
+            UserId = userId,
+            Token = token
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.ValidateUserTokenRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeValidateUserTokenResponse(short result, string sessionId)
+    {
+        var innerPacket = new ValidateUserTokenResponse()
+        {
+            Result = result
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.ValidateUserTokenResponse);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
 }

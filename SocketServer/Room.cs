@@ -1,13 +1,24 @@
 ﻿using MemoryPack;
+<<<<<<< HEAD
+=======
+using System.Data;
+>>>>>>> ClientTest
 
 namespace SocketServer;
 
-public class Room
+public class Room(ServerOption serverOption)
 {
     public const int InvalidRoomNumber = -1;
+<<<<<<< HEAD
     // public TimeSpan StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
     public TimeSpan StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
     public TimeSpan LastActivity;
+=======
+    public RoomStatus Status = RoomStatus.Empty;
+    // public TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.RoomInactivityInMinutes);
+    public TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(30); // Debug용
+    public TimeSpan LastActivity = DateTime.Now.TimeOfDay;
+>>>>>>> ClientTest
 
     public int Index { get; private set; }
     public int Number { get; private set; }
@@ -18,6 +29,7 @@ public class Room
 
     public static Func<string, byte[], bool> SendData;
     public static Action<RequestInfo> DistributeInnerPacket;
+    public Action<RequestInfo> DistributeMySQLPacket;
     
     public OmokRule omokRule = new OmokRule();
 
@@ -46,7 +58,7 @@ public class Room
         roomUser.Set(UserId, netSessionID);
         _userList.Add(roomUser);
         UpdateLastActivity();
-
+        UpdateUserCountStatus();
         return true;
     }
 
@@ -54,11 +66,32 @@ public class Room
     {
         var innerPacket = PacketMaker.MakeInnerUserLeaveRoom(netSessionID);
         DistributeInnerPacket(innerPacket);
+        UpdateUserCountStatus();
     }
 
     public bool RemoveUser(RoomUser user)
     {
-        return _userList.Remove(user);
+        var result = _userList.Remove(user);
+        UpdateUserCountStatus();
+        return result;
+    }
+
+    public void UpdateUserCountStatus()
+    {
+        switch (CurrentUserCount())
+        {
+            case 0:
+                Status = RoomStatus.Empty;
+                break;
+            case 1:
+                Status = RoomStatus.OneUser;
+                break;
+            case 2:
+                Status = RoomStatus.Full;
+                break;
+            default:
+                break;
+        }
     }
 
     public RoomUser GetUser(string UserId)
@@ -174,9 +207,15 @@ public class Room
     public void StartOmok()
     {
         omokRule.StartGame();
+<<<<<<< HEAD
         // StatusStandardTime = TimeSpan.FromMinutes(5); // TODO : Config로 빼기
         StatusStandardTime = TimeSpan.FromSeconds(3); // Debug용
+=======
+        // TimeoutThreshold = TimeSpan.FromMinutes(serverOption.PlayerInactivityInMinutes);
+        TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
+>>>>>>> ClientTest
         UpdateLastActivity();
+        Status = RoomStatus.Playing;
         var packet = new PKTNtfStartOmok
         {
             FirstUserId = _userList[0].UserId
@@ -232,12 +271,28 @@ public class Room
         SendData(user.NetSessionID, sendPacket);
     }
 
-    public void EndRoomGame(RoomUser roomUser, RoomUser roomOtherUser)
+    public void EndRoomGame(RoomUser roomWinner, RoomUser roomLoser)
     {
+        omokRule.EndGame();
+        // 플레이어 준비 상태 초기화
+        roomWinner.CancelReadyOmok();
+        roomLoser.CancelReadyOmok();
+        // 방 타이머 업데이트
+        UpdateLastActivity();
+        Status = RoomStatus.Full;
+        // 승패 업데이트
+        var innerPacketWin = PacketMaker.MakeWinnerDBUpdate(roomWinner.UserId, roomWinner.NetSessionID);
+        DistributeMySQLPacket(innerPacketWin);
+        var innerPacketLose = PacketMaker.MakeLoserDBUpdate(roomLoser.UserId, roomLoser.NetSessionID);
+        DistributeMySQLPacket(innerPacketLose);
+        TimeoutThreshold = TimeSpan.FromMinutes(serverOption.RoomInactivityInMinutes);
+        // TimeoutThreshold = TimeSpan.FromSeconds(30); // Debug용
+
         var endPacket = new PKTNtfEndOmok
         {
-            WinUserId = roomUser.UserId
+            WinUserId = roomWinner.UserId
         };
+<<<<<<< HEAD
         omokRule.EndGame();
         // 플레이어 준비 상태 초기화
         roomUser.CancelReadyOmok();
@@ -247,6 +302,8 @@ public class Room
         // StatusStandardTime = TimeSpan.FromMinutes(30); // TODO : Config로 빼기
         StatusStandardTime = TimeSpan.FromSeconds(10); // Debug용
 
+=======
+>>>>>>> ClientTest
         var sendPacket = MemoryPackSerializer.Serialize(endPacket);
         PacketHeaderInfo.Write(sendPacket, PacketType.PKTNtfEndOmok);
 
