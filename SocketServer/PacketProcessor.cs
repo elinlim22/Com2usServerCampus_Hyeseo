@@ -69,6 +69,8 @@ class PacketProcessor(ServerOption serverOption, ConnectionStrings connStr)
         _commonPacketHandler.Init(_userMgr);
         _commonPacketHandler.RegistPacketHandler(PacketHandlers);
 
+        _redisConnection.DistributeInnerPacket = InsertPacket;
+
         _roomPacketHandler.Init(_userMgr);
         _roomPacketHandler.SetRooomList(_roomList);
         _roomPacketHandler.RegistPacketHandler(PacketHandlers);

@@ -11,7 +11,7 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         packetHandlerMap[(int)PacketType.LoginRequest] = HandleLoginRequest;
         packetHandlerMap[(int)PacketType.ReqHeartBeat] = HandleHeartBeatRequest;
         packetHandlerMap[(int)PacketType.CloseSessionRequest] = HandleCloseSessionRequest;
-        packetHandlerMap[(int)PacketType.ValidateUserTokenRequest] = HandleValidateUserTokenRequest;
+        packetHandlerMap[(int)PacketType.ValidateUserTokenResponse] = HandleValidateUserTokenResponse;
     }
 
     public void NotifyInConnectClient(RequestInfo requestData)
@@ -61,7 +61,6 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
             DistributeRedisPacket(innerPacket);
             // Redis로부터 ValidationUserTokenResponse 패킷을 받으면, LoginResponse 함수가 호출된다.
             // 그 때 유저를 추가하는걸로 바꿔야 함.
-
         }
         catch(Exception ex)
         {
@@ -118,7 +117,6 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         {
             return;
         }
-        // TimeSpan now = DateTime.Now.TimeOfDay;
 
         if (DateTime.Now.TimeOfDay - user.LastPing > TimeSpan.FromSeconds(_serverOption.HeartBeatInSeconds))
         {
@@ -142,16 +140,6 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
     {
         var sessionID = packetData.SessionID;
         CloseSession(sessionID);
-    }
-
-    public void HandleValidateUserTokenRequest(RequestInfo packetData)
-    {
-        var sessionID = packetData.SessionID;
-        var reqData = MemoryPackSerializer.Deserialize<ValidateUserTokenRequest>(packetData.Data);
-
-        // innerpacket을 만들어서 Redis 버퍼로 전송
-        var innerPacket = PacketMaker.MakeValidateUserTokenRequest(reqData.UserId, sessionID, reqData.Token);
-        DistributeRedisPacket(innerPacket);
     }
 
     public void HandleValidateUserTokenResponse(RequestInfo packetData)

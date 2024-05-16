@@ -18,6 +18,7 @@ public class DBRedisConnection
     readonly RedisConfig _redisConfig;
 
     public Func<string, byte[], bool> SendData;
+    public Action<RequestInfo> DistributeInnerPacket;
     List<Thread> Threads = null;
     ConcurrentDictionary<int, Action<RequestInfo, RedisConnection>> PacketHandlers = [];
 
@@ -86,16 +87,18 @@ public class DBRedisConnection
         var token = reqData.Token;
         RedisString<string> redisString = new(redisConnection, reqData.UserId, TimeSpan.FromDays(30));
         var result = redisString.GetAsync().Result.Value;
+
+        short errorCode;
         if (token != result)
         {
+            errorCode = (short)ErrorCode.TokenNotMatched;
             MainServer.MainLogger.Error($"ValidateUserToken - token not matched: {token} != {result}");
-            // CloseSession?
-            return;
         }
         else
         {
-            var innerPacket = PacketMaker.MakeValidateUserTokenResponse((short)ErrorCode.Success, sessionId);
-            // Response?
+            errorCode = (short)ErrorCode.Success;
         }
+        var innerPacket = PacketMaker.MakeValidateUserTokenResponse(errorCode, sessionId);
+        DistributeInnerPacket(innerPacket);
     }
 }
