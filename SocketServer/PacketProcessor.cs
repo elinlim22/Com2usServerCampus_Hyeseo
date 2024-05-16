@@ -1,8 +1,9 @@
-﻿using System.Threading.Tasks.Dataflow;
+﻿using Microsoft.Extensions.Configuration;
+using System.Threading.Tasks.Dataflow;
 
 namespace SocketServer;
 
-class PacketProcessor(ServerOption serverOption)
+class PacketProcessor(ServerOption serverOption, ConnectionStrings connStr)
 {
     bool _isThreadRunning = false;
     Thread _processThread = null;
@@ -20,8 +21,8 @@ class PacketProcessor(ServerOption serverOption)
     PacketHandlerCommon _commonPacketHandler = new(serverOption);
     PacketHandlerRoom _roomPacketHandler = new();
 
-    public DBMySQLConnection _mySQLConnection;
-
+    public DBMySQLConnection _mySQLConnection = new(serverOption, connStr);
+    public DBRedisConnection _redisConnection = new(serverOption, connStr);
 
     public void CreateAndStart(List<Room> roomList, ServerOption serverOpt)
     {
@@ -63,13 +64,10 @@ class PacketProcessor(ServerOption serverOption)
         PacketHandler.DistributeInnerPacket = InsertPacket;
         PacketHandler.CloseSession = CloseSession;
         PacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
-
-        //_mySQLConnection.SendData = SendData;
-        //_mySQLConnection.DistributeInnerPacket = InsertPacket;
+        PacketHandler.DistributeRedisPacket = _redisConnection.InsertPacket;
 
         _commonPacketHandler.Init(_userMgr);
         _commonPacketHandler.RegistPacketHandler(PacketHandlers);
-        // _commonPacketHandler.DistributeMySQLPacket = _mySQLConnection.InsertPacket;
 
         _roomPacketHandler.Init(_userMgr);
         _roomPacketHandler.SetRooomList(_roomList);

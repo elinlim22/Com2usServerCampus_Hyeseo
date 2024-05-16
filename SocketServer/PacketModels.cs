@@ -234,6 +234,13 @@ public partial class ValidateUserTokenRequest : PacketHeader
 }
 
 [MemoryPackable]
+public partial class ValidateUserTokenResponse : PacketHeader
+{
+    public short Result { get; set; }
+    public string UserId { get; set; }
+}
+
+[MemoryPackable]
 public partial class CloseSessionRequest : PacketHeader
 {
 }

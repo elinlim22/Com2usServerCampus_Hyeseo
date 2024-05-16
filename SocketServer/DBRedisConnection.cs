@@ -14,23 +14,20 @@ public class DBRedisConnection
 
     BufferBlock<RequestInfo> _msgBuffer = new();
 
-    readonly IConfiguration _configuration;
     readonly ServerOption _serverOption;
     readonly RedisConfig _redisConfig;
 
     public Func<string, byte[], bool> SendData;
-    public Action<RequestInfo> DistributeInnerPacket;
     List<Thread> Threads = null;
     ConcurrentDictionary<int, Action<RequestInfo, RedisConnection>> PacketHandlers = [];
 
-    public DBRedisConnection(IConfiguration configuration, IOptions<ServerOption> serverConfig)
+    public DBRedisConnection(ServerOption serverOption, ConnectionStrings connStr)
     {
-        _configuration = configuration;
-        _serverOption = serverConfig.Value;
-        var connStr = _configuration.GetConnectionString("RedisConnection");
-        connStr = connStr.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
+        _serverOption = serverOption;
+        var redisString = connStr.RedisConnection;
+        redisString = redisString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
 
-        _redisConfig = new RedisConfig("MemoryDB", connStr);
+        _redisConfig = new RedisConfig("MemoryDB", redisString);
 
         RegistPacketHandler();
     }
@@ -50,6 +47,10 @@ public class DBRedisConnection
     void RegistPacketHandler()
     {
         PacketHandlers[(int)PacketType.ValidateUserTokenRequest] = ValidateUserToken;
+    }
+    public void InsertPacket(RequestInfo data)
+    {
+        _msgBuffer.Post(data);
     }
 
     public void Process()
@@ -93,6 +94,7 @@ public class DBRedisConnection
         }
         else
         {
+            var innerPacket = PacketMaker.MakeValidateUserTokenResponse((short)ErrorCode.Success, sessionId);
             // Response?
         }
     }

@@ -18,8 +18,8 @@ builder.ConfigureAppConfiguration((hostingContext, config) =>
 builder.ConfigureServices((hostContext, services) =>
 {
     services.Configure<ServerOption>(hostContext.Configuration.GetSection("ServerOption"));
+    services.Configure<ConnectionStrings>(hostContext.Configuration.GetSection("ConnectionStrings"));
     services.AddHostedService<MainServer>();
-    // services.AddLogging(configure => configure.AddConsole());
 });
 
 builder.ConfigureLogging((hostingContext, logging) =>

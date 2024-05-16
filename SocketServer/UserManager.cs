@@ -22,6 +22,7 @@ public class UserManager(ServerOption serverOption)
 
     public Func<string, byte[], bool> SendData;
     public Action<RequestInfo> DistributeInnerPacket;
+    public Action<RequestInfo> DistributeRedisPacket;
 
     public void Init(int totalUserMaximum)
     {
@@ -143,4 +144,5 @@ public class UserManager(ServerOption serverOption)
         var userSpace = Users.Find(x => x.SequenceNumber == 0);
         return userSpace == null;
     }
+
 }

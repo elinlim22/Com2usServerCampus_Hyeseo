@@ -52,6 +52,7 @@ public enum PacketType : UInt16
     SetUserGameDataRequest,
     UpdateUserGameDataRequest,
     ValidateUserTokenRequest,
+    ValidateUserTokenResponse,
     CloseSessionRequest,
     ForfeitureRequest,
 }

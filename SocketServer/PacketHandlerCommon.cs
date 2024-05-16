@@ -11,6 +11,7 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         packetHandlerMap[(int)PacketType.LoginRequest] = HandleLoginRequest;
         packetHandlerMap[(int)PacketType.ReqHeartBeat] = HandleHeartBeatRequest;
         packetHandlerMap[(int)PacketType.CloseSessionRequest] = HandleCloseSessionRequest;
+        packetHandlerMap[(int)PacketType.ValidateUserTokenRequest] = HandleValidateUserTokenRequest;
     }
 
     public void NotifyInConnectClient(RequestInfo requestData)
@@ -55,21 +56,12 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         try
         {
             var reqData = MemoryPackSerializer.Deserialize<LoginRequest>(packetData.Data);
-            var errorCodeAddUser = _userMgr.AddUser(reqData.UserId, sessionID);
-            // var errorCodeAddSession = _userMgr.AddSession(sessionID);
-            if (errorCodeAddUser != ErrorCode.Success)
-            {
-                MakeLoginResponse(errorCodeAddUser, packetData.SessionID);
+            // 로그인 요청 시, Redis에서 Validation을 체크하도록 패킷을 보낸다.
+            var innerPacket = PacketMaker.MakeValidateUserTokenRequest(reqData.UserId, sessionID, reqData.Token);
+            DistributeRedisPacket(innerPacket);
+            // Redis로부터 ValidationUserTokenResponse 패킷을 받으면, LoginResponse 함수가 호출된다.
+            // 그 때 유저를 추가하는걸로 바꿔야 함.
 
-                if (errorCodeAddUser == ErrorCode.UserFull)
-                {
-                    MakeNotifyUserMustClose(ErrorCode.UserFull, packetData.SessionID);
-                }
-                return;
-            }
-
-            MakeLoginResponse(errorCodeAddUser, packetData.SessionID);
-            MainServer.MainLogger.Debug($"로그인 결과. UserId:{reqData.UserId}, {errorCodeAddUser}");
         }
         catch(Exception ex)
         {
@@ -77,13 +69,27 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         }
     }
 
-    public void MakeLoginResponse(ErrorCode errorCode, string sessionID)
+    public void MakeLoginResponse(ErrorCode errorCode, string userId, string sessionID)
     {
-        var resLogin = new LoginResponse()
+        var resLogin = new LoginResponse();
+        // 성공 시, 유저를 추가한다.
+        if (errorCode == ErrorCode.Success)
         {
-            Result = (short)errorCode
-        };
-
+            var errorCodeAddUser = _userMgr.AddUser(userId, sessionID);
+            if (errorCodeAddUser != ErrorCode.Success)
+            {
+                resLogin.Result = (short)errorCodeAddUser;
+                if (errorCodeAddUser == ErrorCode.UserFull)
+                {
+                    MakeNotifyUserMustClose(ErrorCode.UserFull, sessionID);
+                }
+            }
+            MainServer.MainLogger.Debug($"로그인 결과. UserId:{userId}, {errorCodeAddUser}");
+        }
+        else
+        {
+            resLogin.Result = (short)errorCode;
+        }
         var sendData = MemoryPackSerializer.Serialize(resLogin);
         PacketHeaderInfo.Write(sendData, PacketType.LoginResponse);
 
@@ -138,5 +144,29 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         CloseSession(sessionID);
     }
 
+    public void HandleValidateUserTokenRequest(RequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        var reqData = MemoryPackSerializer.Deserialize<ValidateUserTokenRequest>(packetData.Data);
 
+        // innerpacket을 만들어서 Redis 버퍼로 전송
+        var innerPacket = PacketMaker.MakeValidateUserTokenRequest(reqData.UserId, sessionID, reqData.Token);
+        DistributeRedisPacket(innerPacket);
+    }
+
+    public void HandleValidateUserTokenResponse(RequestInfo packetData)
+    {
+        var sessionID = packetData.SessionID;
+        var resData = MemoryPackSerializer.Deserialize<ValidateUserTokenResponse>(packetData.Data);
+
+        if (resData.Result != (short)ErrorCode.Success)
+        {
+            MainServer.MainLogger.Error($"ValidateUserTokenResponse - token not matched: {resData.Result}");
+        }
+        else
+        {
+            MainServer.MainLogger.Info($"ValidateUserTokenResponse - token matched: {resData.Result}");
+        }
+        MakeLoginResponse((ErrorCode)resData.Result, resData.UserId, sessionID);
+    }
 }

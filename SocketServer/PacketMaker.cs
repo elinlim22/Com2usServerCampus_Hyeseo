@@ -129,4 +129,37 @@ public class PacketMaker
         };
         return newInnerPacket;
     }
+
+    public static RequestInfo MakeValidateUserTokenRequest(string userId, string sessionId, string token)
+    {
+        var innerPacket = new ValidateUserTokenRequest()
+        {
+            UserId = userId,
+            Token = token
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.ValidateUserTokenRequest);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeValidateUserTokenResponse(short result, string sessionId)
+    {
+        var innerPacket = new ValidateUserTokenResponse()
+        {
+            Result = result
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.ValidateUserTokenResponse);
+        var newInnerPacket = new RequestInfo(sendData)
+        {
+            SessionID = sessionId
+        };
+        return newInnerPacket;
+    }
 }

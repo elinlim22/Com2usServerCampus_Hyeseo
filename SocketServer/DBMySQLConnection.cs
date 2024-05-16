@@ -16,22 +16,18 @@ public class DBMySQLConnection
 
     BufferBlock<RequestInfo> _msgBuffer = new();
 
-    readonly IConfiguration _configuration;
     readonly SqlKata.Compilers.MySqlCompiler _compiler;
     readonly ServerOption _serverOption;
     readonly string _connectionString;
 
-    //public Func<string, byte[], bool> SendData;
-    //public Action<RequestInfo> DistributeInnerPacket;
     List<Thread> Threads = null;
     ConcurrentDictionary<int, Action<RequestInfo, QueryFactory>> PacketHandlers = [];
 
-    public DBMySQLConnection(IConfiguration configuration, IOptions<ServerOption> serverConfig)
+    public DBMySQLConnection(ServerOption serverConfig, ConnectionStrings connStr)
     {
-        _configuration = configuration;
-        _serverOption = serverConfig.Value;
+        _serverOption = serverConfig;
 
-        var toReplace = _configuration.GetConnectionString("DefaultConnection") ?? "";
+        var toReplace = connStr.MySQLConnection;
         _connectionString = toReplace.Replace("{myPassword}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
         _connectionString = _connectionString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
         _compiler = new SqlKata.Compilers.MySqlCompiler();

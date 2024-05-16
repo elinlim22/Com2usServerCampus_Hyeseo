@@ -5,6 +5,7 @@ public class PacketHandler
     public static Func<string, byte[], bool> SendData;
     public static Action<RequestInfo> DistributeInnerPacket;
     public static Action<RequestInfo> DistributeMySQLPacket;
+    public static Action<RequestInfo> DistributeRedisPacket;
     public static Action<string> CloseSession;
     protected UserManager _userMgr = null;
 
@@ -13,5 +14,6 @@ public class PacketHandler
         this._userMgr = userMgr;
         _userMgr.SendData = SendData;
         _userMgr.DistributeInnerPacket = DistributeInnerPacket;
+        _userMgr.DistributeRedisPacket = DistributeRedisPacket;
     }
 }
