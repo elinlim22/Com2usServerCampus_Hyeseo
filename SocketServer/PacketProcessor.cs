@@ -38,6 +38,9 @@ class PacketProcessor(ServerOption serverOption, ConnectionStrings connStr)
         _isThreadRunning = true;
         _processThread = new System.Threading.Thread(this.Process);
         _processThread.Start();
+
+        _mySQLConnection.StartIO();
+        _redisConnection.StartIO();
     }
 
     public void Destory()
