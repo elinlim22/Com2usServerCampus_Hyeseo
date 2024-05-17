@@ -16,7 +16,6 @@ public class DBMySQLConnection
 
     BufferBlock<RequestInfo> _msgBuffer = new();
 
-    readonly SqlKata.Compilers.MySqlCompiler _compiler;
     readonly ServerOption _serverOption;
     readonly string _connectionString;
 
@@ -30,7 +29,6 @@ public class DBMySQLConnection
         var toReplace = connStr.MySQLConnection;
         _connectionString = toReplace.Replace("{myPassword}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
         _connectionString = _connectionString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
-        _compiler = new SqlKata.Compilers.MySqlCompiler();
 
         RegistPacketHandler();
     }
@@ -60,12 +58,14 @@ public class DBMySQLConnection
 
     public void Process()
     {
+        var _compiler = new SqlKata.Compilers.MySqlCompiler();
         var _dbConnection = new MySqlConnection(_connectionString);
         _dbConnection.Open();
         var _queryFactory = new QueryFactory(_dbConnection, _compiler);
         while (isRunning)
         {
-            if (_msgBuffer.TryReceive(out var packet)) // 버퍼블록에서 RequestInfo 형태의 패킷을 가져온다.
+            var packet = _msgBuffer.Receive();
+            if (packet != null)
             {
                 var header = new PacketHeaderInfo();
                 header.Read(packet.Data);
@@ -105,7 +105,6 @@ public class DBMySQLConnection
     {
         var reqData = MemoryPackSerializer.Deserialize<SetUserGameDataRequest>(requestInfo.Data);
         var userId = reqData.UserId;
-        // var userSessionId = requestInfo.SessionID;
         var affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).UpdateAsync(new
         {
             Level = reqData.Level,
@@ -123,16 +122,16 @@ public class DBMySQLConnection
     {
         var reqData = MemoryPackSerializer.Deserialize<UpdateUserGameDataRequest>(requestInfo.Data);
         var userId = reqData.UserId;
-        Task<int> affectedRows;
+        int affectedRows;
         if (reqData.IsWinner)
         {
-            affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).IncrementAsync("Win", 1);
+            affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).IncrementAsync("Win", 1).Result;
         }
         else
         {
-            affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).IncrementAsync("Lose", 1);
+            affectedRows = queryFactory.Query("UserGameData").Where("Email", userId).IncrementAsync("Lose", 1).Result;
         }
-        if (affectedRows.Result == 0)
+        if (affectedRows == 0)
         {
             MainServer.MainLogger.Error($"MySQLProcessor - UpdateUserGameData: No rows affected. UserId:{userId}");
         }

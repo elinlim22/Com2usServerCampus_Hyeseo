@@ -43,7 +43,7 @@ class RoomManager(ServerOption serverOption)
     {
         int startIndex = currentGroupIndex++ * batchSize;
         int endIndex = startIndex + batchSize;
-        if (endIndex > serverOption.MaxRoom)
+        if (endIndex >= serverOption.MaxRoom)
         {
             endIndex = serverOption.MaxRoom;
             currentGroupIndex = 0;

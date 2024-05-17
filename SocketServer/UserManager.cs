@@ -45,7 +45,7 @@ public class UserManager(ServerOption serverOption)
     {
         int startIndex = currentGroupIndex++ * batchSize;
         int endIndex = startIndex + batchSize;
-        if (endIndex > _totalUserMaximum)
+        if (endIndex >= _totalUserMaximum)
         {
             endIndex = _totalUserMaximum;
             currentGroupIndex = 0;
