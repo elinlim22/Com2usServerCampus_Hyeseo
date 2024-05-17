@@ -12,6 +12,7 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         packetHandlerMap[(int)PacketType.ReqHeartBeat] = HandleHeartBeatRequest;
         packetHandlerMap[(int)PacketType.CloseSessionRequest] = HandleCloseSessionRequest;
         packetHandlerMap[(int)PacketType.ValidateUserTokenResponse] = HandleValidateUserTokenResponse;
+        packetHandlerMap[(int)PacketType.UserStatusCheckRequest] = HandleUserStatusCheckRequest;
     }
 
     public void NotifyInConnectClient(RequestInfo requestData)
@@ -156,5 +157,29 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
             MainServer.MainLogger.Info($"ValidateUserTokenResponse - token matched: {resData.Result}");
         }
         MakeLoginResponse((ErrorCode)resData.Result, resData.UserId, sessionID);
+    }
+
+    public void HandleUserStatusCheckRequest(RequestInfo packetData)
+    {
+        var reqData = MemoryPackSerializer.Deserialize<UserStatusCheckRequest>(packetData.Data);
+        var index = reqData.Index;
+
+        var user = _userMgr.GetUser(index);
+        if (user == null)
+        {
+            MainServer.MainLogger.Error($"UserStatusCheckRequest - User not found: {index}");
+            return;
+        }
+        if (user.SequenceNumber == 0)
+        {
+            return;
+        }
+
+        if (DateTime.Now.TimeOfDay - user.LastConnection > user.TimeoutThreshold)
+        {
+            MainServer.MainLogger.Error($"User Forced Close due to Inactivity. SessionID:{user.GetSessionID()}");
+            MakeNotifyUserMustClose(ErrorCode.UserForcedClose, user.GetSessionID());
+            CloseSession(user.GetSessionID());
+        }
     }
 }

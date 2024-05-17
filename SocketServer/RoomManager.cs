@@ -39,7 +39,7 @@ class RoomManager(ServerOption serverOption)
         RoomStatusCheckTimer = new System.Threading.Timer(RoomStatusCheckTimerCallback, null, 0, serverOption.RoomStatusCheckSize);
     }
 
-    public void RoomStatusCheck(object state)
+    /*public void RoomStatusCheck(object state)
     {
         int startIndex = currentGroupIndex++ * batchSize;
         int endIndex = startIndex + batchSize;
@@ -82,6 +82,26 @@ class RoomManager(ServerOption serverOption)
 
                 }
             }
+        }
+    }*/
+
+    public void RoomStatusCheck(object state)
+    {
+        int startIndex = currentGroupIndex++ * batchSize;
+        int endIndex = startIndex + batchSize;
+        if (endIndex >= serverOption.MaxRoom)
+        {
+            endIndex = serverOption.MaxRoom;
+            currentGroupIndex = 0;
+        }
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            if (i >= serverOption.MaxRoom)
+            {
+                break;
+            }
+            var innerPacket = PacketMaker.MakeRoomStatusCheckRequest(i);
+            DistributeInnerPacket(innerPacket);
         }
     }
 

@@ -162,4 +162,30 @@ public class PacketMaker
         };
         return newInnerPacket;
     }
+
+    public static RequestInfo MakeUserStatusCheckRequest(int i)
+    {
+        var innerPacket = new UserStatusCheckRequest()
+        {
+            Index = i
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.UserStatusCheckRequest);
+        var newInnerPacket = new RequestInfo(sendData);
+        return newInnerPacket;
+    }
+
+    public static RequestInfo MakeRoomStatusCheckRequest(int i)
+    {
+        var innerPacket = new RoomStatusCheckRequest()
+        {
+            Index = i
+        };
+
+        var sendData = MemoryPackSerializer.Serialize(innerPacket);
+        PacketHeaderInfo.Write(sendData, PacketType.RoomStatusCheckRequest);
+        var newInnerPacket = new RequestInfo(sendData);
+        return newInnerPacket;
+    }
 }

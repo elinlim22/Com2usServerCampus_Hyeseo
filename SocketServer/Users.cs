@@ -1,6 +1,6 @@
 ﻿namespace SocketServer;
 
-public class User
+public class User(int timeoutThreshold)
 {
     public UInt64 SequenceNumber { get; private set; } = 0;
     string SessionID = "";
@@ -9,6 +9,8 @@ public class User
     string UserId = "";
     public TimeSpan LastPing = DateTime.Now.TimeOfDay;
     public TimeSpan LastConnection = DateTime.Now.TimeOfDay;
+    public TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(timeoutThreshold);
+    // TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
 
     public void Set(UInt64 sequence, string sessionID, string userId)
     {

@@ -249,3 +249,15 @@ public partial class CloseSessionRequest : PacketHeader
 public partial class ForfeitureRequest : PacketHeader
 {
 }
+
+[MemoryPackable]
+public partial class UserStatusCheckRequest : PacketHeader
+{
+    public int Index { get; set; }
+}
+
+[MemoryPackable]
+public partial class RoomStatusCheckRequest : PacketHeader
+{
+    public int Index { get; set; }
+}

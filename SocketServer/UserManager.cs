@@ -17,8 +17,7 @@ public class UserManager(ServerOption serverOption)
     List<User> Users = [];
     Timer UserStatusCheckTimer;
     TimerCallback UserStatusCheckTimerCallback;
-    TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.UserInactivityInMinutes);
-    // TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
+    // TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.UserInactivityInMinutes);
 
     public Func<string, byte[], bool> SendData;
     public Action<RequestInfo> DistributeInnerPacket;
@@ -29,7 +28,7 @@ public class UserManager(ServerOption serverOption)
         _totalUserMaximum = totalUserMaximum;
         for (int i = 0; i < _totalUserMaximum; i++)
         {
-            Users.Add(new User());
+            Users.Add(new User(serverOption.UserInactivityInMinutes));
         }
         SetTimer();
     }
@@ -41,7 +40,7 @@ public class UserManager(ServerOption serverOption)
         MainServer.MainLogger.Debug("UserStatusCheckTimer Start");
     }
 
-    public void UserStatusCheck(object state)
+    /*public void UserStatusCheck(object state)
     {
         int startIndex = currentGroupIndex++ * batchSize;
         int endIndex = startIndex + batchSize;
@@ -73,6 +72,26 @@ public class UserManager(ServerOption serverOption)
                 var innerPacket = PacketMaker.MakeCloseSessionRequest(sessionID);
                 DistributeInnerPacket(innerPacket);
             }
+        }
+    }*/
+
+    public void UserStatusCheck(object state)
+    {
+        int startIndex = currentGroupIndex++ * batchSize;
+        int endIndex = startIndex + batchSize;
+        if (endIndex >= _totalUserMaximum)
+        {
+            endIndex = _totalUserMaximum;
+            currentGroupIndex = 0;
+        }
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            if (i >= _totalUserMaximum)
+            {
+                break;
+            }
+            var innerPacket = PacketMaker.MakeUserStatusCheckRequest(i);
+            DistributeInnerPacket(innerPacket);
         }
     }
 
@@ -136,6 +155,16 @@ public class UserManager(ServerOption serverOption)
     public User GetUser(string sessionID)
     {
         var user = Users.Find(x => x.GetSessionID() == sessionID);
+        return user;
+    }
+
+    public User GetUser(int index)
+    {
+        if (index < 0 || index >= _totalUserMaximum)
+        {
+            return null;
+        }
+        var user = Users[index];
         return user;
     }
 

@@ -55,4 +55,6 @@ public enum PacketType : UInt16
     ValidateUserTokenResponse,
     CloseSessionRequest,
     ForfeitureRequest,
+    UserStatusCheckRequest,
+    RoomStatusCheckRequest,
 }

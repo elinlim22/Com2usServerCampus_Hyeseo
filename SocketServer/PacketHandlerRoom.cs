@@ -24,6 +24,7 @@ public class PacketHandlerRoom : PacketHandler
         packetHandlerMap[(int)PacketType.PKTNtfStartOmok] = RequestStartOmok;
         packetHandlerMap[(int)PacketType.PutStoneRequest] = RequestPutOmok;
         packetHandlerMap[(int)PacketType.ForfeitureRequest] = RequestForfeiture;
+        packetHandlerMap[(int)PacketType.RoomStatusCheckRequest] = HandleRoomStatusCheckRequest;
     }
 
 
@@ -363,4 +364,53 @@ public class PacketHandlerRoom : PacketHandler
 
     }
 
+    public void HandleRoomStatusCheckRequest(RequestInfo packetData)
+    {
+        var reqData = MemoryPackSerializer.Deserialize<RoomStatusCheckRequest>(packetData.Data);
+        var index = reqData.Index;
+        var room = GetRoom(index);
+        if (room == null)
+        {
+            MainServer.MainLogger.Error("HandleRoomStatusCheckRequest - Invalid Room");
+            return;
+        }
+        if (room.Status == RoomStatus.Empty || room.Status == RoomStatus.Full)
+        {
+            return;
+        }
+        if (DateTime.Now.TimeOfDay - room.LastActivity > room.TimeoutThreshold)
+        {
+            if (room.Status == RoomStatus.OneUser)
+            {
+                ClientKickUser(room.GetUserList()[0], room);
+                MainServer.MainLogger.Error($"User Forced Leave due to Inactivity. RoomNumber:{room.Number}");
+                var innerPacket = PacketMaker.MakeInnerUserLeaveRoom(room.GetUserList()[0].NetSessionID);
+                DistributeInnerPacket(innerPacket);
+            }
+            else if (room.Status == RoomStatus.Playing)
+            {
+                var roomWinner = room.GetCurrentUser();
+                var roomLoser = room.GetNextUser();
+
+                var innerForfeiturePacket = PacketMaker.MakeForfeitureRequest(roomWinner.NetSessionID);
+                DistributeInnerPacket(innerForfeiturePacket);
+                ClientKickUser(roomLoser, room);
+                var innerLeavePacket = PacketMaker.MakeInnerUserLeaveRoom(roomLoser.NetSessionID);
+                DistributeInnerPacket(innerLeavePacket);
+            }
+        }
+    }
+
+    void ClientKickUser(RoomUser user, Room room)
+    {
+        // 클라이언트에 내보내기 처리 요청
+        var sendPacket = new NotifyUserMustLeave()
+        {
+            RoomNumber = room.Number,
+            UserId = user.UserId
+        };
+        var packet = MemoryPackSerializer.Serialize(sendPacket);
+        PacketHeaderInfo.Write(packet, PacketType.NotifyUserMustLeave);
+        SendData(user.NetSessionID, packet);
+    }
 }
