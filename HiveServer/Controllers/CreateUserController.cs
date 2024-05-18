@@ -29,6 +29,7 @@ public class CreateUserController : ControllerBase
 	{
 		try
 		{
+            _logger.ZLogInformation($"Creating user {_user.Email}");
             var saltValue = Security.GenerateSalt();
 			var user = new User
 			{
