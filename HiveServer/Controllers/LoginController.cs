@@ -5,6 +5,8 @@ using ZLogger;
 
 namespace HiveServer.Services;
 
+[ApiController]
+[Route("[controller]")]
 public class LoginController : ControllerBase
 {
 	readonly TokenService _tokenService;
