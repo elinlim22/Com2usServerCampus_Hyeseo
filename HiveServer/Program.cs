@@ -3,6 +3,9 @@ using HiveServer.Repository;
 using ZLogger;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var serverAddress = builder.Configuration.GetValue<string>("ServerAddress");
+
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -29,4 +32,5 @@ if (app.Environment.IsDevelopment())
 
 app.MapControllers();
 
-app.Run();
+//app.Run();
+app.Run(serverAddress);
