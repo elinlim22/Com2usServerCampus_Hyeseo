@@ -29,7 +29,7 @@ public class LoginController : ControllerBase
 	{
         string hiveAddr = _configuration["HiveServer"].Replace("{hiveAddr}", Environment.GetEnvironmentVariable("HIVE_ADDR"));
 		HttpClient client = new();
-		var hiveResponse = await client.PostAsJsonAsync(hiveAddr + "/AuthUser",
+		var hiveResponse = await client.PostAsJsonAsync(hiveAddr + "/authuser",
 											new { Email = request.Email, Token = request.Token });
 		if (hiveResponse == null)
 		{
