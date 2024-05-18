@@ -37,13 +37,13 @@ namespace myForm
         System.Threading.Timer HeartBeatPingTimer;
         TimerCallback TimerCallback;
 
-        string _port = "9000"; // TODO : Config·Î »©±â
+        string _port = "9000"; // TODO : Configë¡œ ë¹¼ê¸°
 
 
         public mainForm()
         {
             InitializeComponent();
-            // SetTimer(); >> LoginÀÀ´ä ¹ŞÀº µÚ ½ÇÇà
+            // SetTimer(); >> Loginì‘ë‹µ ë°›ì€ ë’¤ ì‹¤í–‰
         }
 
         void SetTimer()
@@ -78,7 +78,7 @@ namespace myForm
 
 
             Omok_Init();
-            DevLog.Write("ÇÁ·Î±×·¥ ½ÃÀÛ !!!", LOG_LEVEL.INFO);
+            DevLog.Write("í”„ë¡œê·¸ë¨ ì‹œì‘ !!!", LOG_LEVEL.INFO);
         }
 
         private void mainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -89,26 +89,26 @@ namespace myForm
             Network.Close();
         }
 
-        // ¹öÆ° Å¬¸¯ ÀÌº¥Æ® Ã³¸® ÇÔ¼öµé!
+        // ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ ì²˜ë¦¬ í•¨ìˆ˜ë“¤!
         private void button_Regist_Click(object sender, EventArgs e)
         {
-            DevLog.Write($"È¸¿ø°¡ÀÔ ¿äÃ»:  {textBox_ID.Text}, {textBox_PW.Text}");
-            // Hive ¼­¹ö¿¡ È¸¿ø°¡ÀÔ ¿äÃ»
+            DevLog.Write($"íšŒì›ê°€ì… ìš”ì²­:  {textBox_ID.Text}, {textBox_PW.Text}");
+            // Hive ì„œë²„ì— íšŒì›ê°€ì… ìš”ì²­
             HttpClient client = new();
-            var hiveResponse = client.PostAsJsonAsync(hiveAddress + "/AuthUser", // TODO : ¶ó¿ìÆÃ ÁÖ¼Ò È®ÀÎÇÏ±â
+            var hiveResponse = client.PostAsJsonAsync(hiveAddress + "/CreateUser",
                                                       new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             if (hiveResponse.StatusCode != HttpStatusCode.OK)
             {
-                DevLog.Write($"È¸¿ø°¡ÀÔ ½ÇÆĞ: {hiveResponse.StatusCode}");
+                DevLog.Write($"íšŒì›ê°€ì… ì‹¤íŒ¨: {hiveResponse.StatusCode}");
                 return;
             }
-            DevLog.Write($"È¸¿ø°¡ÀÔ ¼º°ø: {textBox_ID.Text}");
+            DevLog.Write($"íšŒì›ê°€ì… ì„±ê³µ: {textBox_ID.Text}");
             textBox_PW.Text = "";
         }
 
         private void button_Login_Click(object sender, EventArgs e)
         {
-            if (textBox_Token.Text.IsEmpty() == false) // ¼ÒÄÏ¼­¹ö¿¡ ÅäÅ«À¸·Î ·Î±×ÀÎ È®ÀÎ ¿äÃ». ´Ù½Ã ·Î±×ÀÎ ÇÒ °æ¿ì. ·Î±×¾Æ¿ôÀÌ µÉ ÀÏÀº ¾ø°ÚÁö¸¸ ÀÏ´Ü ¸¸µé¾îµÎ±â.
+            if (textBox_Token.Text.IsEmpty() == false) // ì†Œì¼“ì„œë²„ì— í† í°ìœ¼ë¡œ ë¡œê·¸ì¸ í™•ì¸ ìš”ì²­. ë‹¤ì‹œ ë¡œê·¸ì¸ í•  ê²½ìš°. ë¡œê·¸ì•„ì›ƒì´ ë  ì¼ì€ ì—†ê² ì§€ë§Œ ì¼ë‹¨ ë§Œë“¤ì–´ë‘ê¸°.
             {
                 var validateRequest = new ValidateUserTokenRequest
                 {
@@ -120,13 +120,13 @@ namespace myForm
                 return;
             }
 
-            // Hive ¼­¹ö¿¡ ·Î±×ÀÎ ¿äÃ»
+            // Hive ì„œë²„ì— ë¡œê·¸ì¸ ìš”ì²­
             HttpClient hive = new();
-            var hiveResponse = hive.PostAsJsonAsync(hiveAddress + "/AuthUser", // TODO : ¶ó¿ìÆÃ ÁÖ¼Ò È®ÀÎÇÏ±â
+            var hiveResponse = hive.PostAsJsonAsync(hiveAddress + "/Login",
                                                                      new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             if (hiveResponse.StatusCode != HttpStatusCode.OK)
             {
-                DevLog.Write($"HiveServer ·Î±×ÀÎ ½ÇÆĞ: {hiveResponse.StatusCode}");
+                DevLog.Write($"HiveServer ë¡œê·¸ì¸ ì‹¤íŒ¨: {hiveResponse.StatusCode}");
                 return;
             }
 
@@ -134,19 +134,19 @@ namespace myForm
             var hiveLoginResponse = JsonConvert.DeserializeObject<LoginResponse>(hiveJsonResponse);
             if (hiveLoginResponse == null)
             {
-                DevLog.Write($"·Î±×ÀÎ ½ÇÆĞ: {hiveResponse.StatusCode}");
+                DevLog.Write($"ë¡œê·¸ì¸ ì‹¤íŒ¨: {hiveResponse.StatusCode}");
                 return;
             }
             var token = hiveLoginResponse.Token;
             textBox_Token.Text = token;
 
-            // Game ¼­¹ö¿¡ ·Î±×ÀÎ ¿äÃ»
+            // Game ì„œë²„ì— ë¡œê·¸ì¸ ìš”ì²­
             HttpClient game = new();
-            var gameResponse = game.PostAsJsonAsync(gameAddress + "/AuthUser", // TODO : ¶ó¿ìÆÃ ÁÖ¼Ò È®ÀÎÇÏ±â
+            var gameResponse = game.PostAsJsonAsync(gameAddress + "/Login",
                                                                     new { Token = token }).Result;
             if (gameResponse.StatusCode != HttpStatusCode.OK)
             {
-                DevLog.Write($"GameServer ·Î±×ÀÎ ½ÇÆĞ: {gameResponse.StatusCode}");
+                DevLog.Write($"GameServer ë¡œê·¸ì¸ ì‹¤íŒ¨: {gameResponse.StatusCode}");
                 return;
             }
 
@@ -166,18 +166,18 @@ namespace myForm
 
             if (Network.Connect(address, port))
             {
-                //labelStatus.Text = string.Format("{0}. ¼­¹ö¿¡ Á¢¼Ó Áß", DateTime.Now);
+                //labelStatus.Text = string.Format("{0}. ì„œë²„ì— ì ‘ì† ì¤‘", DateTime.Now);
                 button_Connect.Enabled = false;
                 button_Disconnect.Enabled = true;
                 button_Leave.Enabled = true;
                 button_Ready.Enabled = true;
                 button_Chat.Enabled = true;
 
-                DevLog.Write($"¼­¹ö¿¡ Á¢¼Ó Áß", LOG_LEVEL.INFO);
+                DevLog.Write($"ì„œë²„ì— ì ‘ì† ì¤‘", LOG_LEVEL.INFO);
             }
             else
             {
-                //labelStatus.Text = string.Format("{0}. ¼­¹ö¿¡ Á¢¼Ó ½ÇÆĞ", DateTime.Now);
+                //labelStatus.Text = string.Format("{0}. ì„œë²„ì— ì ‘ì† ì‹¤íŒ¨", DateTime.Now);
             }
 
             PacketBuffer.Clear();
@@ -201,7 +201,7 @@ namespace myForm
         {
             PostSendPacket(PacketID.ReqReadyOmok, null);
 
-            DevLog.Write($"°ÔÀÓ ÁØºñ ¿Ï·á ¿äÃ»");
+            DevLog.Write($"ê²Œì„ ì¤€ë¹„ ì™„ë£Œ ìš”ì²­");
         }
 
         private void button_Leave_Click(object sender, EventArgs e)
@@ -209,36 +209,36 @@ namespace myForm
             button_Match.Enabled = true;
             button_Leave.Enabled = false;
             PostSendPacket(PacketID.ReqRoomLeave, null);
-            DevLog.Write($"¹æ ÅğÀå ¿äÃ»:  {textBox_RoomNumber.Text} ¹ø");
+            DevLog.Write($"ë°© í‡´ì¥ ìš”ì²­:  {textBox_RoomNumber.Text} ë²ˆ");
 
-            // Á¢¼Ó Á¾·á ÇÔ¼ö È£Ãâ
+            // ì ‘ì† ì¢…ë£Œ í•¨ìˆ˜ í˜¸ì¶œ
             button_Disconnect_Click(sender, e);
         }
 
         private void button_Match_Click(object sender, EventArgs e)
         {
-            // °ÔÀÓ ¼­¹ö¿¡ ¸ÅÄª ¿äÃ»
+            // ê²Œì„ ì„œë²„ì— ë§¤ì¹­ ìš”ì²­
             HttpClient client = new();
-            var gameResponse = client.GetAsync(gameAddress + "/AuthUser").Result;
+            var gameResponse = client.GetAsync(gameAddress + "/Matching").Result;
 
             string jsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
             MatchingResponse matchingResponse = JsonConvert.DeserializeObject<MatchingResponse>(jsonResponse);
             if (matchingResponse == null)
             {
-                DevLog.Write($"¸ÅÄª ½ÇÆĞ: {gameResponse.StatusCode}");
+                DevLog.Write($"ë§¤ì¹­ ì‹¤íŒ¨: {gameResponse.StatusCode}");
                 return;
             }
 
             var roomNumber = matchingResponse.RoomNumber;
             var serverIP = matchingResponse.ServerIP;
 
-            DevLog.Write($"¸ÅÄª °á°ú: {roomNumber}, {serverIP}");
+            DevLog.Write($"ë§¤ì¹­ ê²°ê³¼: {roomNumber}, {serverIP}");
 
             textBox_IP.Text = serverIP;
             textBox_Port.Text = _port;
             textBox_RoomNumber.Text = roomNumber.ToString();
 
-            // ¼ÒÄÏ ¼­¹ö¿¡ ¹æ ÀÔÀå ¿äÃ»
+            // ì†Œì¼“ ì„œë²„ì— ë°© ì…ì¥ ìš”ì²­
             var sendPacket = new EnterRoomRequest { RoomNum = roomNumber };
             var sendBytes = MemoryPackSerializer.Serialize(sendPacket);
             PostSendPacket(PacketID.ReqRoomEnter, sendBytes);
@@ -250,14 +250,14 @@ namespace myForm
             button_Leave.Enabled = true;
             button_Ready.Enabled = true;
             button_Chat.Enabled = true;
-            DevLog.Write($"¸ÅÄª ¿äÃ»");
+            DevLog.Write($"ë§¤ì¹­ ìš”ì²­");
         }
 
         private void button_Chat_Click(object sender, EventArgs e)
         {
             if (textBox_Chat.Text.IsEmpty())
             {
-                MessageBox.Show("Ã¤ÆÃ ¸Ş½ÃÁö¸¦ ÀÔ·ÂÇÏ¼¼¿ä");
+                MessageBox.Show("ì±„íŒ… ë©”ì‹œì§€ë¥¼ ì…ë ¥í•˜ì„¸ìš”");
                 return;
             }
 
@@ -265,11 +265,11 @@ namespace myForm
             requestPkt.Message = textBox_Chat.Text;
 
             PostSendPacket(PacketID.ReqRoomChat, MemoryPackSerializer.Serialize(requestPkt));
-            DevLog.Write($"¹æ Ã¤ÆÃ ¿äÃ»");
+            DevLog.Write($"ë°© ì±„íŒ… ìš”ì²­");
         }
         private void textBox_Chat_TextChanged(object sender, EventArgs e)
         {
-            // Ã¤ÆÃÃ¢¿¡ ¿£ÅÍ°¡ ÀÔ·ÂµÇ¸é Ã¤ÆÃ Àü¼Û
+            // ì±„íŒ…ì°½ì— ì—”í„°ê°€ ì…ë ¥ë˜ë©´ ì±„íŒ… ì „ì†¡
             if (textBox_Chat.Text.Contains("\r\n"))
             {
                 button_Chat_Click(sender, e);
@@ -302,13 +302,13 @@ namespace myForm
 
                         RecvPacketQueue.Enqueue(data);
                     }
-                    //DevLog.Write($"¹ŞÀº µ¥ÀÌÅÍ: {recvData.Item2}", LOG_LEVEL.INFO);
+                    //DevLog.Write($"ë°›ì€ ë°ì´í„°: {recvData.Item2}", LOG_LEVEL.INFO);
                 }
                 else
                 {
                     Network.Close();
                     SetDisconnected();
-                    DevLog.Write("¼­¹ö¿Í Á¢¼Ó Á¾·á !!!", LOG_LEVEL.INFO);
+                    DevLog.Write("ì„œë²„ì™€ ì ‘ì† ì¢…ë£Œ !!!", LOG_LEVEL.INFO);
                 }
             }
         }
@@ -354,7 +354,7 @@ namespace myForm
 
         private void ProcessLog()
         {
-            // ³Ê¹« ÀÌ ÀÛ¾÷¸¸ ÇÒ ¼ö ¾øÀ¸¹Ç·Î ÀÏÁ¤ ÀÛ¾÷ ÀÌ»óÀ» ÇÏ¸é ÀÏ´Ü ÆĞ½ºÇÑ´Ù.
+            // ë„ˆë¬´ ì´ ì‘ì—…ë§Œ í•  ìˆ˜ ì—†ìœ¼ë¯€ë¡œ ì¼ì • ì‘ì—… ì´ìƒì„ í•˜ë©´ ì¼ë‹¨ íŒ¨ìŠ¤í•œë‹¤.
             int logWorkCount = 0;
 
             while (IsBackGroundProcessRunning)
@@ -408,17 +408,17 @@ namespace myForm
             UserList.Items.Clear();
 
             EndGame();
-            // Å¸ÀÌ¸Ó Á¾·á
+            // íƒ€ì´ë¨¸ ì¢…ë£Œ
             HeartBeatPingTimer?.Dispose();
 
-            //labelStatus.Text = "¼­¹ö Á¢¼ÓÀÌ ²÷¾îÁü";
+            //labelStatus.Text = "ì„œë²„ ì ‘ì†ì´ ëŠì–´ì§";
         }
 
         void PostSendPacket(UInt16 packetID, byte[] packetData)
         {
             if (Network.IsConnected() == false)
             {
-                DevLog.Write("¼­¹ö ¿¬°áÀÌ µÇ¾î ÀÖÁö ¾Ê½À´Ï´Ù", LOG_LEVEL.ERROR);
+                DevLog.Write("ì„œë²„ ì—°ê²°ì´ ë˜ì–´ ìˆì§€ ì•ŠìŠµë‹ˆë‹¤", LOG_LEVEL.ERROR);
                 return;
             }
 
@@ -446,7 +446,7 @@ namespace myForm
             UserList.Items.Add(userID);
         }
 
-        void RemoveRoomUserList(string userID) // TODO : ¹æ¿¡¼­ ³ª°£ À¯Àú´Â clearµÇ¾î¾ß ÇÑ´Ù.
+        void RemoveRoomUserList(string userID) // TODO : ë°©ì—ì„œ ë‚˜ê°„ ìœ ì €ëŠ” clearë˜ì–´ì•¼ í•œë‹¤.
         {
             object removeItem = null;
 
@@ -509,7 +509,7 @@ namespace myForm
             var packet = MemoryPackSerializer.Serialize(requestPkt);
             PostSendPacket(PacketID.ReqPutMok, packet);
 
-            DevLog.Write($"put stone ¿äÃ» : x  [ {x} ], y: [ {y} ] ");
+            DevLog.Write($"put stone ìš”ì²­ : x  [ {x} ], y: [ {y} ] ");
         }
     }
 }

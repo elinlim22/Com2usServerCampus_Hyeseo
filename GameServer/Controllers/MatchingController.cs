@@ -8,7 +8,7 @@ using ZLogger;
 
 namespace GameServer.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class MatchingController : ControllerBase
     {

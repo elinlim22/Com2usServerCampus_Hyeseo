@@ -21,13 +21,13 @@ public class AuthUserController : ControllerBase
 	[HttpPost]
 	public async Task<AuthUserResponse> AuthUser([FromBody] AuthUserRequest _user)
 	{
-		var user = await _MemoryDB.GetAsync(_user.Email, ExpiryDays.TokenExpiry);
-		if (user == null)
+		var userToken = await _MemoryDB.GetAsync(_user.Email, ExpiryDays.TokenExpiry);
+		if (userToken == null)
 		{
 			_logger.ZLogError($"User {_user.Email} not found");
 			return new AuthUserResponse(ErrorCode.UserNotFound);
 		}
-		if (user.Token != _user.Token)
+        if (userToken != _user.Token)
 		{
 			_logger.ZLogError($"Token mismatch for user {_user.Email}");
 			return new AuthUserResponse(ErrorCode.InvalidToken);

@@ -29,15 +29,16 @@ public class CreateUserController : ControllerBase
 	{
 		try
 		{
+            var saltValue = Security.GenerateSalt();
 			var user = new User
 			{
 				Email = _user.Email,
-				Salt = Security.GenerateSalt(),
-				Password = Security.HashPassword(_user.Password),
+				Salt = saltValue,
+				Password = Security.HashPassword(_user.Password, saltValue),
 				Token = _tokenService.GenerateToken(_user.Email)
 			};
 			await _accountDB.CreateUser(user);
-			await _MemoryDB.SetAsync(user, ExpiryDays.TokenExpiry);
+			await _MemoryDB.SetAsync(user.Email, user.Token, ExpiryDays.TokenExpiry);
 		}
 		catch (Exception e)
 		{
