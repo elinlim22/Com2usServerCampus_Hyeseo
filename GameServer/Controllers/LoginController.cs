@@ -15,7 +15,8 @@ public class LoginController : ControllerBase
 	readonly IConfiguration _configuration;
 	readonly ILogger<LoginController> _logger;
 
-	public LoginController(IGameDB gameDB, IMemoryDB memoryDB, IConfiguration configuration, ILogger<LoginController> logger)
+
+    public LoginController(IGameDB gameDB, IMemoryDB memoryDB, IConfiguration configuration, ILogger<LoginController> logger)
 	{
 		_gameDB = gameDB;
 		_memoryDB = memoryDB;
@@ -26,12 +27,13 @@ public class LoginController : ControllerBase
 	[HttpPost]
 	public async Task<LoginResponse> Login([FromBody] LoginRequest request)
 	{
+        string hiveAddr = _configuration["HiveServer"].Replace("{hiveAddr}", Environment.GetEnvironmentVariable("HIVE_ADDR"));
 		HttpClient client = new();
-		var hiveResponse = await client.PostAsJsonAsync(_configuration["HiveServer"]! + "/AuthUser",
+		var hiveResponse = await client.PostAsJsonAsync(hiveAddr + "/AuthUser",
 											new { Email = request.Email, Token = request.Token });
 		if (hiveResponse == null)
 		{
-			_logger.ZLogError($"HiveServer is not responding : {_configuration["HiveServer"]}");
+			_logger.ZLogError($"HiveServer is not responding : {hiveAddr}");
 			return new LoginResponse(ErrorCode.HiveServerNotResponding);
 		}
 		if (hiveResponse.StatusCode != HttpStatusCode.OK)

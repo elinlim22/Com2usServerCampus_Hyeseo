@@ -15,6 +15,8 @@ public class AccountDB : IAccountDB
 		_configuration = configuration;
 		var connectionString = _configuration.GetConnectionString("DefaultConnection") ?? "";
 		var replacedConnectionString = connectionString.Replace("{myPassword}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
+        replacedConnectionString = replacedConnectionString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
+        replacedConnectionString = replacedConnectionString.Replace("{mySQLPort}", Environment.GetEnvironmentVariable("MYSQL_PORT"));
 		_dbConnection = new MySqlConnection(replacedConnectionString);
 		_dbConnection.Open();
 		_compiler = new SqlKata.Compilers.MySqlCompiler();

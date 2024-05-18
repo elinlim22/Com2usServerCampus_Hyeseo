@@ -3,7 +3,7 @@ using ZLogger;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var serverAddress = builder.Configuration.GetValue<string>("ServerAddress");
+var serverAddress = builder.Configuration.GetValue<string>("ServerAddress").Replace("{listenAddr}", Environment.GetEnvironmentVariable("LISTEN_ADDR"));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();

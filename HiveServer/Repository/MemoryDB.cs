@@ -12,7 +12,10 @@ public class MemoryDB : IMemoryDB
 	public MemoryDB(IConfiguration configuration)
 	{
 		_configuration = configuration;
-		_redisConfig = new RedisConfig("MemoryDB", _configuration.GetConnectionString("RedisConnection") ?? "localhost:6379");
+        var connStr = _configuration.GetConnectionString("RedisConnection");
+        connStr = connStr.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
+        connStr = connStr.Replace("{redisPort}", Environment.GetEnvironmentVariable("REDIS_PORT"));
+		_redisConfig = new RedisConfig("MemoryDB", connStr);
 		_redisConnection = new RedisConnection(_redisConfig);
 	}
 
