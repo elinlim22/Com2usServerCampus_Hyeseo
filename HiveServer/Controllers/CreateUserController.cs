@@ -27,9 +27,9 @@ public class CreateUserController : ControllerBase
 	[HttpPost]
 	public async Task<CreateUserResponse> CreateUser([FromBody] CreateUserRequest _user)
 	{
+        _logger.ZLogInformation($"Creating user {_user.Email}");
 		try
 		{
-            _logger.ZLogInformation($"Creating user {_user.Email}");
             var saltValue = Security.GenerateSalt();
 			var user = new User
 			{
