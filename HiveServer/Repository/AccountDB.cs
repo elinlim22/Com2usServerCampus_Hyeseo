@@ -18,6 +18,7 @@ public class AccountDB : IAccountDB
         replacedConnectionString = replacedConnectionString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
         replacedConnectionString = replacedConnectionString.Replace("{mySQLPort}", Environment.GetEnvironmentVariable("MYSQL_PORT"));
 		_dbConnection = new MySqlConnection(replacedConnectionString);
+        Console.WriteLine(replacedConnectionString);
 		_dbConnection.Open();
 		_compiler = new SqlKata.Compilers.MySqlCompiler();
 		_queryFactory = new QueryFactory(_dbConnection, _compiler);
