@@ -29,14 +29,17 @@ namespace GameServer.Controllers
         {
             try
             {
+                Console.WriteLine("Matching request received");
                 var roomNumber = await _memoryDB.MatchRoomId();
 
+                Console.WriteLine($"Matched room number {roomNumber}");
                 var response = new MatchingResponse
                 {
                     StatusCode = (short)ErrorCode.Success,
                     RoomNumber = roomNumber,
                     ServerIP = _configuration["ServerIP"].Replace("{serverIP}", Environment.GetEnvironmentVariable("SERVER_IP"))
                 };
+                Console.WriteLine($"ServerIP: {response.ServerIP}");
                 _logger.ZLogDebug($"Matched room number {response.RoomNumber}");
                 return response;
             }

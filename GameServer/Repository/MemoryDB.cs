@@ -23,6 +23,7 @@ public class MemoryDB : IMemoryDB
         _redisConfig = new RedisConfig("MemoryDB", connStr);
         _redisConnection = new RedisConnection(_redisConfig);
         _requestSeq = new RedisString<int>(_redisConnection, "requestSeq", null);
+        _roomToAllocate = new RedisString<int>(_redisConnection, "roomToAllocate", null);
     }
 
 	public async Task<string> SetAsync(string email, string token, ExpiryDays expiryDays)
