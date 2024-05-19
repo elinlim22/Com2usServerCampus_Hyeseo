@@ -71,8 +71,8 @@ namespace myForm
             panel1.Size = new Size(607, 770);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
-            panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(panel1_MouseDown);
-            panel1.MouseMove += new System.Windows.Forms.MouseEventHandler(panel1_MouseMove);
+            panel1.MouseDown += panel1_MouseDown;
+            panel1.MouseMove += panel1_MouseMove;
             // 
             // label_ID
             // 
@@ -167,6 +167,7 @@ namespace myForm
             // textBox_IP
             // 
             textBox_IP.BackColor = SystemColors.ButtonFace;
+            textBox_IP.Enabled = false;
             textBox_IP.Location = new Point(63, 53);
             textBox_IP.Margin = new Padding(2);
             textBox_IP.Name = "textBox_IP";
@@ -187,6 +188,7 @@ namespace myForm
             // textBox_Port
             // 
             textBox_Port.BackColor = SystemColors.ButtonFace;
+            textBox_Port.Enabled = false;
             textBox_Port.Location = new Point(63, 86);
             textBox_Port.Margin = new Padding(2);
             textBox_Port.Name = "textBox_Port";
@@ -197,6 +199,7 @@ namespace myForm
             // checkBox_useLocalHost
             // 
             checkBox_useLocalHost.AutoSize = true;
+            checkBox_useLocalHost.Enabled = false;
             checkBox_useLocalHost.Location = new Point(145, 20);
             checkBox_useLocalHost.Margin = new Padding(2);
             checkBox_useLocalHost.Name = "checkBox_useLocalHost";
@@ -410,8 +413,8 @@ namespace myForm
             Margin = new Padding(2);
             Name = "mainForm";
             Text = "Purple Omok :)";
-            FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
-            Load += new System.EventHandler(this.mainForm_Load);
+            FormClosing += mainForm_FormClosing;
+            Load += mainForm_Load;
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             groupBox2.ResumeLayout(false);
