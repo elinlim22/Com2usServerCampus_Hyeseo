@@ -260,6 +260,7 @@ public class Room(ServerOption serverOption)
 
     public void EndRoomGame(RoomUser roomWinner, RoomUser roomLoser)
     {
+        MainServer.MainLogger.Debug($"EndRoomGame - Winner: {roomWinner.UserId}, Loser: {roomLoser.UserId}");
         omokRule.EndGame();
         // 플레이어 준비 상태 초기화
         roomWinner.CancelReadyOmok();

@@ -325,6 +325,7 @@ public class PacketHandlerRoom : PacketHandler
             // 게임 종료 시 게임 종료 응답
             if (room.omokRule.게임종료 == true)
             {
+                MainServer.MainLogger.Debug($"게임 종료{room.omokRule.게임종료} - roomNumber: {room.Number}, Winner: {roomUser.UserId}, Loser: {roomOtherUser.UserId}");
                 EndGame(room, roomUser, roomOtherUser);
             }
         }
