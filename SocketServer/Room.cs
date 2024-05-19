@@ -21,7 +21,7 @@ public class Room(ServerOption serverOption)
 
     public static Func<string, byte[], bool> SendData;
     public static Action<RequestInfo> DistributeInnerPacket;
-    public Action<RequestInfo> DistributeMySQLPacket;
+    public static Action<RequestInfo> DistributeMySQLPacket;
     
     public OmokRule omokRule = new OmokRule();
 

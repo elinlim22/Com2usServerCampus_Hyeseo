@@ -162,6 +162,7 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
 
         Room.SendData = this.SendData;
         Room.DistributeInnerPacket = _packetProcessor.InsertPacket;
+        Room.DistributeMySQLPacket = _packetProcessor._mySQLConnection.InsertPacket;
 
         _roomManager.CreateRooms();
         _roomManager.SendData = this.SendData;

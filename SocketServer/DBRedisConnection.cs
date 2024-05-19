@@ -37,6 +37,7 @@ public class DBRedisConnection
 
     public void StartIO()
     {
+        MainServer.MainLogger.Info("DBRedisConnection::StartIO - begin");
         Threads = [];
         isRunning = true;
         for (int i = 0; i < _serverOption.MaxThread; i++)
@@ -53,6 +54,7 @@ public class DBRedisConnection
     }
     public void InsertPacket(RequestInfo data)
     {
+        MainServer.MainLogger.Debug($"DBRedisConnection::InsertPacket - data received: {data.Data.Length}");
         _msgBuffer.Post(data);
     }
 
@@ -63,6 +65,7 @@ public class DBRedisConnection
         {
             if (_msgBuffer.TryReceive(out var packet)) // 버퍼블록에서 RequestInfo 형태의 패킷을 가져온다.
             {
+                MainServer.MainLogger.Debug($"DBRedisConnection::Process - packet received: {packet.Data.Length}");
                 var header = new PacketHeaderInfo();
                 header.Read(packet.Data);
 

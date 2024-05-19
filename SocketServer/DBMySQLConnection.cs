@@ -36,6 +36,7 @@ public class DBMySQLConnection
 
     public void StartIO()
     {
+        MainServer.MainLogger.Info("DBMySQLConnection::StartIO - begin");
         Threads = [];
         isRunning = true;
         for (int i = 0; i < _serverOption.MaxThread; i++)
@@ -54,6 +55,7 @@ public class DBMySQLConnection
 
     public void InsertPacket(RequestInfo data)
     {
+        MainServer.MainLogger.Debug($"DBMySQLConnection::InsertPacket - data received: {data.Data.Length}");
         _msgBuffer.Post(data);
     }
 
@@ -68,6 +70,7 @@ public class DBMySQLConnection
             var packet = _msgBuffer.Receive();
             if (packet != null)
             {
+                MainServer.MainLogger.Debug($"MySQLProcessor - packet received: {packet.Data.Length} bytes");
                 var header = new PacketHeaderInfo();
                 header.Read(packet.Data);
 
@@ -122,6 +125,7 @@ public class DBMySQLConnection
     public void UpdateUserGameData(RequestInfo requestInfo, QueryFactory queryFactory)
     {
         var reqData = MemoryPackSerializer.Deserialize<UpdateUserGameDataRequest>(requestInfo.Data);
+        MainServer.MainLogger.Debug($"유저 게임정보 업데이트 - {reqData.UserId}의 승/패: {reqData.IsWinner}");
         var userId = reqData.UserId;
         int affectedRows;
         if (reqData.IsWinner)
