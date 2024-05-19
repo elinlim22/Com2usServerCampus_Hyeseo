@@ -37,7 +37,7 @@ namespace myForm
         System.Threading.Timer HeartBeatPingTimer;
         TimerCallback TimerCallback;
 
-        string _port = "9000"; // TODO : Config로 빼기
+        string _port = Environment.GetEnvironmentVariable("SOCKET_PORT");
 
 
         public mainForm()
@@ -95,7 +95,7 @@ namespace myForm
             DevLog.Write($"회원가입 요청:  {textBox_ID.Text}, {textBox_PW.Text}");
             // Hive 서버에 회원가입 요청
             HttpClient client = new();
-            var hiveResponse = client.PostAsJsonAsync(hiveAddress + "/createuser",
+            var hiveResponse = client.PostAsJsonAsync(serverAddr + hivePort + "/createuser",
                                                       new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             if (hiveResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -122,7 +122,7 @@ namespace myForm
 
             // Hive 서버에 로그인 요청
             HttpClient hive = new();
-            var hiveResponse = hive.PostAsJsonAsync(hiveAddress + "/login",
+            var hiveResponse = hive.PostAsJsonAsync(serverAddr + hivePort + "/login",
                                                                      new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             if (hiveResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -142,7 +142,7 @@ namespace myForm
 
             // Game 서버에 로그인 요청
             HttpClient game = new();
-            var gameResponse = game.PostAsJsonAsync(gameAddress + "/login",
+            var gameResponse = game.PostAsJsonAsync(serverAddr + gamePort + "/login",
                                                                     new { Token = token }).Result;
             if (gameResponse.StatusCode != HttpStatusCode.OK)
             {
@@ -219,7 +219,7 @@ namespace myForm
         {
             // 게임 서버에 매칭 요청
             HttpClient client = new();
-            var gameResponse = client.GetAsync(gameAddress + "/matching").Result;
+            var gameResponse = client.GetAsync(serverAddr + gamePort + "/matching").Result;
 
             string jsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
             MatchingResponse matchingResponse = JsonConvert.DeserializeObject<MatchingResponse>(jsonResponse);

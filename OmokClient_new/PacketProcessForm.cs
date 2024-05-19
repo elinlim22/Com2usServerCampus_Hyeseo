@@ -18,8 +18,9 @@ namespace myForm
     public partial class mainForm
     {
         Dictionary<UInt16, Action<byte[]>> PacketFuncDic = new Dictionary<UInt16, Action<byte[]>>();
-        string hiveAddress = "http://34.64.46.227:11502"; // TODO : Config로 빼기
-        string gameAddress = "http://34.64.46.227:11500"; // TODO : Config로 빼기
+        string serverAddr = "http://" + Environment.GetEnvironmentVariable("SERVER_ADDR") + ":";
+        string hivePort = Environment.GetEnvironmentVariable("HIVE_PORT");
+        string gamePort = Environment.GetEnvironmentVariable("GAME_PORT");
 
         void SetPacketHandler()
         {
