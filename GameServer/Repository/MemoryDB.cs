@@ -26,11 +26,10 @@ public class MemoryDB : IMemoryDB
         _roomToAllocate = new RedisString<int>(_redisConnection, "roomToAllocate", null);
     }
 
-	public async Task<string> SetAsync(string email, string token, ExpiryDays expiryDays)
+	public async Task<bool> SetAsync(string email, string token, ExpiryDays expiryDays)
 	{
 		RedisString<string> redisString = new(_redisConnection, email, TimeSpan.FromDays((double)expiryDays));
-		await redisString.SetAsync(token);
-		return token;
+		return await redisString.SetAsync(token);
 	}
 
 	public async Task<string> GetAsync(string email, ExpiryDays expiryDays)

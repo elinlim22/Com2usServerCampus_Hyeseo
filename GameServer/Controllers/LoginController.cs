@@ -59,7 +59,13 @@ public class LoginController : ControllerBase
 				return new LoginResponse(ErrorCode.UserCreationFailed);
 			}
 		}
-		await _memoryDB.SetAsync(request.Email, request.Token, ExpiryDays.RedisExpiry);
+		var setRes = await _memoryDB.SetAsync(request.Email, request.Token, ExpiryDays.RedisExpiry);
+        if (!setRes)
+        {
+            _logger.ZLogError($"Error setting token in Redis6400 for user {request.Email}");
+            return new LoginResponse(ErrorCode.InvalidToken);
+        }
+        _logger.ZLogDebug($"User {request.Email}, Token {request.Token} set in Redis6400.");
 		return new LoginResponse(ErrorCode.Success);
 	}
 }
