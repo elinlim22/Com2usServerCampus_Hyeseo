@@ -1,4 +1,4 @@
-﻿namespace myForm
+namespace myForm
 {
     partial class mainForm
     {
@@ -101,7 +101,6 @@
             label_Token.Size = new Size(39, 15);
             label_Token.TabIndex = 3;
             label_Token.Text = "Token";
-            label_Token.Click += this.label_Token_Click;
             // 
             // textBox_ID
             // 
@@ -392,7 +391,6 @@
             listBox_Log.ItemHeight = 15;
             listBox_Log.Location = new Point(6, 549);
             listBox_Log.Margin = new Padding(2);
-            listBox_Log.MultiColumn = true;
             listBox_Log.Name = "listBox_Log";
             listBox_Log.Size = new Size(569, 229);
             listBox_Log.TabIndex = 17;

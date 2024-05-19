@@ -10,7 +10,8 @@ public class MemoryDB : IMemoryDB
 	readonly RedisConfig _redisConfig;
 	readonly RedisConnection _redisConnection;
 	readonly IConfiguration _configuration;
-    RedisString<int> _incr;
+    RedisString<int> _requestSeq;
+    RedisString<int> _roomToAllocate;
 
 	public MemoryDB(IConfiguration configuration)
 	{
@@ -21,7 +22,7 @@ public class MemoryDB : IMemoryDB
         connStr = connStr.Replace("{redisPassword}", Environment.GetEnvironmentVariable("REDIS_PASSWORD"));
         _redisConfig = new RedisConfig("MemoryDB", connStr);
         _redisConnection = new RedisConnection(_redisConfig);
-        _incr = new RedisString<int>(_redisConnection, "incr", null);
+        _requestSeq = new RedisString<int>(_redisConnection, "requestSeq", null);
     }
 
 	public async Task<string> SetAsync(string email, string token, ExpiryDays expiryDays)
@@ -41,16 +42,29 @@ public class MemoryDB : IMemoryDB
 
     public async Task<int> MatchRoomId()
     {
-        long roomNumber = await _incr.IncrementAsync(1);
-        if (roomNumber >= 200)
+        long requestSeq = await _requestSeq.IncrementAsync(1);
+        long roomNumber;
+        if (requestSeq % 2 == 1)
         {
-            await _incr.SetAsync(0);
+            roomNumber = await _roomToAllocate.IncrementAsync(1);
+        }
+        else
+        {
+            var i = await _roomToAllocate.GetAsync();
+            roomNumber = (long)i.Value;
+        }
+
+        if (roomNumber >= 100)
+        {
+            await _roomToAllocate.SetAsync(0);
             roomNumber = 0;
         }
-        if (roomNumber % 2 == 1)
-        {
-            roomNumber -= 1;
-        } // TODO : 방 매칭 로직 수정 필요!!
+        /*
+         if (requestSeq > long.MaxValue - 100)
+         {
+             await _requestSeq.SetAsync(0);
+         }
+         */
 
         return (int)roomNumber;
     }

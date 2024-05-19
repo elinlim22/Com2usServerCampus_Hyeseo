@@ -108,6 +108,7 @@ namespace myForm
 
         private void button_Login_Click(object sender, EventArgs e)
         {
+            DevLog.Write($"로그인 요청:  {textBox_ID.Text}, {textBox_PW.Text}");
             if (textBox_Token.Text.IsEmpty() == false) // 소켓서버에 토큰으로 로그인 확인 요청. 다시 로그인 할 경우. 로그아웃이 될 일은 없겠지만 일단 만들어두기.
             {
                 var validateRequest = new ValidateUserTokenRequest
@@ -124,11 +125,6 @@ namespace myForm
             HttpClient hive = new();
             var hiveAddr = $"{serverAddr}:{hivePort}/login";
             var hiveResponse = hive.PostAsJsonAsync(hiveAddr, new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
-            /*if (hiveResponse.StatusCode != HttpStatusCode.OK)
-            {
-                DevLog.Write($"HiveServer 로그인 실패: {hiveResponse.StatusCode}");
-                return;
-            }*/
 
             var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
             var hiveLoginResponse = JsonConvert.DeserializeObject<HiveLoginResponse>(hiveJsonResponse);
@@ -144,6 +140,7 @@ namespace myForm
             HttpClient game = new();
             var gameAddr = $"{serverAddr}:{gamePort}/login";
             var gameResponse = game.PostAsJsonAsync(gameAddr, new { Email = textBox_ID.Text, Token = token }).Result;
+
             var gameJsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
             var gameLoginResponse = JsonConvert.DeserializeObject<GameLoginResponse>(gameJsonResponse);
             if (gameLoginResponse.StatusCode != (short)ErrorCode.None)
@@ -153,6 +150,7 @@ namespace myForm
             }
 
             LoginOK();
+            DevLog.Write($"로그인 성공: {textBox_ID.Text}");
         }
 
         private void button_Connect_Click(object sender, EventArgs e)
@@ -219,6 +217,7 @@ namespace myForm
 
         private void button_Match_Click(object sender, EventArgs e)
         {
+            DevLog.Write($"매칭 요청");
             // 게임 서버에 매칭 요청
             HttpClient client = new();
             var gameAddr = $"{serverAddr}:{gamePort}/matching";
@@ -263,7 +262,6 @@ namespace myForm
             button_Leave.Enabled = true;
             button_Ready.Enabled = true;
             button_Chat.Enabled = true;
-            DevLog.Write($"매칭 요청");
         }
 
         private void button_Chat_Click(object sender, EventArgs e)
