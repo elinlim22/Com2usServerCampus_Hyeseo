@@ -339,8 +339,8 @@ public class PacketHandlerRoom : PacketHandler
     {
         room.EndRoomGame(roomWinner, roomLoser); // DB업데이트, 방 타이머 업데이트, 플레이어 준비상태 초기화, 클라이언트에 메세지 전송
         // 유저 타이머 업데이트
-        _userMgr.UpdateUserLastConnection(roomWinner.UserId);
-        _userMgr.UpdateUserLastConnection(roomLoser.UserId);
+        _userMgr.UpdateUserLastConnection(roomWinner.NetSessionID);
+        _userMgr.UpdateUserLastConnection(roomLoser.NetSessionID);
         MainServer.MainLogger.Debug("게임 종료");
     }
 

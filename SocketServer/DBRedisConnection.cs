@@ -27,7 +27,7 @@ public class DBRedisConnection
         _serverOption = serverOption;
         var redisString = connStr.RedisConnection;
         redisString = redisString.Replace("{serverIP}", Environment.GetEnvironmentVariable("SERVER_IP"));
-        redisString = redisString.Replace("{redisPort}", Environment.GetEnvironmentVariable("REDIS_PORT"));
+        redisString = redisString.Replace("{redisPort}", Environment.GetEnvironmentVariable("GAME_REDIS_PORT"));
         redisString = redisString.Replace("{redisPassword}", Environment.GetEnvironmentVariable("REDIS_PASSWORD"));
 
         _redisConfig = new RedisConfig("MemoryDB", redisString);
@@ -52,6 +52,7 @@ public class DBRedisConnection
     {
         PacketHandlers[(int)PacketType.ValidateUserTokenRequest] = ValidateUserToken;
     }
+
     public void InsertPacket(RequestInfo data)
     {
         MainServer.MainLogger.Debug($"DBRedisConnection::InsertPacket - data received: {data.Data.Length}");

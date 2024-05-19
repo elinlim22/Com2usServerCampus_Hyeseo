@@ -109,7 +109,12 @@ public class MainServer : AppServer<ClientSession, RequestInfo>, IHostedService
 
     protected void OnNewRequestReceived(ClientSession session, RequestInfo requestInfo)
     {
-        MainLogger.Info($"New request received: {requestInfo.Key}");
+        var header = new PacketHeaderInfo();
+        header.Read(requestInfo.Data);
+        if (header.Id != (int)PacketType.ReqHeartBeat)
+        {
+            MainLogger.Info($"New request received: Packet Define: {header.Id}");
+        }
         requestInfo.SessionID = session.SessionID;
         _packetProcessor.InsertPacket(requestInfo);
     }

@@ -18,7 +18,7 @@ public class MemoryDB : IMemoryDB
         _configuration = configuration;
         var connStr = _configuration.GetConnectionString("RedisConnection");
         connStr = connStr.Replace("{serverIP}", Environment.GetEnvironmentVariable("SERVER_IP"));
-        connStr = connStr.Replace("{redisPort}", Environment.GetEnvironmentVariable("REDIS_PORT"));
+        connStr = connStr.Replace("{redisPort}", Environment.GetEnvironmentVariable("GAME_REDIS_PORT"));
         connStr = connStr.Replace("{redisPassword}", Environment.GetEnvironmentVariable("REDIS_PASSWORD"));
         _redisConfig = new RedisConfig("MemoryDB", connStr);
         _redisConnection = new RedisConnection(_redisConfig);

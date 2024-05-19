@@ -51,6 +51,7 @@ public class DBMySQLConnection
     {
         // PacketHandlers[(int)PacketType.GetUserGameDataRequest] = GetUserGameData;
         PacketHandlers[(int)PacketType.SetUserGameDataRequest] = SetUserGameData;
+        PacketHandlers[(int)PacketType.UpdateUserGameDataRequest] = UpdateUserGameData;
     }
 
     public void InsertPacket(RequestInfo data)
