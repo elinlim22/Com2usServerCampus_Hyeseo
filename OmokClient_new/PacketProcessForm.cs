@@ -18,9 +18,14 @@ namespace myForm
     public partial class mainForm
     {
         Dictionary<UInt16, Action<byte[]>> PacketFuncDic = new Dictionary<UInt16, Action<byte[]>>();
-        string serverAddr = "http://" + Environment.GetEnvironmentVariable("SERVER_ADDR") + ":";
-        string hivePort = Environment.GetEnvironmentVariable("HIVE_PORT");
-        string gamePort = Environment.GetEnvironmentVariable("GAME_PORT");
+        //string serverAddr = "http://" + Environment.GetEnvironmentVariable("SERVER_ADDR") + ":";
+        //string hivePort = Environment.GetEnvironmentVariable("HIVE_PORT");
+        //string gamePort = Environment.GetEnvironmentVariable("GAME_PORT");
+        //string _port = Environment.GetEnvironmentVariable("SOCKET_PORT");
+        string serverAddr = "http://34.64.46.227";
+        string hivePort = "11502";
+        string gamePort = "11500";
+        string port = "9000";
 
         void SetPacketHandler()
         {

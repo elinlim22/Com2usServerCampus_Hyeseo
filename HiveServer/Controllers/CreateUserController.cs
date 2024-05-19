@@ -30,6 +30,10 @@ public class CreateUserController : ControllerBase
         _logger.ZLogInformation($"Creating user {_user.Email}");
 		try
 		{
+            if (ModelState.IsValid == false)
+            {
+                throw new Exception("Invalid model state");
+            }
             var saltValue = Security.GenerateSalt();
 			var user = new User
 			{

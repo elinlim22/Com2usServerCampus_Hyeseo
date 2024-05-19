@@ -37,8 +37,6 @@ namespace myForm
         System.Threading.Timer HeartBeatPingTimer;
         TimerCallback TimerCallback;
 
-        string _port = Environment.GetEnvironmentVariable("SOCKET_PORT");
-
 
         public mainForm()
         {
@@ -95,13 +93,13 @@ namespace myForm
             DevLog.Write($"회원가입 요청:  {textBox_ID.Text}, {textBox_PW.Text}");
             // Hive 서버에 회원가입 요청
             HttpClient client = new();
-            var hiveResponse = client.PostAsJsonAsync(serverAddr + hivePort + "/createuser",
-                                                      new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
+            var hiveAddr = $"{serverAddr}:{hivePort}/createuser";
+            var hiveResponse = client.PostAsJsonAsync(hiveAddr, new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
             var hiveLoginResponse = JsonConvert.DeserializeObject<CreateUserResponse>(hiveJsonResponse);
             if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
-                DevLog.Write($"회원가입 실패: {hiveResponse.StatusCode}");
+                DevLog.Write($"회원가입 실패: {hiveLoginResponse.StatusCode}");
                 return;
             }
             DevLog.Write($"회원가입 성공: {textBox_ID.Text}");
@@ -124,8 +122,8 @@ namespace myForm
 
             // Hive 서버에 로그인 요청
             HttpClient hive = new();
-            var hiveResponse = hive.PostAsJsonAsync(serverAddr + hivePort + "/login",
-                                                                     new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
+            var hiveAddr = $"{serverAddr}:{hivePort}/login";
+            var hiveResponse = hive.PostAsJsonAsync(hiveAddr, new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             /*if (hiveResponse.StatusCode != HttpStatusCode.OK)
             {
                 DevLog.Write($"HiveServer 로그인 실패: {hiveResponse.StatusCode}");
@@ -136,7 +134,7 @@ namespace myForm
             var hiveLoginResponse = JsonConvert.DeserializeObject<HiveLoginResponse>(hiveJsonResponse);
             if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
-                DevLog.Write($"로그인 실패: {hiveResponse.StatusCode}");
+                DevLog.Write($"로그인 실패: {hiveLoginResponse.StatusCode}");
                 return;
             }
             var token = hiveLoginResponse.Token;
@@ -144,13 +142,13 @@ namespace myForm
 
             // Game 서버에 로그인 요청
             HttpClient game = new();
-            var gameResponse = game.PostAsJsonAsync(serverAddr + gamePort + "/login",
-                                                                    new { Token = token }).Result;
+            var gameAddr = $"{serverAddr}:{gamePort}/login";
+            var gameResponse = game.PostAsJsonAsync(gameAddr, new { Token = token }).Result;
             var gameJsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
             var gameLoginResponse = JsonConvert.DeserializeObject<GameLoginResponse>(gameJsonResponse);
             if (gameLoginResponse.StatusCode != (short)ErrorCode.None)
             {
-                DevLog.Write($"GameServer 로그인 실패: {gameResponse.StatusCode}");
+                DevLog.Write($"GameServer 로그인 실패: {gameLoginResponse.StatusCode}");
                 return;
             }
 
@@ -229,7 +227,7 @@ namespace myForm
             MatchingResponse matchingResponse = JsonConvert.DeserializeObject<MatchingResponse>(jsonResponse);
             if (matchingResponse.StatusCode != (short)ErrorCode.None)
             {
-                DevLog.Write($"매칭 실패: {gameResponse.StatusCode}");
+                DevLog.Write($"매칭 실패: {matchingResponse.StatusCode}");
                 return;
             }
 
@@ -239,7 +237,7 @@ namespace myForm
             DevLog.Write($"매칭 결과: {roomNumber}, {serverIP}");
 
             textBox_IP.Text = serverIP;
-            textBox_Port.Text = _port;
+            textBox_Port.Text = port;
             textBox_RoomNumber.Text = roomNumber.ToString();
 
             // 소켓 서버에 방 입장 요청
