@@ -8,8 +8,8 @@ public class Room(ServerOption serverOption)
     public const int InvalidRoomNumber = -1;
 
     public RoomStatus Status = RoomStatus.Empty;
-    // public TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.RoomInactivityInMinutes);
-    public TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(30); // Debug용
+    public TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.RoomInactivityInMinutes);
+    // public TimeSpan TimeoutThreshold = TimeSpan.FromSeconds(30); // Debug용
     public TimeSpan LastActivity = DateTime.Now.TimeOfDay;
 
     public int Index { get; private set; }
@@ -199,8 +199,8 @@ public class Room(ServerOption serverOption)
     public void StartOmok()
     {
         omokRule.StartGame();
-        // TimeoutThreshold = TimeSpan.FromMinutes(serverOption.PlayerInactivityInMinutes);
-        TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
+        TimeoutThreshold = TimeSpan.FromMinutes(serverOption.PlayerInactivityInMinutes);
+        // TimeoutThreshold = TimeSpan.FromSeconds(10); // Debug용
         UpdateLastActivity();
         Status = RoomStatus.Playing;
         var packet = new PKTNtfStartOmok

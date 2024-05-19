@@ -43,8 +43,8 @@
             textBox_Port = new TextBox();
             checkBox_useLocalHost = new CheckBox();
             groupBox1 = new GroupBox();
-            groupBox2 = new GroupBox();
             button_Match = new Button();
+            groupBox2 = new GroupBox();
             button_Disconnect = new Button();
             button_Connect = new Button();
             groupBox3 = new GroupBox();
@@ -65,17 +65,17 @@
             // panel1
             // 
             panel1.BackColor = Color.MediumPurple;
-            panel1.Location = new Point(380, 8);
+            panel1.Location = new Point(579, 8);
             panel1.Margin = new Padding(2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(607, 780);
+            panel1.Size = new Size(607, 770);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
             // 
             // label_ID
             // 
             label_ID.AutoSize = true;
-            label_ID.Location = new Point(21, 40);
+            label_ID.Location = new Point(13, 41);
             label_ID.Margin = new Padding(2, 0, 2, 0);
             label_ID.Name = "label_ID";
             label_ID.Size = new Size(19, 15);
@@ -85,7 +85,7 @@
             // label_PW
             // 
             label_PW.AutoSize = true;
-            label_PW.Location = new Point(21, 75);
+            label_PW.Location = new Point(13, 76);
             label_PW.Margin = new Padding(2, 0, 2, 0);
             label_PW.Name = "label_PW";
             label_PW.Size = new Size(25, 15);
@@ -95,42 +95,45 @@
             // label_Token
             // 
             label_Token.AutoSize = true;
-            label_Token.Location = new Point(21, 117);
+            label_Token.Location = new Point(13, 111);
             label_Token.Margin = new Padding(2, 0, 2, 0);
             label_Token.Name = "label_Token";
             label_Token.Size = new Size(39, 15);
             label_Token.TabIndex = 3;
             label_Token.Text = "Token";
+            label_Token.Click += this.label_Token_Click;
             // 
             // textBox_ID
             // 
-            textBox_ID.Location = new Point(83, 38);
+            textBox_ID.Location = new Point(68, 38);
             textBox_ID.Margin = new Padding(2);
             textBox_ID.Name = "textBox_ID";
-            textBox_ID.Size = new Size(157, 23);
+            textBox_ID.Size = new Size(184, 23);
             textBox_ID.TabIndex = 4;
             // 
             // textBox_PW
             // 
-            textBox_PW.Location = new Point(83, 73);
+            textBox_PW.Location = new Point(68, 73);
             textBox_PW.Margin = new Padding(2);
             textBox_PW.Name = "textBox_PW";
-            textBox_PW.Size = new Size(157, 23);
+            textBox_PW.Size = new Size(184, 23);
             textBox_PW.TabIndex = 5;
             // 
             // textBox_Token
             // 
             textBox_Token.BackColor = SystemColors.ButtonFace;
             textBox_Token.Enabled = false;
-            textBox_Token.Location = new Point(83, 115);
+            textBox_Token.Location = new Point(68, 108);
             textBox_Token.Margin = new Padding(2);
             textBox_Token.Name = "textBox_Token";
-            textBox_Token.Size = new Size(157, 23);
+            textBox_Token.ReadOnly = true;
+            textBox_Token.Size = new Size(184, 23);
             textBox_Token.TabIndex = 6;
+            textBox_Token.TextChanged += textBox_Token_TextChanged;
             // 
             // button_Regist
             // 
-            button_Regist.Location = new Point(270, 40);
+            button_Regist.Location = new Point(68, 146);
             button_Regist.Margin = new Padding(2);
             button_Regist.Name = "button_Regist";
             button_Regist.Size = new Size(83, 31);
@@ -141,7 +144,7 @@
             // 
             // button_Login
             // 
-            button_Login.Location = new Point(270, 75);
+            button_Login.Location = new Point(169, 146);
             button_Login.Margin = new Padding(2);
             button_Login.Name = "button_Login";
             button_Login.Size = new Size(83, 31);
@@ -153,7 +156,7 @@
             // label_IP
             // 
             label_IP.AutoSize = true;
-            label_IP.Location = new Point(20, 55);
+            label_IP.Location = new Point(15, 53);
             label_IP.Margin = new Padding(2, 0, 2, 0);
             label_IP.Name = "label_IP";
             label_IP.Size = new Size(17, 15);
@@ -163,16 +166,17 @@
             // textBox_IP
             // 
             textBox_IP.BackColor = SystemColors.ButtonFace;
-            textBox_IP.Location = new Point(82, 53);
+            textBox_IP.Location = new Point(63, 53);
             textBox_IP.Margin = new Padding(2);
             textBox_IP.Name = "textBox_IP";
-            textBox_IP.Size = new Size(161, 23);
+            textBox_IP.ReadOnly = true;
+            textBox_IP.Size = new Size(184, 23);
             textBox_IP.TabIndex = 10;
             // 
             // label_Port
             // 
             label_Port.AutoSize = true;
-            label_Port.Location = new Point(20, 91);
+            label_Port.Location = new Point(15, 89);
             label_Port.Margin = new Padding(2, 0, 2, 0);
             label_Port.Name = "label_Port";
             label_Port.Size = new Size(29, 15);
@@ -182,16 +186,17 @@
             // textBox_Port
             // 
             textBox_Port.BackColor = SystemColors.ButtonFace;
-            textBox_Port.Location = new Point(82, 89);
+            textBox_Port.Location = new Point(63, 86);
             textBox_Port.Margin = new Padding(2);
             textBox_Port.Name = "textBox_Port";
-            textBox_Port.Size = new Size(161, 23);
+            textBox_Port.ReadOnly = true;
+            textBox_Port.Size = new Size(184, 23);
             textBox_Port.TabIndex = 12;
             // 
             // checkBox_useLocalHost
             // 
             checkBox_useLocalHost.AutoSize = true;
-            checkBox_useLocalHost.Location = new Point(82, 26);
+            checkBox_useLocalHost.Location = new Point(145, 20);
             checkBox_useLocalHost.Margin = new Padding(2);
             checkBox_useLocalHost.Name = "checkBox_useLocalHost";
             checkBox_useLocalHost.Size = new Size(102, 19);
@@ -201,59 +206,60 @@
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(button_Match);
             groupBox1.Controls.Add(button_Login);
+            groupBox1.Controls.Add(button_Match);
+            groupBox1.Controls.Add(textBox_Token);
             groupBox1.Controls.Add(button_Regist);
+            groupBox1.Controls.Add(label_Token);
             groupBox1.Controls.Add(label_ID);
             groupBox1.Controls.Add(label_PW);
-            groupBox1.Controls.Add(label_Token);
             groupBox1.Controls.Add(textBox_ID);
             groupBox1.Controls.Add(textBox_PW);
-            groupBox1.Controls.Add(textBox_Token);
-            groupBox1.Location = new Point(6, 8);
+            groupBox1.Location = new Point(6, 11);
             groupBox1.Margin = new Padding(2);
             groupBox1.Name = "groupBox1";
             groupBox1.Padding = new Padding(2);
-            groupBox1.Size = new Size(370, 155);
+            groupBox1.Size = new Size(287, 276);
             groupBox1.TabIndex = 14;
             groupBox1.TabStop = false;
             groupBox1.Text = "Login";
-            // 
-            // groupBox2
-            // 
-            groupBox2.Controls.Add(button_Disconnect);
-            groupBox2.Controls.Add(button_Connect);
-            groupBox2.Controls.Add(checkBox_useLocalHost);
-            groupBox2.Controls.Add(textBox_Port);
-            groupBox2.Controls.Add(label_Port);
-            groupBox2.Controls.Add(textBox_IP);
-            groupBox2.Controls.Add(label_IP);
-            groupBox2.Location = new Point(3, 167);
-            groupBox2.Margin = new Padding(2);
-            groupBox2.Name = "groupBox2";
-            groupBox2.Padding = new Padding(2);
-            groupBox2.Size = new Size(373, 138);
-            groupBox2.TabIndex = 15;
-            groupBox2.TabStop = false;
-            groupBox2.Text = "Server";
             // 
             // button_Match
             // 
             button_Match.BackColor = Color.Gold;
             button_Match.Enabled = false;
-            button_Match.Location = new Point(270, 109);
+            button_Match.Font = new Font("맑은 고딕", 12F, FontStyle.Regular, GraphicsUnit.Point, 129);
+            button_Match.Location = new Point(68, 193);
             button_Match.Margin = new Padding(2, 1, 2, 1);
             button_Match.Name = "button_Match";
-            button_Match.Size = new Size(83, 30);
+            button_Match.Size = new Size(184, 57);
             button_Match.TabIndex = 16;
             button_Match.Text = "매칭";
             button_Match.UseVisualStyleBackColor = false;
             button_Match.Click += button_Match_Click;
             // 
+            // groupBox2
+            // 
+            groupBox2.Controls.Add(button_Disconnect);
+            groupBox2.Controls.Add(checkBox_useLocalHost);
+            groupBox2.Controls.Add(textBox_Port);
+            groupBox2.Controls.Add(button_Connect);
+            groupBox2.Controls.Add(label_Port);
+            groupBox2.Controls.Add(textBox_IP);
+            groupBox2.Controls.Add(label_IP);
+            groupBox2.Location = new Point(297, 11);
+            groupBox2.Margin = new Padding(2);
+            groupBox2.Name = "groupBox2";
+            groupBox2.Padding = new Padding(2);
+            groupBox2.Size = new Size(278, 276);
+            groupBox2.TabIndex = 15;
+            groupBox2.TabStop = false;
+            groupBox2.Text = "Server";
+            // 
             // button_Disconnect
             // 
             button_Disconnect.Enabled = false;
-            button_Disconnect.Location = new Point(273, 84);
+            button_Disconnect.Location = new Point(164, 122);
             button_Disconnect.Margin = new Padding(2);
             button_Disconnect.Name = "button_Disconnect";
             button_Disconnect.Size = new Size(83, 30);
@@ -264,7 +270,7 @@
             // 
             // button_Connect
             // 
-            button_Connect.Location = new Point(273, 49);
+            button_Connect.Location = new Point(63, 122);
             button_Connect.Margin = new Padding(2);
             button_Connect.Name = "button_Connect";
             button_Connect.Size = new Size(83, 31);
@@ -283,11 +289,11 @@
             groupBox3.Controls.Add(textBox_Chat);
             groupBox3.Controls.Add(RoomChatMsg);
             groupBox3.Controls.Add(UserList);
-            groupBox3.Location = new Point(3, 309);
+            groupBox3.Location = new Point(6, 291);
             groupBox3.Margin = new Padding(2);
             groupBox3.Name = "groupBox3";
             groupBox3.Padding = new Padding(2);
-            groupBox3.Size = new Size(373, 276);
+            groupBox3.Size = new Size(569, 254);
             groupBox3.TabIndex = 16;
             groupBox3.TabStop = false;
             groupBox3.Text = "Room";
@@ -295,7 +301,7 @@
             // button_Leave
             // 
             button_Leave.Enabled = false;
-            button_Leave.Location = new Point(136, 22);
+            button_Leave.Location = new Point(452, 26);
             button_Leave.Margin = new Padding(2, 1, 2, 1);
             button_Leave.Name = "button_Leave";
             button_Leave.Size = new Size(107, 30);
@@ -308,7 +314,7 @@
             // 
             button_Ready.BackColor = Color.Gold;
             button_Ready.Enabled = false;
-            button_Ready.Location = new Point(250, 22);
+            button_Ready.Location = new Point(330, 26);
             button_Ready.Margin = new Padding(2, 1, 2, 1);
             button_Ready.Name = "button_Ready";
             button_Ready.Size = new Size(107, 30);
@@ -321,16 +327,17 @@
             // 
             textBox_RoomNumber.BackColor = SystemColors.ButtonFace;
             textBox_RoomNumber.Enabled = false;
-            textBox_RoomNumber.Location = new Point(61, 27);
+            textBox_RoomNumber.Location = new Point(60, 31);
             textBox_RoomNumber.Margin = new Padding(2, 1, 2, 1);
             textBox_RoomNumber.Name = "textBox_RoomNumber";
-            textBox_RoomNumber.Size = new Size(60, 23);
+            textBox_RoomNumber.ReadOnly = true;
+            textBox_RoomNumber.Size = new Size(56, 23);
             textBox_RoomNumber.TabIndex = 5;
             // 
             // label_RoomNumber
             // 
             label_RoomNumber.AutoSize = true;
-            label_RoomNumber.Location = new Point(14, 30);
+            label_RoomNumber.Location = new Point(13, 34);
             label_RoomNumber.Margin = new Padding(2, 0, 2, 0);
             label_RoomNumber.Name = "label_RoomNumber";
             label_RoomNumber.Size = new Size(43, 15);
@@ -340,10 +347,10 @@
             // button_Chat
             // 
             button_Chat.Enabled = false;
-            button_Chat.Location = new Point(317, 237);
+            button_Chat.Location = new Point(497, 210);
             button_Chat.Margin = new Padding(2);
             button_Chat.Name = "button_Chat";
-            button_Chat.Size = new Size(40, 26);
+            button_Chat.Size = new Size(62, 26);
             button_Chat.TabIndex = 3;
             button_Chat.Text = "채팅";
             button_Chat.UseVisualStyleBackColor = true;
@@ -351,10 +358,10 @@
             // 
             // textBox_Chat
             // 
-            textBox_Chat.Location = new Point(14, 240);
+            textBox_Chat.Location = new Point(13, 213);
             textBox_Chat.Margin = new Padding(2);
             textBox_Chat.Name = "textBox_Chat";
-            textBox_Chat.Size = new Size(293, 23);
+            textBox_Chat.Size = new Size(480, 23);
             textBox_Chat.TabIndex = 2;
             textBox_Chat.TextChanged += textBox_Chat_TextChanged;
             // 
@@ -362,40 +369,42 @@
             // 
             RoomChatMsg.FormattingEnabled = true;
             RoomChatMsg.ItemHeight = 15;
-            RoomChatMsg.Location = new Point(92, 62);
+            RoomChatMsg.Location = new Point(125, 67);
             RoomChatMsg.Margin = new Padding(2);
             RoomChatMsg.Name = "RoomChatMsg";
-            RoomChatMsg.Size = new Size(265, 169);
+            RoomChatMsg.Size = new Size(434, 139);
             RoomChatMsg.TabIndex = 1;
             // 
             // UserList
             // 
             UserList.FormattingEnabled = true;
             UserList.ItemHeight = 15;
-            UserList.Location = new Point(14, 62);
+            UserList.Location = new Point(13, 67);
             UserList.Margin = new Padding(2);
             UserList.Name = "UserList";
-            UserList.Size = new Size(74, 169);
+            UserList.Size = new Size(103, 139);
             UserList.TabIndex = 0;
             // 
             // listBox_Log
             // 
             listBox_Log.FormattingEnabled = true;
+            listBox_Log.HorizontalScrollbar = true;
             listBox_Log.ItemHeight = 15;
-            listBox_Log.Location = new Point(6, 589);
+            listBox_Log.Location = new Point(6, 549);
             listBox_Log.Margin = new Padding(2);
+            listBox_Log.MultiColumn = true;
             listBox_Log.Name = "listBox_Log";
-            listBox_Log.Size = new Size(370, 199);
+            listBox_Log.Size = new Size(569, 229);
             listBox_Log.TabIndex = 17;
             // 
             // mainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(997, 797);
+            ClientSize = new Size(1195, 787);
+            Controls.Add(groupBox2);
             Controls.Add(listBox_Log);
             Controls.Add(groupBox3);
-            Controls.Add(groupBox2);
             Controls.Add(panel1);
             Controls.Add(groupBox1);
             Margin = new Padding(2);

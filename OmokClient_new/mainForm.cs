@@ -130,7 +130,7 @@ namespace myForm
                 return;
             }*/
 
-            var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result; 
+            var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
             var hiveLoginResponse = JsonConvert.DeserializeObject<HiveLoginResponse>(hiveJsonResponse);
             if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
@@ -523,6 +523,11 @@ namespace myForm
             PostSendPacket(PacketID.ReqPutMok, packet);
 
             DevLog.Write($"put stone 요청 : x  [ {x} ], y: [ {y} ] ");
+        }
+
+        private void textBox_Token_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

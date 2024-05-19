@@ -17,7 +17,6 @@ public class UserManager(ServerOption serverOption)
     List<User> Users = [];
     Timer UserStatusCheckTimer;
     TimerCallback UserStatusCheckTimerCallback;
-    // TimeSpan TimeoutThreshold = TimeSpan.FromMinutes(serverOption.UserInactivityInMinutes);
 
     public Func<string, byte[], bool> SendData;
     public Action<RequestInfo> DistributeInnerPacket;
