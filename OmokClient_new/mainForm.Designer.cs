@@ -71,6 +71,8 @@ namespace myForm
             panel1.Size = new Size(607, 770);
             panel1.TabIndex = 0;
             panel1.Paint += panel1_Paint;
+            panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(panel1_MouseDown);
+            panel1.MouseMove += new System.Windows.Forms.MouseEventHandler(panel1_MouseMove);
             // 
             // label_ID
             // 
@@ -408,8 +410,8 @@ namespace myForm
             Margin = new Padding(2);
             Name = "mainForm";
             Text = "Purple Omok :)";
-            FormClosing += mainForm_FormClosing;
-            Load += mainForm_Load;
+            FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.mainForm_FormClosing);
+            Load += new System.EventHandler(this.mainForm_Load);
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             groupBox2.ResumeLayout(false);
