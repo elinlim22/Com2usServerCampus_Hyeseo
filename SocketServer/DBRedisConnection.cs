@@ -26,7 +26,7 @@ public class DBRedisConnection
     {
         _serverOption = serverOption;
         var redisString = connStr.RedisConnection;
-        redisString = redisString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
+        redisString = redisString.Replace("{serverIP}", Environment.GetEnvironmentVariable("SERVER_IP"));
         redisString = redisString.Replace("{redisPort}", Environment.GetEnvironmentVariable("REDIS_PORT"));
         redisString = redisString.Replace("{redisPassword}", Environment.GetEnvironmentVariable("REDIS_PASSWORD"));
 

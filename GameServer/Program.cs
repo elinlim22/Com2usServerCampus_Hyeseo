@@ -3,7 +3,9 @@ using ZLogger;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var serverAddress = builder.Configuration.GetValue<string>("ServerAddress").Replace("{listenAddr}", Environment.GetEnvironmentVariable("LISTEN_ADDR"));
+var listenAddress = builder.Configuration.GetValue<string>("ListenAddress");
+listenAddress = listenAddress.Replace("{listenIP}", Environment.GetEnvironmentVariable("LISTEN_IP"));
+listenAddress = listenAddress.Replace("{serverPort}", Environment.GetEnvironmentVariable("SERVER_PORT"));
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -29,4 +31,4 @@ if (app.Environment.IsDevelopment())
 app.MapControllers();
 
 //app.Run();
-app.Run(serverAddress);
+app.Run(listenAddress);

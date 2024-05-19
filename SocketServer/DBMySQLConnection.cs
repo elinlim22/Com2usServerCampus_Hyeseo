@@ -28,7 +28,7 @@ public class DBMySQLConnection
 
         var toReplace = connStr.MySQLConnection;
         _connectionString = toReplace.Replace("{myPassword}", Environment.GetEnvironmentVariable("MYSQL_PASSWORD"));
-        _connectionString = _connectionString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
+        _connectionString = _connectionString.Replace("{serverIP}", Environment.GetEnvironmentVariable("SERVER_IP"));
         _connectionString = _connectionString.Replace("{mySQLPort}", Environment.GetEnvironmentVariable("MYSQL_PORT"));
 
         RegistPacketHandler();
