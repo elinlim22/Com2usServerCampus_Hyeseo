@@ -28,6 +28,7 @@ public class DBRedisConnection
         var redisString = connStr.RedisConnection;
         redisString = redisString.Replace("{serverAddr}", Environment.GetEnvironmentVariable("SERVER_ADDR"));
         redisString = redisString.Replace("{redisPort}", Environment.GetEnvironmentVariable("REDIS_PORT"));
+        redisString = redisString.Replace("{redisPassword}", Environment.GetEnvironmentVariable("REDIS_PASSWORD"));
 
         _redisConfig = new RedisConfig("MemoryDB", redisString);
 
