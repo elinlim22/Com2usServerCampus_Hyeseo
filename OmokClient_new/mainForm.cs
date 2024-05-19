@@ -97,7 +97,9 @@ namespace myForm
             HttpClient client = new();
             var hiveResponse = client.PostAsJsonAsync(serverAddr + hivePort + "/createuser",
                                                       new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
-            if (hiveResponse.StatusCode != HttpStatusCode.OK)
+            var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
+            var hiveLoginResponse = JsonConvert.DeserializeObject<CreateUserResponse>(hiveJsonResponse);
+            if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
                 DevLog.Write($"회원가입 실패: {hiveResponse.StatusCode}");
                 return;
@@ -124,15 +126,15 @@ namespace myForm
             HttpClient hive = new();
             var hiveResponse = hive.PostAsJsonAsync(serverAddr + hivePort + "/login",
                                                                      new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
-            if (hiveResponse.StatusCode != HttpStatusCode.OK)
+            /*if (hiveResponse.StatusCode != HttpStatusCode.OK)
             {
                 DevLog.Write($"HiveServer 로그인 실패: {hiveResponse.StatusCode}");
                 return;
-            }
+            }*/
 
             var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result; 
-            var hiveLoginResponse = JsonConvert.DeserializeObject<LoginResponse>(hiveJsonResponse);
-            if (hiveLoginResponse == null)
+            var hiveLoginResponse = JsonConvert.DeserializeObject<HiveLoginResponse>(hiveJsonResponse);
+            if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
                 DevLog.Write($"로그인 실패: {hiveResponse.StatusCode}");
                 return;
@@ -144,7 +146,9 @@ namespace myForm
             HttpClient game = new();
             var gameResponse = game.PostAsJsonAsync(serverAddr + gamePort + "/login",
                                                                     new { Token = token }).Result;
-            if (gameResponse.StatusCode != HttpStatusCode.OK)
+            var gameJsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
+            var gameLoginResponse = JsonConvert.DeserializeObject<GameLoginResponse>(gameJsonResponse);
+            if (gameLoginResponse.StatusCode != (short)ErrorCode.None)
             {
                 DevLog.Write($"GameServer 로그인 실패: {gameResponse.StatusCode}");
                 return;
@@ -223,7 +227,7 @@ namespace myForm
 
             string jsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
             MatchingResponse matchingResponse = JsonConvert.DeserializeObject<MatchingResponse>(jsonResponse);
-            if (matchingResponse == null)
+            if (matchingResponse.StatusCode != (short)ErrorCode.None)
             {
                 DevLog.Write($"매칭 실패: {gameResponse.StatusCode}");
                 return;

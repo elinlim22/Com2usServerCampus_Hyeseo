@@ -1,4 +1,4 @@
-﻿using MemoryPack;
+using MemoryPack;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -45,9 +45,22 @@ namespace CSCommon
     }
 
     [MemoryPackable]
-    public partial class LoginResponse : PacketHeader // Hive서버로부터 받는 로그인 응답
+    public partial class CreateUserResponse : PacketHeader
     {
-        public short Result;
+        public short StatusCode;
+    }
+
+    [MemoryPackable]
+    public partial class GameLoginResponse : PacketHeader
+    {
+        public short StatusCode;
+    }
+
+    [MemoryPackable]
+    public partial class HiveLoginResponse : PacketHeader // Hive서버로부터 받는 로그인 응답
+    {
+        public short StatusCode;
+        public string Email;
         public string Token;
     }
 
@@ -158,6 +171,7 @@ namespace CSCommon
     [MemoryPackable]
     public partial class MatchingResponse : PacketHeader
     {
+        public short StatusCode;
         public int RoomNumber;
         public string ServerIP;
     }

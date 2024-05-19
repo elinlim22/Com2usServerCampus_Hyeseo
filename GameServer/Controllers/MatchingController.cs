@@ -27,13 +27,29 @@ namespace GameServer.Controllers
         [HttpGet]
         public async Task<MatchingResponse> Get()
         {
-            var response = new MatchingResponse
+            try
             {
-                RoomNumber = await _memoryDB.MatchRoomId(),
-                ServerIP = _configuration["ServerIP"]
-            };
-            _logger.ZLogDebug($"Matched room number {response.RoomNumber}");
-            return response;
+                var roomNumber = await _memoryDB.MatchRoomId();
+
+                var response = new MatchingResponse
+                {
+                    StatusCode = (short)ErrorCode.Success,
+                    RoomNumber = roomNumber,
+                    ServerIP = _configuration["ServerIP"]
+                };
+                _logger.ZLogDebug($"Matched room number {response.RoomNumber}");
+                return response;
+            }
+            catch (Exception e)
+            {
+                _logger.ZLogError($"Error matching room: {e.Message}");
+                return new MatchingResponse
+                {
+                    StatusCode = (short)ErrorCode.RoomMatchingFailed,
+                    RoomNumber = -1,
+                    ServerIP = ""
+                };
+            }
         }
     }
 }

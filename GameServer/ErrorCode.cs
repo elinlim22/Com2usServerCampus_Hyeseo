@@ -4,5 +4,6 @@ public enum ErrorCode : UInt16
 	InvalidToken,
 	HiveServerError,
 	HiveServerNotResponding,
-	UserCreationFailed
+	UserCreationFailed,
+    RoomMatchingFailed
 }
