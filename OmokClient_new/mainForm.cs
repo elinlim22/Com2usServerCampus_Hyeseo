@@ -272,6 +272,8 @@ namespace myForm
 
             PostSendPacket(PacketID.ReqRoomChat, MemoryPackSerializer.Serialize(requestPkt));
             DevLog.Write($"방 채팅 요청");
+
+            textBox_Chat.Text = "";
         }
         private void textBox_Chat_TextChanged(object sender, EventArgs e)
         {
