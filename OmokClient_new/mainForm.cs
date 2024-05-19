@@ -13,6 +13,7 @@ using System.Windows.Forms;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 #pragma warning disable CA1416
 
@@ -96,6 +97,13 @@ namespace myForm
             var hiveAddr = $"{serverAddr}:{hivePort}/createuser";
             var hiveResponse = client.PostAsJsonAsync(hiveAddr, new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
             var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
+            if (hiveJsonResponse.Contains("errors"))
+            {
+                var json = JObject.Parse(hiveJsonResponse);
+                string errorMessage = json["errors"]?.ToString();
+                DevLog.Write($"회원가입 실패: {errorMessage.Replace("\r\n","")}");
+                return;
+            }
             var hiveLoginResponse = JsonConvert.DeserializeObject<CreateUserResponse>(hiveJsonResponse);
             if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
@@ -127,6 +135,13 @@ namespace myForm
             var hiveResponse = hive.PostAsJsonAsync(hiveAddr, new { Email = textBox_ID.Text, Password = textBox_PW.Text }).Result;
 
             var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
+            if (hiveJsonResponse.Contains("errors"))
+            {
+                var json = JObject.Parse(hiveJsonResponse);
+                string errorMessage = json["errors"]?.ToString();
+                DevLog.Write($"회원가입 실패: {errorMessage.Replace("\r\n","")}");
+                return;
+            }
             var hiveLoginResponse = JsonConvert.DeserializeObject<HiveLoginResponse>(hiveJsonResponse);
             if (hiveLoginResponse.StatusCode != (short)ErrorCode.None)
             {
@@ -142,6 +157,13 @@ namespace myForm
             var gameResponse = game.PostAsJsonAsync(gameAddr, new { Email = textBox_ID.Text, Token = token }).Result;
 
             var gameJsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
+            if (gameJsonResponse.Contains("errors"))
+            {
+                var json = JObject.Parse(gameJsonResponse);
+                string errorMessage = json["errors"]?.ToString();
+                DevLog.Write($"회원가입 실패: {errorMessage.Replace("\r\n","")}");
+                return;
+            }
             var gameLoginResponse = JsonConvert.DeserializeObject<GameLoginResponse>(gameJsonResponse);
             if (gameLoginResponse.StatusCode != (short)ErrorCode.None)
             {
@@ -224,6 +246,13 @@ namespace myForm
             var gameResponse = client.GetAsync(gameAddr).Result;
 
             string jsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
+            if (jsonResponse.Contains("errors"))
+            {
+                var json = JObject.Parse(jsonResponse);
+                string errorMessage = json["errors"]?.ToString();
+                DevLog.Write($"회원가입 실패: {errorMessage.Replace("\r\n","")}");
+                return;
+            }
             MatchingResponse matchingResponse = JsonConvert.DeserializeObject<MatchingResponse>(jsonResponse);
             if (matchingResponse.StatusCode != (short)ErrorCode.None)
             {
