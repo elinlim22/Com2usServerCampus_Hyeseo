@@ -35,7 +35,6 @@ public class CreateUserController : ControllerBase
                 throw new Exception("Invalid model state");
             }
             var saltValue = Security.GenerateSalt();
-            _logger.ZLogInformation($"Generated Salt for {_user.Email}: {saltValue}");
             var user = new User
 			{
 				Email = _user.Email,

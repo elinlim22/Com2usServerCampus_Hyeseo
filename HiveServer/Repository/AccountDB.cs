@@ -28,6 +28,7 @@ public class AccountDB : IAccountDB
 		{
 			Email = user.Email,
 			Password = user.Password,
+            Salt = user.Salt,
 			Token = user.Token
 		});
 		if (affectedRows == 0)
