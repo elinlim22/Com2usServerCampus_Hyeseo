@@ -3,6 +3,7 @@ using GameServer.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using ZLogger;
+using Newtonsoft.Json;
 
 namespace GameServer.Controllers;
 
@@ -36,12 +37,15 @@ public class LoginController : ControllerBase
 			_logger.ZLogError($"HiveServer is not responding : {hiveAddr}");
 			return new LoginResponse(ErrorCode.HiveServerNotResponding);
 		}
-		if (hiveResponse.StatusCode != HttpStatusCode.OK)
-		{
-			_logger.ZLogError($"HiveServer returned status code {hiveResponse.StatusCode}");
-			return new LoginResponse(ErrorCode.HiveServerError);
-		}
-		var user = _gameDB.GetUser(request.Email);
+        var hiveJsonResponse = hiveResponse.Content.ReadAsStringAsync().Result;
+        var hiveLoginResponse = JsonConvert.DeserializeObject<AuthUserResponse>(hiveJsonResponse);
+        if (hiveLoginResponse.StatusCode != (short)ErrorCode.Success)
+        {
+            _logger.ZLogError($"HiveServer returned status code {hiveLoginResponse.StatusCode}");
+            return new LoginResponse(ErrorCode.HiveServerError);
+        }
+
+        var user = _gameDB.GetUser(request.Email);
 		if (user == null)
 		{
 			try
