@@ -35,7 +35,7 @@ namespace GameServer.Controllers
                 {
                     StatusCode = (short)ErrorCode.Success,
                     RoomNumber = roomNumber,
-                    ServerIP = _configuration["ServerIP"]
+                    ServerIP = _configuration["ServerAddress"].Replace("{listenAddr}", Environment.GetEnvironmentVariable("LISTEN_ADDR"))
                 };
                 _logger.ZLogDebug($"Matched room number {response.RoomNumber}");
                 return response;

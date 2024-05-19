@@ -128,7 +128,6 @@ namespace myForm
 
         void LoginOK()
         {
-            SetTimer();
             textBox_PW.Text = "";
             // 로그인 성공 시 버튼 비활성화
             button_Login.Enabled = false;

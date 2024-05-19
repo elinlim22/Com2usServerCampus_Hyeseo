@@ -143,9 +143,8 @@ namespace myForm
             // Game 서버에 로그인 요청
             HttpClient game = new();
             var gameAddr = $"{serverAddr}:{gamePort}/login";
-            var gameResponse = game.PostAsJsonAsync(gameAddr, new { Token = token }).Result;
+            var gameResponse = game.PostAsJsonAsync(gameAddr, new { Email = textBox_ID.Text, Token = token }).Result;
             var gameJsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
-            Console.WriteLine(gameJsonResponse);
             var gameLoginResponse = JsonConvert.DeserializeObject<GameLoginResponse>(gameJsonResponse);
             if (gameLoginResponse.StatusCode != (short)ErrorCode.None)
             {
@@ -222,7 +221,8 @@ namespace myForm
         {
             // 게임 서버에 매칭 요청
             HttpClient client = new();
-            var gameResponse = client.GetAsync(serverAddr + gamePort + "/matching").Result;
+            var gameAddr = $"{serverAddr}:{gamePort}/matching";
+            var gameResponse = client.GetAsync(gameAddr).Result;
 
             string jsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
             MatchingResponse matchingResponse = JsonConvert.DeserializeObject<MatchingResponse>(jsonResponse);
@@ -240,6 +240,16 @@ namespace myForm
             textBox_IP.Text = serverIP;
             textBox_Port.Text = port;
             textBox_RoomNumber.Text = roomNumber.ToString();
+
+
+            // 소켓서버에 연결
+            if (Network.Connect(textBox_IP.Text, Convert.ToInt32(textBox_Port.Text)) == false)
+            {
+                DevLog.Write("소켓 서버 연결 실패", LOG_LEVEL.ERROR);
+                return;
+            }
+            SetTimer();
+
 
             // 소켓 서버에 방 입장 요청
             var sendPacket = new EnterRoomRequest { RoomNum = roomNumber };
