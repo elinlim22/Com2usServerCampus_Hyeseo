@@ -79,7 +79,6 @@ public class PacketHandlerRoom : PacketHandler
             if (user == null || user.IsConfirm(sessionID) == false)
             {
                 ResponseEnterRoomToClient(ErrorCode.InvalidUser, sessionID);
-                Console.WriteLine("Invalid User");
                 return;
             }
 
@@ -88,10 +87,9 @@ public class PacketHandlerRoom : PacketHandler
             if (room == null)
             {
                 ResponseEnterRoomToClient(ErrorCode.InvalidRoomNumber, sessionID);
-                Console.WriteLine("Invalid Room Number");
                 return;
             }
-
+            Console.WriteLine($"현재 세션 유저 아이디: {user.ID()}");
             if (room.AddUser(user.ID(), sessionID) == false)
             {
                 ResponseEnterRoomToClient(ErrorCode.RoomEnterFailed, sessionID);
