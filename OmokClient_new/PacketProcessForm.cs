@@ -139,7 +139,16 @@ namespace myForm
         {
             var responsePkt = MemoryPackSerializer.Deserialize<LoginResponseSocketServer>(packetData);
             DevLog.Write($"SocketServer 로그인 결과: {(ErrorCode)responsePkt.Result}");
-            LoginOK();
+
+            if (responsePkt.Result == (int)ErrorCode.None)
+            {
+                var roomNumber = int.Parse(textBox_RoomNumber.Text);
+
+                // 소켓 서버 로그인에 성공하면, 소켓 서버에 방 입장 요청
+                var sendPacket = new EnterRoomRequest { RoomNum = roomNumber };
+                var sendBytes = MemoryPackSerializer.Serialize(sendPacket);
+                PostSendPacket(PacketID.ReqRoomEnter, sendBytes);
+            }
         }
 
         void PacketProcess_RoomEnterResponse(byte[] packetData)

@@ -249,11 +249,14 @@ namespace myForm
             }
             SetTimer();
 
-
-            // 소켓 서버에 방 입장 요청
-            var sendPacket = new EnterRoomRequest { RoomNum = roomNumber };
-            var sendBytes = MemoryPackSerializer.Serialize(sendPacket);
-            PostSendPacket(PacketID.ReqRoomEnter, sendBytes);
+            // 소켓 서버에 로그인 요청
+            var loginPacket = new LoginRequest
+            {
+                UserId = textBox_ID.Text,
+                Token = textBox_Token.Text
+            };
+            var loginBytes = MemoryPackSerializer.Serialize(loginPacket);
+            PostSendPacket(PacketID.ReqLogin, loginBytes);
         }
 
         private void button_Chat_Click(object sender, EventArgs e)
