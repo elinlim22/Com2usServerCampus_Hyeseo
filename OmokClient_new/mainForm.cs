@@ -145,6 +145,7 @@ namespace myForm
             var gameAddr = $"{serverAddr}:{gamePort}/login";
             var gameResponse = game.PostAsJsonAsync(gameAddr, new { Token = token }).Result;
             var gameJsonResponse = gameResponse.Content.ReadAsStringAsync().Result;
+            Console.WriteLine(gameJsonResponse);
             var gameLoginResponse = JsonConvert.DeserializeObject<GameLoginResponse>(gameJsonResponse);
             if (gameLoginResponse.StatusCode != (short)ErrorCode.None)
             {
