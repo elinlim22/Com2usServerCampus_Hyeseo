@@ -58,6 +58,7 @@ public class PacketHandlerCommon(ServerOption serverOption) : PacketHandler
         {
             var reqData = MemoryPackSerializer.Deserialize<LoginRequest>(packetData.Data);
             // 로그인 요청 시, Redis에서 Validation을 체크하도록 패킷을 보낸다.
+            MainServer.MainLogger.Debug($"로그인 요청. UserId:{reqData.UserId}, Token:{reqData.Token}");
             var innerPacket = PacketMaker.MakeValidateUserTokenRequest(reqData.UserId, sessionID, reqData.Token);
             DistributeRedisPacket(innerPacket);
             // Redis로부터 ValidationUserTokenResponse 패킷을 받으면, LoginResponse 함수가 호출된다.

@@ -147,11 +147,12 @@ public class PacketMaker
         return newInnerPacket;
     }
 
-    public static RequestInfo MakeValidateUserTokenResponse(short result, string sessionId)
+    public static RequestInfo MakeValidateUserTokenResponse(string userId, short result, string sessionId)
     {
         var innerPacket = new ValidateUserTokenResponse()
         {
-            Result = result
+            Result = result,
+            UserId = userId
         };
 
         var sendData = MemoryPackSerializer.Serialize(innerPacket);

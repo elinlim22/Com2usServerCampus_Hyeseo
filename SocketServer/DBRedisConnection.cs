@@ -100,7 +100,7 @@ public class DBRedisConnection
         {
             errorCode = (short)ErrorCode.Success;
         }
-        var innerPacket = PacketMaker.MakeValidateUserTokenResponse(errorCode, sessionId);
+        var innerPacket = PacketMaker.MakeValidateUserTokenResponse(reqData.UserId, errorCode, sessionId);
         DistributeInnerPacket(innerPacket);
     }
 }
