@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var listenAddress = builder.Configuration.GetValue<string>("ListenAddress");
 listenAddress = listenAddress.Replace("{listenIP}", Environment.GetEnvironmentVariable("LISTEN_IP"));
-listenAddress = listenAddress.Replace("{serverPort}", Environment.GetEnvironmentVariable("SERVER_PORT"));
+listenAddress = listenAddress.Replace("{hivePort}", Environment.GetEnvironmentVariable("HIVE_PORT"));
 
 builder.Services.AddControllers();
 
