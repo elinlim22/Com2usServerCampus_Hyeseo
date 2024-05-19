@@ -146,6 +146,17 @@ namespace myForm
         {
             var responsePkt = MemoryPackSerializer.Deserialize<EnterRoomResult>(packetData);
             DevLog.Write($"방 입장 결과:  {(ErrorCode)responsePkt.Result}");
+
+            if (responsePkt.Result == (int)ErrorCode.None)
+            {
+                button_Match.Enabled = false;
+                button_Connect.Enabled = false;
+
+                button_Disconnect.Enabled = true;
+                button_Leave.Enabled = true;
+                button_Ready.Enabled = true;
+                button_Chat.Enabled = true;
+            }
         }
 
         void PacketProcess_RoomUserListNotify(byte[] packetData)

@@ -74,10 +74,12 @@ public class PacketHandlerRoom : PacketHandler
         try
         {
             var user = _userMgr.GetUser(sessionID);
+            Console.WriteLine($"sessionID: {sessionID}");
 
             if (user == null || user.IsConfirm(sessionID) == false)
             {
                 ResponseEnterRoomToClient(ErrorCode.InvalidUser, sessionID);
+                Console.WriteLine("Invalid User");
                 return;
             }
 
@@ -86,6 +88,7 @@ public class PacketHandlerRoom : PacketHandler
             if (room == null)
             {
                 ResponseEnterRoomToClient(ErrorCode.InvalidRoomNumber, sessionID);
+                Console.WriteLine("Invalid Room Number");
                 return;
             }
 

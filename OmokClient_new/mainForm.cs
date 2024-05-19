@@ -254,14 +254,6 @@ namespace myForm
             var sendPacket = new EnterRoomRequest { RoomNum = roomNumber };
             var sendBytes = MemoryPackSerializer.Serialize(sendPacket);
             PostSendPacket(PacketID.ReqRoomEnter, sendBytes);
-
-            button_Match.Enabled = false;
-            button_Connect.Enabled = false;
-
-            button_Disconnect.Enabled = true;
-            button_Leave.Enabled = true;
-            button_Ready.Enabled = true;
-            button_Chat.Enabled = true;
         }
 
         private void button_Chat_Click(object sender, EventArgs e)
