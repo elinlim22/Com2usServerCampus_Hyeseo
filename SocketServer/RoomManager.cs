@@ -23,6 +23,7 @@ class RoomManager(ServerOption serverOption)
             var roomNumber = (startNumber + i);
             var room = new Room(serverOption);
             room.Init(i, roomNumber, serverOption.MaxUserPerRoom);
+            room.DistributeMySQLPacket = DistributeMySQLPacket;
 
             _roomsList.Add(room);
         }
