@@ -30,6 +30,12 @@ public class CreateUserController : ControllerBase
         _logger.ZLogInformation($"Creating user {_user.Email}");
 		try
 		{
+            var ifExists = await _accountDB.GetUser(_user.Email);
+            if (ifExists != null)
+            {
+                _logger.ZLogError($"User {_user.Email} already exists");
+                return new CreateUserResponse(ErrorCode.UserAlreadyExists);
+            }
             if (ModelState.IsValid == false)
             {
                 throw new Exception("Invalid model state");

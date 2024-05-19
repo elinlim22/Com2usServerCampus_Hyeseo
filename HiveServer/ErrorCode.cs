@@ -5,5 +5,6 @@ public enum ErrorCode : UInt16
 	InvalidPassword,
 	HiveServerError,
 	UserNotFound,
-	UserCreationFailed
+	UserCreationFailed,
+    UserAlreadyExists,
 }
